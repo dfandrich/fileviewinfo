@@ -1,0 +1,346 @@
+#!/bin/sh
+# autodescribe - automatically extract comments from files
+# $Id: autodescribe,v 1.2 1998/06/08 16:15:42 dan Exp $
+#
+# $Log: autodescribe,v $
+# Revision 1.2  1998/06/08 16:15:42  dan
+# Added RPM file type.
+#
+# 97-03-15 Dan Fandrich
+# 95-12-05 Dan Fandrich
+
+# Program to run for each description
+DESCRIBE="describe --"
+
+# Non-null for old version of unzip (some time before 5.12)
+#OLDUNZIP=1
+
+# Get comment from a compressed tar file
+# Comment is taken from a man page file with name *.[0-9]
+# or from a Linux Software Map entry
+# BUG: tar will often create empty directories, or directories containing
+# symbolic links matching *.[0-9] at least with GNU tar 1.11.2
+# BUG: tar will extract all files if path ends in a number, e.g. playmidi-2.3/foo
+comment_tgz () {
+	COMMENT=`tar -xOkzf $f \*.man \*.\[0-9\] 2>/dev/null | grep -A 1 '^.SH NAME' | tail -1 | \
+		sed 's/^.* \\\\- //'`
+	if [ "$COMMENT" = "" ] ; then
+		COMMENT=`tar -xOkzf $f \*.lsm 2>/dev/null | sed -n 's/^Title: *//p'`
+	fi
+}
+
+# Get comment from a .lzh file
+# Comment must be stored as one line in a file called 'desc.sdi'
+comment_lzh () {
+	COMMENT=`lha pq $f desc.sdi | tr '\n' ' '`
+}
+
+# Get comment from a .zip file
+comment_zip () {
+if [ "$OLDUNZIP" = "" ] ; then
+	if [ `unzip -z $f dummy-file-to-eliminate-output | \
+	   wc -l` -gt 1 ] ; then
+		COMMENT=`unzip -z $f dummy-file-to-eliminate-output | \
+		head -2 | tail -1`
+
+	elif unzip -vqq $f desc.sdi > /dev/null ; then
+		COMMENT=`unzip -caq $f desc.sdi`
+	fi
+
+else
+# old unzip
+
+	if unzip -v $f dummy-file-to-eliminate-output | \
+	   grep '^\[.*\] comment:' > /dev/null ; then
+# file has comment
+		COMMENT=`unzip -v $f dummy-file-to-eliminate-output | \
+		head -2 | tail -1`
+	elif unzip -vqq $f desc.sdi > /dev/null ; then
+		COMMENT=`unzip -caq $f desc.sdi`
+	fi
+fi
+}
+
+# Get comment from a .zoo file
+comment_zoo () {
+	COMMENT=`zoo vc $f dummy-file-to-eliminate-output | \
+		sed -n -e 's/^>> //p' | tr '\n' ' '`
+	if [ "$COMMENT" = "" ] && zoo vq $f desc.sdi > /dev/null ; then
+		COMMENT=`zoo xpq $f desc.sdi`
+	fi
+}
+
+# Get comment from an RPM package
+comment_rpm () {
+	COMMENT=`rpm -qp --queryformat '%{SUMMARY}' $f`
+}
+
+# Get comment from a PostScript file
+comment_ps () {
+	COMMENT=`sed -n 's/^%%Title: *//p' $f | head -1`
+	if [ "$COMMENT" = "" ] ; then
+# Try for an alternate comment
+# Look for a comment beginning with one or more % followed by a space
+		COMMENT=`sed -n 's/^%%*  *//p' $f | head -1`
+	fi
+}
+
+# Get comment from a PostScript font file
+comment_psfont () {
+	COMMENT=`sed -n 's/^\/FullName[ 	]*(\(.*\)).*$/\1/p'  $f | head -1`
+	if [ "$COMMENT" = "" ] ; then
+# Try for an alternate comment
+		COMMENT=`sed -n 's/^\/FontName[ 	]*\/\([^ 	]*\).*$/\1/p' $f | head -1`
+	fi
+}
+
+# Get comment from a news or mail file
+comment_subject () {
+	COMMENT=`sed -n 's/^Subject: *//p' $f | head -1`
+	if [ "$COMMENT" = "" ] ; then
+# Try for an alternate comment
+		COMMENT=`sed -n 's/^Content-Description: *//p' $f | head -1`
+	fi
+}
+
+# Get comment from a TIFF image
+comment_tiff () {
+	COMMENT=`tiffdump $f | grep -A1 '\[ImageDescription ' | tail -1`
+	if [ "$COMMENT" = "" ] ; then
+# Try for an alternate comment
+		COMMENT=`tiffdump $f | grep -A1 '\[DocumentName ' | tail -1`
+	elif [ "$COMMENT" = "" ] ; then
+# Try for an alternate comment
+		COMMENT=`tiffdump $f | grep -A1 '\[Artist ' | tail -1`
+	fi
+}
+
+# Get comment from C source file
+comment_c () {
+	COMMENT=`sed -n '/\/\*/,/\*\//{
+			/\/\*/s/^.*\/\*[ 	]*//
+			s/^[ 	]*//
+			s/[ 	]*$//
+			p 
+			}' $f | head -3 | tr '\n' ' '`
+}
+
+# Get comment from Pascal source file
+comment_pascal () {
+	COMMENT=`sed -n '/(\*/,/\*)/{
+			/(\*/s/^.*(\*//
+			s/^[ 	]*//
+			s/[ 	]*$//
+			p 
+			}' $f | head -3 | tr '\n' ' '`
+}
+
+# Get comment from an assembly language file
+comment_asm () {
+	COMMENT=`sed -n 's/^[ 	]*title[ 	]*//p' $f`
+}
+
+# Get comment from a GIF image
+comment_gif () {
+	COMMENT=`giftext $f | sed -n 's/^	Image Size - Left = [0-9]*, Top = [0-9]*, *//p' | head -1`
+}
+
+# Get comment from a JPEG JFIF image
+comment_jpeg () {
+	COMMENT=`djpeg -verbose -fast -scale 1/8 -grayscale $f 2>&1 | grep -A1 '^Comment, length' | head -2 | tail -1`
+}
+
+# Get comment from the first nonblank line of a text file
+comment_first_line () {
+	(
+		while read line ; do
+			COMMENT=`echo $line | sed -n '1s/^ *//p'`
+			if [ "$COMMENT" != "" ] ; then
+				break
+			fi
+		done
+		echo $COMMENT
+	) < $f >/tmp/autodesc.$$
+# Unfortunately, read can't read from a pipe
+	read COMMENT </tmp/autodesc.$$
+	rm -f /tmp/autodesc.$$
+}
+
+# Get comment from a shell script file
+comment_sh () {
+	# delete #!/bin/sh line and blank comment lines
+	# comment must be in the first 10 lines of the file
+	COMMENT=`sed -n -e '10,$d' -e '/^#\!/d' -e '/^#* *$/d' -e 's/^# *//p' $f | head -1`
+}
+
+# Get comment from a Python source file
+comment_py () {
+	# delete #!/bin/sh line and blank comment lines
+	# comment must be in the first 10 lines of the file
+	COMMENT=`sed -n -e '10,$d' -e '/^#\!/d' -e '/^#* *$/d' -e 's/^# *//p' -e "s/^''' *//p" $f | head -1`
+}
+
+# Get comment from the first line of a text file
+comment_html () {
+	COMMENT=`sed -n '/<TITLE>/s/<[^>]*>//gp' $f`
+}
+
+# Get comment from an XBM image
+# Could extract image size here as well
+comment_xbm () {
+	COMMENT=`sed -n 's/^.* \(.*\)_bits.*$/\1/p' $f`
+}
+
+# Get comment from an XPM image
+# Could extract image size here as well
+comment_xpm () {
+	COMMENT=`sed -n 's/^.* \(.*\)_xpm.*$/\1/p' $f`
+}
+
+# Get comment from a pnm image
+comment_pbm () {
+	COMMENT=`pnmfile $f | sed -n 's/^.*:	//p'`
+}
+
+
+###########################
+
+if [ $# -eq 0 ] ; then
+	echo 'Usage: autodescribe [ -q ] [ -t type ] file1 [ file2 ... ]'
+	echo 'Extracts comments from files'
+	echo '  -q       quiet output'
+	echo '  -t type  where type is one of the following:'
+	echo '             asm (assembly language source)'
+	echo '             c (C source code)'
+	echo '             first_line (first line of text file)'
+	echo '             gif (GIF image)'
+	echo '             html (HTML text)'
+	echo '             jpeg (JPEG JFIF image)'
+	echo '             lzh (lzh/lha archive with desc.sdi comment)'
+	echo '             pascal (Pascal source code)'
+	echo '             ps (PostScript source code)'
+	echo '             py (Python source code)'
+	echo '             psfont (PostScript font)'
+	echo '             pbm (pbm/pgm/ppm Portable Bitmap)'
+	echo '             rpm (rpm package)'
+	echo '             sh (shell script)'
+	echo '             subject (news article or mail file)'
+	echo '             tgz (compressed tar archive)'
+	echo '             tiff (TIFF image)'
+	echo '             xbm (X bitmap)'
+	echo '             xpm (X pixmap)'
+	echo '             zip (zip archive)'
+	echo '             zoo (zoo archive)'
+	exit 1
+fi
+
+if [ $1 = -q ] ; then
+	VERBOSE=0
+	shift
+else
+	VERBOSE=1
+fi
+
+if [ $1 = -t ] ; then
+	SETTYPE=$2
+	shift
+	shift
+else
+	SETTYPE=
+fi
+
+# Loop through files, commenting one at a time
+for f in $* ; do
+	COMMENT=""
+
+	if ! [ -r $f ] ; then
+		echo $f: Not found 1>&2
+		continue
+	fi
+
+	if [ "$SETTYPE" != "" ] ; then
+		TYPE=$SETTYPE
+	else
+		case "$f" in
+			*.c | *.h)
+				TYPE=c
+				;;
+			*.asm | *.s)
+				TYPE=asm
+				;;
+			*.gif)	TYPE=gif
+				;;
+			*.html | *.htm)
+				TYPE=html
+				;;
+			*.jpeg | *.jpg)
+				TYPE=jpeg
+				;;
+			*.lzh | *.lha)
+				TYPE=lzh
+				;;
+			*.mbox | *.mbx | *.mbo | *.nws )
+				TYPE=subject
+				;;
+			*.pas | *.p)
+				TYPE=pascal
+				;;
+			*.pbm | *.pgm | *.ppm | *.pnm)
+				TYPE=pbm
+				;;
+			*.pfa | *.gsf)
+				TYPE=psfont
+				;;
+			*.rpm)
+				TYPE=rpm
+				;;
+			*.sh)	TYPE=sh
+				;;
+		*.ps)	TYPE=ps
+				;;
+			*.py)	TYPE=py
+				;;
+			*.tar.gz | *.tar.Z | *.tar.z | *.tgz)
+				TYPE=tgz
+				;;
+			*.tif | *.tiff)
+				TYPE=tiff
+				;;
+			*.txt | *.asc)
+				TYPE=first_line
+				;;
+			*.xbm)
+				TYPE=xbm
+				;;
+			*.xpm)
+				TYPE=xpm
+				;;
+			*.zip)
+				TYPE=zip
+				;;
+			*.zoo)
+				TYPE=zoo
+				;;
+			*)
+				TYPE=""
+				;;
+		esac
+	fi
+
+	if [ "$TYPE" = "" ] ; then
+		echo $f: Not a known file type 1>&2
+	else
+# Find the comment
+		comment_$TYPE
+	fi
+
+	if [ "$COMMENT" = "" ] ; then
+		echo $f: No comment found 1>&2
+	else
+		if [ $VERBOSE -eq 1 ] ; then
+			echo "$f" \""$COMMENT"\"
+		fi
+		$DESCRIBE "$f" "$COMMENT"
+	fi
+done
+exit 0
