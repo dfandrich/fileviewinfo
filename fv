@@ -1,9 +1,13 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.4 2003/06/03 06:16:48 dan Exp $
+# $Id: fv,v 1.5 2004/07/08 05:49:01 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.5  2004/07/08 05:49:01  dan
+# Added file extensions .sis .chm .slp .ace
+# Added -l option to display supported file extensions.
+#
 # Revision 1.4  2003/06/03 06:16:48  dan
 # Added old .ipk style.
 # Added .qpk, .cpio.bz2
@@ -28,12 +32,21 @@
 # TO DO:
 #  - look into PMS package system for BOGUS Linux distribution
 #  - look into POSIX package tools (e.g. for Linux-FT)
+#  - look at parchive files
 
-if [ $# -eq 0 ] ; then
-	echo 'fv ver. 1.1.1'
-	echo 'Usage: fv archive1 [ archive2 ... ]'
+if [ $# -eq 0 -o X"$1" = X"-?" ] ; then
+	echo 'fv ver. 1.1.2'
+	echo 'Usage: fv [-l] archive1 [ archive2 ... ]'
 	echo 'Displays directories of many archive types.'
 	exit 3
+fi
+
+if [ X"$1" = X"-l" ] ; then
+	echo 'Supported file extensions:'
+	# Scan this script looking for case statement entries
+	sed -n -e 's/^[ 	]\+\(\*[^#)]*\)[)\\].*$/\1/p' "$0" | sed 's/ *| */\
+/g' | sed -e 's/\*//g' -e '/^\**$/d' | sort -f | fmt
+	exit 0
 fi
 
 for f in "$@" ; do
@@ -41,11 +54,12 @@ for f in "$@" ; do
 	case "$f" in
 		# ar(1) archive
 		# requires: binutils
-		*.a | *.sa) \
+		*.a | *.sa)
 			ar tv "$f"
 			;;
 
 		# SEA ARC archive
+		# requires: arc
 		*.arc)	arc v "$f"
 			;;
 
@@ -58,15 +72,20 @@ for f in "$@" ; do
 		*.cf)	cvf "$f"
 			;;
 
+		# Microsoft Compressed HTML
+		# requires: chmlib
+		*.chm)	enum_chmLib "$f"
+			;;
+
 		# compressed cpio(1L) archive
 		# requires: cpio, gzip
-		*.cpio.gz | *.cpio.Z | *.cpio.z | *.cgz)\
+		*.cpio.gz | *.cpio.Z | *.cpio.z | *.cgz)
 			gzip -dc "$f" | cpio --list --verbose
 			;;
 
 		# bzip2-compressed cpio(1L) archive
 		# requires: cpio, bzip2
-		*.cpio.bz2)\
+		*.cpio.bz2)
 			bzip2 -dc "$f" | cpio --list --verbose
 			;;
 
@@ -77,7 +96,7 @@ for f in "$@" ; do
 
 		# Debian distribution archive
 		# requires: binutils, tar
-		*.deb) \
+		*.deb)
 			if [ -e data.tar.gz ] ; then
 				echo "$0: won't overwrite temporary file data.tar.gz" 1>&2
 			elif [ ! -w . ] ; then
@@ -89,9 +108,10 @@ for f in "$@" ; do
 				rm -f data.tar.gz
 			fi
 			;;
+
 		# Familiar distribution archive
-		# requires: tar, gzip
-		*.ipk) \
+		# requires: binutils, tar, gzip, grep, file
+		*.ipk)
 			if [ -e /tmp/data.tar.gz ] ; then
 				echo "$0: won't overwrite temporary file /tmp/data.tar.gz" 1>&2
 			else
@@ -123,7 +143,7 @@ for f in "$@" ; do
 
 		# LHARC archive
 		# requires: lha
-		*.lha | *.lzh)\
+		*.lha | *.lzh)
 			lha v "$f"
 			;;
 
@@ -143,7 +163,7 @@ for f in "$@" ; do
 		# SysV packager (SCO UNIX, IRIX)
 		# (Don't know what kind of suffix this one uses)
 		# (Untested)
-		*.pkg)	pkginfo -d `dirname "$f"` -l `basename "$f"`
+		*.pkg)	pkginfo -d "`dirname "$f"`" -l "`basename "$f"`"
 			;;
 
 		# Red Hat RPM(8) package
@@ -154,6 +174,11 @@ for f in "$@" ; do
 		# Red Hat RPP package
 		# requires: tar, cpio, gzip
 		*.rpp)	tar xOvf "$f" cpio-archive.gz | gzip -dc | cpio --list --verbose
+			;;
+
+		# SymbianOS SIS installable package
+		# requires: DumpSIS (http://www.geocities.com/jfldars/dumpsis.html)
+		*.sis)	DumpSIS.pl "$f"
 			;;
 
 		# Macintosh SIT archive
@@ -167,14 +192,14 @@ for f in "$@" ; do
 		# comments at the top of the file in several different formats.
 		# requires: sed
 		*.shar | *.sh)
+			# display warning
+			echo 'NOTE: shar contents listing is not completely reliable'
 			# GNU shar 4.1
 			sed -n -e '1,/^# This shar contains/d' -e '/^#$/,$d' -e 's/^# //p' "$f"
 			# shar type A
 			sed -n -e '1,/with \/bin\/sh/d' -e '/^#$/,$d' -e 's/^#[ 	]/	/p' "$f"
 			# shar type B
 			sed -n -e '/^#/!d' -e '/^# end of/d' -e 's/^#[ 	]//' -e '/^Contents/,$p' "$f"
-			# display warning
-			echo 'NOTE: shar contents listing is not completely reliable'
 			;;
 
 		# Netscape .nif
@@ -183,14 +208,16 @@ for f in "$@" ; do
 		# compressed tar(1) archive
 		# requires: tar, gzip
 		*.nif | *.epk | *.qpk | \
-		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz) \
+		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz)
 			#tar tzvf "$f"
 			gzip -dc "$f" | tar tvf -
 			;;
 
+		# Stampede Linux SLP package
 		# bzip2 compressed tar(1) archive
 		# requires: tar, bzip2
-		*.tar.bz2) \
+		*.slp | \
+		*.tar.bz2)
 			bzip2 -dc "$f" | tar tvf -
 			;;
 
@@ -201,7 +228,7 @@ for f in "$@" ; do
 
 		# uuencoded file
 		# requires: sed
-		*.uu | *.uue | *.uua) \
+		*.uu | *.uue | *.uua)
 			sed -n 's/^begin //p' "$f"
 			;;
 
@@ -218,7 +245,7 @@ for f in "$@" ; do
 			;;
 
 		# Apple II archive formats
-		*.shk | *.sh2) \
+		*.shk | *.sh2)
 			nulib tv "$f"
 			;;
 
@@ -231,39 +258,45 @@ for f in "$@" ; do
 		# *.arc is also used by the arc program above
 		# requires: fvcbm
 		*.sda | *.sfx | *.d64 | *.x64 | *.t64 | *.lnx | *.lzh | \
-		*.lha | *.n64 | *.arc | *.lbr | *.[psrud]00) \
+		*.lha | *.n64 | *.arc | *.lbr | *.[psrud]00)
 			fvcbm "$f"
 			;;
 
 		# LZOP compressed file
 		# requires: lzop
-		*.lzo)\
+		*.lzo)
 			lzop -vl "$f"
 			;;
 
 		# ISO9660 filesystem image file
 		# requires: cdrecord
-		*.iso)\
+		*.iso)
 			isoinfo -l -R -i "$f"
 			;;
 
 		# RAR compressed archive
 		# requires: unrar
-		*.rar)\
+		*.rar)
 			unrar l "$f"
+			;;
+
+		# ACE archive <http://www.winace.com/>
+		# requires: linunace
+		*.ace)
+			unace v "$f"
 			;;
 
 # Compressed files must come after compressed archives
 
 		# compressed or gzipped file
 		# requires: gzip
-		*.gz | *.Z | *.z)\
+		*.gz | *.Z | *.z)
 			gzip -vl "$f"
 			;;
 
 		# bzip2 compressed file
 		# requires: fileutils, textutils, sh-utils, sed
-		*.bz2)\
+		*.bz2)
 		    if [ -e "$f" ] ; then
 				echo "method  crc      date           compressed uncompressed_name"
 				FILEINFO=`ls -l "$f"`
