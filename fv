@@ -1,9 +1,17 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.8 2005/02/03 05:37:02 dan Exp $
+# $Id: fv,v 1.9 2005/02/24 07:55:23 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.9  2005/02/24 07:55:23  dan
+# Eliminated use of temporary files for .deb and .ipk file types, thereby
+# closing a security hole.
+# Added -t option to select a specific archive type for a file.
+# Renamed CBM .arc to .cbmarc
+# Improve detection of .ipk format version.
+# Added winmail.dat type.
+#
 # Revision 1.8  2005/02/03 05:37:02  dan
 # No longer abort if one archive type isn't known.
 # Bumped version to 1.2.
@@ -42,13 +50,13 @@
 # most cases).
 #
 # TO DO:
-#  - look into PMS package system for BOGUS Linux distribution
-#  - look into POSIX package tools (e.g. for Linux-FT)
-#  - look into tnef or ytnef (at sf.net) for MS TNEF format listing
+#  - look into POSIX package tools (e.g. http://www.gnu.org/software/swbis/)
+#  - add option to specify a different suffix to force use of a different
+#    archiver for a file
 
 if [ $# -eq 0 -o X"$1" = X"-?" -o X"$1" = X"-h"  ] ; then
-	echo 'fv ver. 1.2'
-	echo 'Usage: fv [-?hl] archive1 [ archive2 ... ]'
+	echo 'fv ver. 1.2.1'
+	echo 'Usage: fv [-?hl] [-t type] archive1 [ archive2 ... ]'
 	echo 'Displays directory listings for many archive types.'
 	exit 3
 fi
@@ -62,9 +70,27 @@ if [ X"$1" = X"-l" ] ; then
 	exit
 fi
 
+staticfiletype=""
+if [ X"$1" = X"-t" ] ; then
+	staticfiletype="$2"
+	# Make sure file type starts with . for comparision purposes
+	case "$staticfiletype" in
+		.*) ;;
+		 *)	staticfiletype=".$staticfiletype"
+		    ;;
+	esac
+	shift
+	shift
+fi
+
 for f in "$@" ; do
+	if [ X"$staticfiletype" = X"" ] ; then
+		filetype=`basename "$f"`
+	else
+		filetype="$staticfiletype"
+	fi
 	echo "$f":
-	case "$f" in
+	case "$filetype" in
 		# 7zip archive <http://www.p7zip.sf.net/>
 		# requires: p7zip
 		*.7z)
@@ -140,7 +166,7 @@ for f in "$@" ; do
 
 		# dar archive
 		# See http://dar.linux.free.fr/
-		# requires: cpio
+		# requires: dar
 		# (Untested)
 		# May need `basename "`basename "$f"`"`
 		*.dar)	dar -l "$f"
@@ -148,33 +174,20 @@ for f in "$@" ; do
 
 		# Debian distribution archive
 		# requires: binutils, tar
-		*.deb)
-			if [ -e /tmp/data.tar.gz ] ; then
-				echo "$0: won't overwrite temporary file /tmp/data.tar.gz" 1>&2
-			else
-				ar p "$f" data.tar.gz > /tmp/data.tar.gz
-				# Recursive call to fv
-				"$0" /tmp/data.tar.gz
-				rm -f /tmp/data.tar.gz
-			fi
+		# On a Debian system, this should use 'dpkg -c "$f"' instead
+		*.deb)  ar p "$f" data.tar.gz | gzip -dc | tar tvf -
 			;;
 
 		# Familiar distribution archive
 		# requires: binutils, tar, gzip, grep, file
-		# TODO: fix this to use a temporary file
 		*.ipk)
-			if [ -e /tmp/data.tar.gz ] ; then
-				echo "$0: won't overwrite temporary file /tmp/data.tar.gz" 1>&2
+			# Detect the old or new style ipk format
+			if file "$f" | egrep -iq 'Debian|ar archive' ; then
+				ar p "$f" data.tar.gz | gzip -dc | tar tvf -
 			else
- 				# Detect the old or new style ipk format
- 				if file "$f" | grep -iq Debian ; then
-					ar p "$f" data.tar.gz > /tmp/data.tar.gz
- 				else
-					gzip -dc "$f" | (cd /tmp; tar xf - data.tar.gz)
-				fi
-				# Recursive call to fv
-				"$0" /tmp/data.tar.gz
-				rm -f /tmp/data.tar.gz
+				# Internal file name may or may not be prefixed with ./
+				# which is what the \* catches.
+				gzip -dc "$f" | tar xOf - \*data.tar.gz | gzip -dc | tar tvf -
 			fi
 			;;
 
@@ -291,10 +304,11 @@ for f in "$@" ; do
 			;;
 
 		# Commodore 64 archive formats
-		# *.arc is also used by the arc program above
+		# *.cbmarc extension is .arc, but that conflicts with SEA ARC
 		# requires: fvcbm
 		*.sda | *.sfx | *.d64 | *.x64 | *.t64 | *.lnx | *.lzh | \
-		*.lha | *.n64 | *.arc | *.lbr | *.[psrud]00)
+		*.lha | *.n64 | *.lbr | *.[psrud]00 | \
+		*.cbmarc)
 			fvcbm "$f"
 			;;
 
@@ -323,6 +337,14 @@ for f in "$@" ; do
 		# requires: tar
 		*.tar | *.tardist)
 			tar tvf "$f"
+			;;
+
+		# Microsoft TNEF e-mail attachment
+		# See http://tnef.sourceforge.net/
+		# requires: tnef
+		# (Untested)
+		*winmail.dat)
+			tnef -t "$f"
 			;;
 
 		# uuencoded file
@@ -384,7 +406,7 @@ for f in "$@" ; do
 			;;
 
 # Unknown format
-		*)	echo "$f: Not a known archive" 1>&2
+		*)	echo "$filetype: Not a known archive format" 1>&2
 			# Indicate that an error has occurred
 			false
 			;;
