@@ -1,0 +1,148 @@
+#!/bin/sh
+# fv - archive and package directory lister
+# 95-11-23  ver. 0.1  Dan Fandrich  <dan@fch.wimsey.bc.ca> created
+# 96-11-23  ver. 1.0  Dan Fandrich  first public release
+#
+# TO DO:
+#  - look into PMS package system for BOGUS Linux distribution
+#  - look into POSIX package tools (e.g. for Linux-FT)
+
+if [ $# -eq 0 ] ; then
+	echo 'fv ver. 1.0'
+	echo 'Usage: fv archive1 [ archive2 ... ]'
+	echo 'Displays directories of many archive types'
+	exit 1
+fi
+
+for f in $* ; do
+	echo $f:
+	case "$f" in
+		# ar(1) archive
+		*.a | *.sa) \
+			ar tv $f
+			;;
+		# SEA ARC archive
+		*.arc)	arc v $f
+			;;
+		# ARJ archive
+		*.arj)	unarj l $f
+			;;
+		# Compound File Compiler (snd+gfx--see sasteroids)
+		*.cf)	cvf $f
+			;;
+		# compressed cpio(1L) archive
+		*.cpio.gz | *.cpio.Z | *.cpio.z | *.cgz)\
+			zcat $f | cpio --list --verbose
+			;;
+		# cpio(1L) archive
+		*.cpio)	cpio --list --verbose < $f
+			;;
+		# Debian distribution archive
+		*.deb) \
+			if [ -e data.tar.gz ] ; then
+				echo "$0: won't overwrite temporary file data.tar.gz" 1>&2
+			elif [ ! -w . ] ; then
+				echo "$0: can't create temporary file in current directory" 1>&2
+			else
+				ar x $f data.tar.gz
+				fv data.tar.gz
+				rm -f data.tar.gz
+			fi
+			;;
+		# I've forgotten what this is
+		*.ha)	ha l $f
+			;;
+		# HP48 distribution archives as posted to comp.sources.hp48
+		*.hp)	sed -n -e 's/^\(BEGIN_.*\) /\1	/p' $f
+			;;
+		# Macintosh BinHex encoding
+		*.hqx)	hexbin -il $f
+			;;
+		# LHARC archive
+		*.lha | *.lzh)\
+			lha v $f
+			;;
+		# Macintosh MacBinary encoding
+		# (Is .mac the most common suffix for MacBinary files?)
+		*.mac)	macsave -il < $f
+			;;
+		# Message catalogue archive and library maintainer
+		# Found this one on SCO UNIX
+		# (Don't know what kind of suffix this one uses)
+		# (Untested)
+		*.mar)	mar tv $f
+			;;
+		# SysV packager (SCO UNIX, IRIX)
+		# (Don't know what kind of suffix this one uses)
+		# (Untested)
+		*.pkg)	pkginfo -d `dirname $f` -l `basename $f`
+			;;
+		# Red Hat RPM(8) package
+		*.rpm)	rpm -q -i -l -v -p $f
+			;;
+		# Red Hat RPP package
+		*.rpp)	tar xOvf $f cpio-archive.gz | gunzip -c | cpio --list --verbose
+			;;
+		# Macintosh SIT archive
+		*.sit)	macunpack -il $f
+			;;
+		# shell archives
+		# There are many kinds of shar archives with greatly differing
+		# formats. This code attempts to find a manifest listing in the
+		# comments at the top of the file in several different formats.
+		*.shar | *.sh)
+			# GNU shar 4.1
+			sed -n -e '1,/^# This shar contains/d' -e '/^#$/,$d' -e 's/^# //p' $f
+			# shar type A
+			sed -n -e '1,/with \/bin\/sh/d' -e '/^#$/,$d' -e 's/^#[ 	]/	/p' $f
+			# shar type B
+			sed -n -e '/^#/!d' -e '/^# end of/d' -e 's/^#[ 	]//' -e '/^Contents/,$p' $f
+			# display warning
+			echo 'NOTE: shar contents listing is not completely reliable'
+			;;
+		# compressed tar(1) archive
+		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz) \
+			#tar tzvf $f
+			gzip -dc $f | tar tvf -
+			;;
+		# tar(1) archive
+		*.tar)	tar tvf $f
+			;;
+		# uuencoded file
+		*.uu | *.uue | *.uua) \
+			sed -n 's/^begin //p' $f
+			;;
+		# zipped archive
+		*.zip)	unzip -v $f
+			;;
+		# ZOO archive
+		*.zoo)	zoo -list $f
+			;;
+
+		# Apple II archive formats
+		*.shk | *.sh2) \
+			nulib tv $f
+			;;
+
+		# Commodore 64 archive formats
+		# *.arc is also used by the arc program above
+		*.sda | *.sfx | *.d64 | *.x64 | *.t64 | *.lnx | *.lzh | \
+		*.lha | *.n64 | *.arc | *.lbr | *.[psrud]00) \
+			fvcbm $f
+			;;
+
+# Compressed files must come after compressed archives
+
+		# compressed or gzipped file
+		*.gz | *.Z | *.z)\
+			gunzip -vl $f
+			;;
+
+# Unknown format
+		*)	echo "$f: Not a known archive" 1>&2
+			;;
+
+	esac
+	echo ""
+done
+exit 0
