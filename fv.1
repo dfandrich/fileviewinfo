@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.TH FV 1 "02 February 2005" "fv Version 1.2"
+.TH FV 1 "23 February 2005" "fv Version 1.2.1"
 .SH NAME
 fv \- archive and package directory lister
 .SH SYNOPSIS
@@ -7,6 +7,9 @@ fv \- archive and package directory lister
 [
 .B \-?hl
 ]
+[
+.B \-t 
+type ]
 [
 .I name ...
 ]
@@ -35,12 +38,13 @@ and suffixes supported, execute
 with the \-l option.
 This version supports the following file extensions:
 .LP
-.SM .7z .a .ace .arc .arc .arj .bun .bz2 .cab .cf .cgz .chm .cpio .cpio.bz2
+.SM .7z .a .ace .arc .arc .arj .bun .bz2 .cab .cbmarc .cf .cgz .chm .cpio .cpio.bz2
 .SM .cpio.gz .cpio.Z .cpio.z .d64 .dar .deb .depot.gz .epk .gz .ha .hp .hqx
 .SM .ipk .iso .jar .lbr .lha .lha .lnx .lzh .lzh .lzo .mac .mar .n64 .nif .par
 .SM .par2 .pkg .qpk .rar .rpm .rpp .sa .sda .sfx .sh .sh2 .shar .shk .sis
 .SM .sit .slp .spark .spm .t64 .tar .tar.bz2 .tar.gz .tar.Z .tar.z .tardist
-.SM .taz .tgz .uu .uua .uue .wal .wsz .x64 .xpi .Z .z .zip .zoo .zz .[psrud]00
+.SM .taz .tgz .uu .uua .uue .wal .wsz .x64 .xpi .Z .z .zip .zoo .zz
+.SM .[psrud]00 winmail.dat
 .LP
 It is trivial to add more archive types to
 .BR fv .
@@ -57,6 +61,11 @@ is run with no arguments).
 .TP
 .B \-l
 Display a list of the file extensions supported.
+.TP
+.BI \-t \ type
+Use
+.I type
+as the archive type (extension) instead of determining it from the file name.
 .\" ---------------------------------------------------------------------------
 .SH "EXIT STATUS"
 .B fv
