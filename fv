@@ -1,9 +1,12 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.6 2004/07/10 22:51:32 dan Exp $
+# $Id: fv,v 1.7 2004/12/02 05:51:30 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.7  2004/12/02 05:51:30  dan
+# Added .7z, .wal, .wsz, .tardist, .depot.gz
+#
 # Revision 1.6  2004/07/10 22:51:32  dan
 # Added untested extensions .bun .dar .mar (different) .par .par2 .spark .zz
 # Improved .deb .ipk
@@ -39,9 +42,9 @@
 #  - look into POSIX package tools (e.g. for Linux-FT)
 #  - look into tnef or ytnef (at sf.net) for MS TNEF format listing
 
-if [ $# -eq 0 -o X"$1" = X"-?" ] ; then
-	echo 'fv ver. 1.1.3'
-	echo 'Usage: fv [-l] archive1 [ archive2 ... ]'
+if [ $# -eq 0 -o X"$1" = X"-?" -o X"$1" = X"-h"  ] ; then
+	echo 'fv ver. 1.1.4'
+	echo 'Usage: fv [-?hl] archive1 [ archive2 ... ]'
 	echo 'Displays directories of many archive types.'
 	exit 3
 fi
@@ -58,6 +61,13 @@ fi
 for f in "$@" ; do
 	echo "$f":
 	case "$f" in
+		# 7zip archive <http://www.p7zip.sf.net/>
+		# requires: p7zip
+		*.7z)
+			7za l "$f"
+			;;
+
+		# SEA ARC archive
 		# ar(1) archive
 		# requires: binutils
 		*.a | *.sa)
@@ -287,9 +297,10 @@ for f in "$@" ; do
 		# Netscape .nif
 		# eCos package .epk
 		# QNX package .qpk
+		# HP-UX package .depot.gz
 		# compressed tar(1) archive
 		# requires: tar, gzip
-		*.nif | *.epk | *.qpk | \
+		*.nif | *.epk | *.qpk | *.depot.gz | \
 		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz)
 			#tar tzvf "$f"
 			gzip -dc "$f" | tar tvf -
@@ -304,8 +315,10 @@ for f in "$@" ; do
 			;;
 
 		# tar(1) archive
+		# tardist IRIX package
 		# requires: tar
-		*.tar)	tar tvf "$f"
+		*.tar | *.tardist)
+			tar tvf "$f"
 			;;
 
 		# uuencoded file
@@ -318,8 +331,10 @@ for f in "$@" ; do
 		# Java jar
 		# Mozilla Java Cross Platform Installer
 		# Perl package
+		# Winamp compressed skin file
+		# Winamp compressed skin file
 		# requires: unzip
-		*.zip | *.jar | *.xpi | *.par)
+		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal)
 			unzip -v "$f"
 			;;
 
