@@ -1,9 +1,13 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.7 2004/12/02 05:51:30 dan Exp $
+# $Id: fv,v 1.8 2005/02/03 05:37:02 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.8  2005/02/03 05:37:02  dan
+# No longer abort if one archive type isn't known.
+# Bumped version to 1.2.
+#
 # Revision 1.7  2004/12/02 05:51:30  dan
 # Added .7z, .wal, .wsz, .tardist, .depot.gz
 #
@@ -43,9 +47,9 @@
 #  - look into tnef or ytnef (at sf.net) for MS TNEF format listing
 
 if [ $# -eq 0 -o X"$1" = X"-?" -o X"$1" = X"-h"  ] ; then
-	echo 'fv ver. 1.1.4'
+	echo 'fv ver. 1.2'
 	echo 'Usage: fv [-?hl] archive1 [ archive2 ... ]'
-	echo 'Displays directories of many archive types.'
+	echo 'Displays directory listings for many archive types.'
 	exit 3
 fi
 
@@ -381,7 +385,8 @@ for f in "$@" ; do
 
 # Unknown format
 		*)	echo "$f: Not a known archive" 1>&2
-			exit 2
+			# Indicate that an error has occurred
+			false
 			;;
 
 	esac
