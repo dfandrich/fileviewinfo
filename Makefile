@@ -1,14 +1,17 @@
-# $Id: Makefile,v 1.1 2003/04/02 07:22:35 dan Exp $
+# $Id: Makefile,v 1.2 2005/02/03 05:46:51 dan Exp $
 # Makefile for installing fv
 #
 # $Log: Makefile,v $
+# Revision 1.2  2005/02/03 05:46:51  dan
+# Make dependencies for dist target. Bumped version to 1.2
+#
 # Revision 1.1  2003/04/02 07:22:35  dan
 # Initial revision.
 #
 
 prefix=/usr
 
-VERSION=1.1
+VERSION=1.2
 SOURCES = fv fv.1
 DISTFILES = $(SOURCES) Makefile fv.spec
 CLEAN_FILES = fv.man fv.html
@@ -35,7 +38,7 @@ install:
 	install fv $(prefix)/bin
 	install -m 644 fv.1 $(prefix)/man/man1
 
-dist:
+dist: $(DISTFILES)
 	test ! -e fv-$(VERSION)
 	mkdir fv-$(VERSION)
 	cp -p $(DISTFILES) fv-$(VERSION)
