@@ -1,9 +1,12 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.9 2005/02/24 07:55:23 dan Exp $
+# $Id: fv,v 1.10 2005/05/11 07:03:20 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.10  2005/05/11 07:03:20  dan
+# Added rzip support. Added -v option to display archive type.
+#
 # Revision 1.9  2005/02/24 07:55:23  dan
 # Eliminated use of temporary files for .deb and .ipk file types, thereby
 # closing a security hole.
@@ -51,12 +54,17 @@
 #
 # TO DO:
 #  - look into POSIX package tools (e.g. http://www.gnu.org/software/swbis/)
-#  - add option to specify a different suffix to force use of a different
-#    archiver for a file
+#  - add PC-BSD installer files .pbi http://www.pcbsd.org/PBC.html
+#  - when -lv is called, display each extension on a line with title
+#  - if type can't be determined, determine type using 'file'
+#	 - make a big switch statement taking in file's output and returning
+#      file extension
+#    - separate switch statement using file's --mime option if available
+#  - mention in man page that file name must be given--stdin isn't supported
 
 if [ $# -eq 0 -o X"$1" = X"-?" -o X"$1" = X"-h"  ] ; then
 	echo 'fv ver. 1.2.1'
-	echo 'Usage: fv [-?hl] [-t type] archive1 [ archive2 ... ]'
+	echo 'Usage: fv [-?hlv] [-t type] archive1 [ archive2 ... ]'
 	echo 'Displays directory listings for many archive types.'
 	exit 3
 fi
@@ -68,6 +76,11 @@ if [ X"$1" = X"-l" ] ; then
 	sed -n -e 's/^[ 	][ 	]*\(\*[^#)]*\)[)\\].*$/\1/p' "$0" | sed -e 's/ *| */\
 /g' | sed -e 's/\*//g' -e '/^\**$/d' | sort -f | fmt
 	exit
+fi
+
+if [ X"$1" = X"-v" ] ; then
+	FV_VERBOSE=1
+	shift
 fi
 
 staticfiletype=""
@@ -83,6 +96,13 @@ if [ X"$1" = X"-t" ] ; then
 	shift
 fi
 
+archive_label () {
+	# Display the archive name in verbose mode
+	if [ X"$FV_VERBOSE" = X1 ] ; then
+		echo "$*"
+	fi
+}
+
 for f in "$@" ; do
 	if [ X"$staticfiletype" = X"" ] ; then
 		filetype=`basename "$f"`
@@ -91,96 +111,92 @@ for f in "$@" ; do
 	fi
 	echo "$f":
 	case "$filetype" in
-		# 7zip archive <http://www.p7zip.sf.net/>
+		# see http://www.p7zip.sf.net/
 		# requires: p7zip
-		*.7z)
+		*.7z)	archive_label 7zip archive
 			7za l "$f"
 			;;
 
-		# SEA ARC archive
-		# ar(1) archive
 		# requires: binutils
-		*.a | *.sa)
+		*.a | *.sa)	archive_label ar archive
 			ar tv "$f"
 			;;
 
-		# ACE archive <http://www.winace.com/>
 		# requires: linunace
-		*.ace)
+		*.ace)	archive_label ACE archive 
 			unace v "$f"
 			;;
 
-		# SEA ARC archive
 		# requires: arc
-		*.arc)	arc v "$f"
+		*.arc)	archive_label SEA ARC archive
+			arc v "$f"
 			;;
 
-		# Archimedes Spark archives from RiscOS
 		# requires: nspark
 		# Extension is really .arc, but that conflicts with SEA ARC
-		*.spark)	nspark -l -v "$f"
+		*.spark)	archive_label Archimedes Spark archive '(RiscOS)'
+			nspark -l -v "$f"
 			;;
 
-		# ARJ archive
 		# requires: unarj
-		*.arj)	unarj l "$f"
+		*.arj)	archive_label ARJ archive
+			unarj l "$f"
 			;;
 
-		# BUN archive
 		# See http://www.star.le.ac.uk/~tjg/bun/
 		# requires: bun
 		# (Untested)
-		*.bun)	bun tv "$f"
+		*.bun)	archive_label BUN archive
+			bun tv "$f"
 			;;
 
-		# CAB archive
 		# requires: cabextract
-		*.cab)	cabextract -l "$f"
+		*.cab)	archive_label Microsoft CAB archive
+			cabextract -l "$f"
 			;;
 
-		# Compound File Compiler (snd+gfx--see sasteroids)
-		*.cf)	cvf "$f"
+		# snd+gfx--see sasteroids
+		*.cf)	archive_label Compound File Compiler archive
+			cvf "$f"
 			;;
 
-		# Microsoft Compressed HTML
 		# requires: chmlib
-		*.chm)	enum_chmLib "$f"
+		*.chm)	archive_label Microsoft Compressed HTML
+			enum_chmLib "$f"
 			;;
 
-		# compressed cpio(1L) archive
 		# requires: cpio, gzip
-		*.cpio.gz | *.cpio.Z | *.cpio.z | *.cgz)
+		*.cpio.gz | *.cpio.Z | *.cpio.z | *.cgz)	
+			archive_label compressed cpio archive
 			gzip -dc "$f" | cpio --list --verbose
 			;;
 
-		# bzip2-compressed cpio(1L) archive
 		# requires: cpio, bzip2
-		*.cpio.bz2)
+		*.cpio.bz2)	archive_label bzip2-compressed cpio archive
 			bzip2 -dc "$f" | cpio --list --verbose
 			;;
 
-		# cpio(1L) archive
 		# requires: cpio
-		*.cpio)	cpio --list --verbose < "$f"
+		*.cpio)	archive_label cpio archive
+			cpio --list --verbose < "$f"
 			;;
 
-		# dar archive
 		# See http://dar.linux.free.fr/
 		# requires: dar
 		# (Untested)
 		# May need `basename "`basename "$f"`"`
-		*.dar)	dar -l "$f"
+		*.dar)	archive_label Disk Archiver archive
+			dar -l "$f"
 			;;
 
-		# Debian distribution archive
 		# requires: binutils, tar
 		# On a Debian system, this should use 'dpkg -c "$f"' instead
-		*.deb)  ar p "$f" data.tar.gz | gzip -dc | tar tvf -
+		*.deb)  archive_label Debian distribution archive
+			ar p "$f" data.tar.gz | gzip -dc | tar tvf -
 			;;
 
-		# Familiar distribution archive
 		# requires: binutils, tar, gzip, grep, file
-		*.ipk)
+		*.ipk)	archive_label Familiar distribution archive
 			# Detect the old or new style ipk format
 			if file "$f" | egrep -iq 'Debian|ar archive' ; then
 				ar p "$f" data.tar.gz | gzip -dc | tar tvf -
@@ -192,102 +208,118 @@ for f in "$@" ; do
 			;;
 
 		# I've forgotten what this is
-		*.ha)	ha l "$f"
+		*.ha)	archive_label ha archive
+			ha l "$f"
 			;;
 
-		# HP48 distribution archives as posted to comp.sources.hp48
 		# requires: sed
-		*.hp)	sed -n -e 's/^\(BEGIN_.*\) /\1	/p' "$f"
+		*.hp)	archive_label HP48 distribution archives as posted to comp.sources.hp48
+			sed -n -e 's/^\(BEGIN_.*\) /\1	/p' "$f"
 			;;
 
-		# Macintosh BinHex encoding
 		# requires: macutils
-		*.hqx)	hexbin -il "$f"
+		*.hqx)	archive_label Macintosh BinHex encoding
+			hexbin -il "$f"
 			;;
 
-		# ISO9660 filesystem image file
 		# requires: cdrecord
-		*.iso)
+		*.iso)	archive_label ISO9660 filesystem image file
 			isoinfo -l -R -i "$f"
 			;;
 
-		# LHARC archive
 		# requires: lha
-		*.lha | *.lzh)
+		*.lha | *.lzh)	archive_label LHARC archive
 			lha v "$f"
 			;;
 
-		# LZOP compressed file
+		# See http://www.lzop.org/
 		# requires: lzop
-		*.lzo)
+		*.lzo)	archive_label LZOP compressed file
 			lzop -vl "$f"
 			;;
 
-		# Macintosh MacBinary encoding
 		# (Is .mac the most common suffix for MacBinary files?)
 		# requires: macutils
-		*.mac)	macsave -il < "$f"
+		*.mac)	archive_label Macintosh MacBinary encoding
+			macsave -il < "$f"
 			;;
 
-		# Message catalogue archive and library maintainer
 		# Found this one on SCO UNIX
 		# (Don't know what kind of suffix this one uses)
 		# (Untested)
-		#*.mar)	mar tv "$f"
+		#*.mar)	archive_label Message catalogue archive
+		#	mar tv "$f"
 		#	;;
 
-		# Meta Archive
 		# See http://www.emantic.co.uk/mark/
 		# requires: mar
 		# (Untested)
-		*.mar)	mar -t "$f"
+		*.mar)	archive_label Meta Archive
+			mar -t "$f"
 			;;
 
-		# Parity Archive ver. 2
 		# See http://www.dakotacom.net/~donut/programs/par2ls.html
 		# requires: par2ls
 		# (Untested)
-		*.par2)	par2ls "$f"
+		*.par2)	archive_label Parity Archive ver. 2
+			par2ls "$f"
 			;;
 
-		# SysV packager (SCO UNIX, IRIX)
 		# (Don't know what kind of suffix this one uses)
 		# (Untested)
-		*.pkg)	pkginfo -d "`dirname "$f"`" -l "`basename "$f"`"
+		*.pkg)	archive_label SysV packager '(SCO UNIX, IRIX)'
+			pkginfo -d "`dirname "$f"`" -l "`basename "$f"`"
 			;;
 
-		# RAR compressed archive
 		# requires: unrar
-		*.rar)
+		*.rar)	archive_label RAR compressed archive
 			unrar l "$f"
 			;;
 
-		# Red Hat RPM(8) package
+		# See http://www.rpm.org/
 		# requires: rpm
-		*.rpm | *.spm)	rpm -qilvp "$f"
+		*.rpm | *.spm)	archive_label Red Hat RPM package
+		rpm -qilvp "$f"
 			;;
 
-		# Red Hat RPP package
+		# (Obsolete format; from Red Hat Linux distributions < 4.0)
 		# requires: tar, cpio, gzip
-		*.rpp)	tar xOvf "$f" cpio-archive.gz | gzip -dc | cpio --list --verbose
+		*.rpp)	archive_label Red Hat RPP package
+			tar xOvf "$f" cpio-archive.gz | gzip -dc | cpio --list --verbose
 			;;
 
-		# SymbianOS SIS installable package
+		# See http://rzip.samba.org/
+		# requires: python >= 1.6
+		*.rz)	archive_label rzip archive
+			python - "$f" <<EOF
+import struct, sys, os, string
+fn=sys.argv[1]
+f=open(fn)
+magic,ver1,ver2 = struct.unpack('4sBB', f.read(6))
+if magic!='RZIP': sys.stderr.write('Not an rzip archive\n'); sys.exit(1);
+length = struct.unpack('!II', f.read(8))
+basefn=os.path.basename(fn)
+basefn=basefn[:string.rfind(basefn,'.')]
+print 'rz ver    length filename'
+print '%2d.%02d %10d %s' % (ver1,ver2, length[1] * 0x100000000L + length[0], basefn)
+EOF
+			;;
+
 		# requires: DumpSIS (http://www.geocities.com/jfldars/dumpsis.html)
-		*.sis)	DumpSIS.pl "$f"
+		*.sis)	archive_label SymbianOS SIS installable package
+			DumpSIS.pl "$f"
 			;;
 
-		# Macintosh SIT archive
 		# requires: macutils
-		*.sit)	macunpack -il "$f"
+		*.sit)	archive_label Macintosh SIT archive
+			macunpack -il "$f"
 			;;
 
-		# shell archives
 		# There are many kinds of shar archives with greatly differing
 		# formats. This code attempts to find a manifest listing in the
 		# comments at the top of the file in several different formats.
 		# requires: sed
-		*.shar | *.sh)
+		*.shar | *.sh)	archive_label shell archive
 			# display warning
 			echo 'NOTE: shar contents listing is not completely reliable'
 			# GNU shar 4.1
@@ -298,17 +330,15 @@ for f in "$@" ; do
 			sed -n -e '/^#/!d' -e '/^# end of/d' -e 's/^#[ 	]//' -e '/^Contents/,$p' "$f"
 			;;
 
-		# Apple II archive formats
-		*.shk | *.sh2)
+		*.shk | *.sh2)	archive_label Apple II archive
 			nulib tv "$f"
 			;;
 
-		# Commodore 64 archive formats
 		# *.cbmarc extension is .arc, but that conflicts with SEA ARC
 		# requires: fvcbm
 		*.sda | *.sfx | *.d64 | *.x64 | *.t64 | *.lnx | *.lzh | \
 		*.lha | *.n64 | *.lbr | *.[psrud]00 | \
-		*.cbmarc)
+		*.cbmarc)	archive_label Commodore 64 archive
 			fvcbm "$f"
 			;;
 
@@ -319,41 +349,40 @@ for f in "$@" ; do
 		# compressed tar(1) archive
 		# requires: tar, gzip
 		*.nif | *.epk | *.qpk | *.depot.gz | \
-		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz)
+		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz) 
+			archive_label gzip-compressed tar archive
 			#tar tzvf "$f"
 			gzip -dc "$f" | tar tvf -
 			;;
 
-		# Stampede Linux SLP package
-		# bzip2 compressed tar(1) archive
+		# bzip2-compressed tar archive
+		# Stampede Linux package
 		# requires: tar, bzip2
 		*.slp | \
-		*.tar.bz2)
+		*.tar.bz2)	archive_label bzip2-compressed tar archive
 			bzip2 -dc "$f" | tar tvf -
 			;;
 
-		# tar(1) archive
+		# tar archive
 		# tardist IRIX package
 		# requires: tar
-		*.tar | *.tardist)
+		*.tar | *.tardist)	archive_label tar archive
 			tar tvf "$f"
 			;;
 
-		# Microsoft TNEF e-mail attachment
 		# See http://tnef.sourceforge.net/
 		# requires: tnef
 		# (Untested)
-		*winmail.dat)
+		*winmail.dat)	archive_label Microsoft TNEF e-mail attachment
 			tnef -t "$f"
 			;;
 
-		# uuencoded file
 		# requires: sed
-		*.uu | *.uue | *.uua)
+		*.uu | *.uue | *.uua)	archive_label uuencoded file
 			sed -n 's/^begin //p' "$f"
 			;;
 
-		# zipped archive
+		# zip archive
 		# Java jar
 		# Mozilla Java Cross Platform Installer
 		# Perl package
@@ -361,32 +390,31 @@ for f in "$@" ; do
 		# Winamp compressed skin file
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal)
+			archive_label ZIP archive
 			unzip -v "$f"
 			;;
 
-		# ZOO archive
 		# requires: zoo
-		*.zoo)	zoo -list "$f"
+		*.zoo)	archive_label ZOO archive
+			zoo -list "$f"
 			;;
 
-		# ZZIP archive
 		# See http://debin.org/zzip/
 		# requires: zzip
 		# (Untested)
-		*.zz)	zzip l "$f"
+		*.zz)	archive_label ZZIP archive
+			zzip l "$f"
 			;;
 
 # Compressed files must come after compressed archives
 
-		# compressed or gzipped file
 		# requires: gzip
-		*.gz | *.Z | *.z)
+		*.gz | *.Z | *.z)	archive_label gzip-compressed file
 			gzip -vl "$f"
 			;;
 
-		# bzip2 compressed file
 		# requires: fileutils, textutils, sh-utils, sed
-		*.bz2)
+		*.bz2)	archive_label bzip2-compressed file
 		    if [ -e "$f" ] ; then
 				echo "method  crc      date           compressed uncompressed_name"
 				FILEINFO=`ls -l "$f"`
@@ -406,7 +434,10 @@ for f in "$@" ; do
 			;;
 
 # Unknown format
-		*)	echo "$filetype: Not a known archive format" 1>&2
+		*)	echo "$filetype: Unsupported archive format." 1>&2
+			if [ X"$FV_VERBOSE" = X1 ] ; then
+				file "$f" 1>&2
+			fi
 			# Indicate that an error has occurred
 			false
 			;;
