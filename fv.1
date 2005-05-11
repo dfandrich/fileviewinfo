@@ -1,17 +1,18 @@
 .\" -*- nroff -*-
-.TH FV 1 "23 February 2005" "fv Version 1.2.1"
+.TH FV 1 "10 May 2005" "fv Version 1.2.1"
 .SH NAME
 fv \- archive and package directory lister
 .SH SYNOPSIS
 .B fv
 [
-.B \-?hl
+.B \-?hlv
 ]
 [
 .B \-t 
 type ]
+archive1
 [
-.I name ...
+.I archive2 ...
 ]
 .SH DESCRIPTION
 .B fv
@@ -20,16 +21,18 @@ archivers and packagers available on *NIX systems. It provides a fast,
 easy way to look inside archives without having to remember the arcane
 options required by many archiving programs.
 .LP
-The archive type is determined from the filename suffix, which selects
-which archiver program to run.
+The archive type is determined from the filename suffix (unless the
+.B \-t
+option is given), which selects which archiver program to run.
 The archiver's `list archive contents' arguments are given to display
-a directory containing the most useful information about the files
-within the archive.
+a directory containing the most generally useful information about the files
+within the archive. The archive must be in a file; it cannot be given on
+standard input.
 .LP
 If the program which is needed to handle an archive type is not available
 on the system, the error message \(lqcommand not found\(rq is
 displayed as it is encountered.  The error message \(lqNot a known
-archive\(rq is displayed for unknown suffixes.
+archive format\(rq is displayed for unknown suffixes.
 .LP
 Several archive types do not have common file suffixes, so arbitrary but
 unique suffixes are used.  To find the complete list of archive types
@@ -41,7 +44,7 @@ This version supports the following file extensions:
 .SM .7z .a .ace .arc .arc .arj .bun .bz2 .cab .cbmarc .cf .cgz .chm .cpio .cpio.bz2
 .SM .cpio.gz .cpio.Z .cpio.z .d64 .dar .deb .depot.gz .epk .gz .ha .hp .hqx
 .SM .ipk .iso .jar .lbr .lha .lha .lnx .lzh .lzh .lzo .mac .mar .n64 .nif .par
-.SM .par2 .pkg .qpk .rar .rpm .rpp .sa .sda .sfx .sh .sh2 .shar .shk .sis
+.SM .par2 .pkg .qpk .rar .rpm .rpp .rz .sa .sda .sfx .sh .sh2 .shar .shk .sis
 .SM .sit .slp .spark .spm .t64 .tar .tar.bz2 .tar.gz .tar.Z .tar.z .tardist
 .SM .taz .tgz .uu .uua .uue .wal .wsz .x64 .xpi .Z .z .zip .zoo .zz
 .SM .[psrud]00 winmail.dat
@@ -66,6 +69,9 @@ Display a list of the file extensions supported.
 Use
 .I type
 as the archive type (extension) instead of determining it from the file name.
+.TP
+.B \-v
+Set verbose mode. Display the type of archive before the listing.
 .\" ---------------------------------------------------------------------------
 .SH "EXIT STATUS"
 .B fv
