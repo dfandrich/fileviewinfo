@@ -1,11 +1,20 @@
 .\" -*- nroff -*-
-.TH FV 1 "10 May 2005" "fv Version 1.2.1"
+.TH FV 1 "24 Oct 2005" "fv Version 1.2.1"
 .SH NAME
 fv \- archive and package directory lister
 .SH SYNOPSIS
 .B fv
 [
-.B \-?hlv
+.B \-v
+]
+[
+.B \-?
+]
+[
+.B \-h
+]
+[
+.B \-l
 ]
 [
 .B \-t 
@@ -41,13 +50,13 @@ and suffixes supported, execute
 with the \-l option.
 This version supports the following file extensions:
 .LP
-.SM .7z .a .ace .arc .arc .arj .bun .bz2 .cab .cbmarc .cf .cgz .chm .cpio .cpio.bz2
-.SM .cpio.gz .cpio.Z .cpio.z .d64 .dar .deb .depot.gz .epk .gz .ha .hp .hqx
-.SM .ipk .iso .jar .lbr .lha .lha .lnx .lzh .lzh .lzo .mac .mar .n64 .nif .par
-.SM .par2 .pkg .qpk .rar .rpm .rpp .rz .sa .sda .sfx .sh .sh2 .shar .shk .sis
-.SM .sit .slp .spark .spm .t64 .tar .tar.bz2 .tar.gz .tar.Z .tar.z .tardist
-.SM .taz .tgz .uu .uua .uue .wal .wsz .x64 .xpi .Z .z .zip .zoo .zz
-.SM .[psrud]00 winmail.dat
+.SM .7z .a .ace .alz .arc .arj .bun .bz2 .cab .cbmarc .cf .cgz .chm .cpio
+.SM .cpio.bz2 .cpio.gz .cpio.Z .cpio.z .d64 .dar .deb .depot.gz .epk .fpm
+.SM .gz .ha .hp .hqx .ipk .iso .jar .kmz .lbr .lha .lha .lnx .lzh .lzh .lzo
+.SM .mac .mar .n64 .nif .par .par2 .pbi .pkg .qpk .rar .rpm .rpp .rz .sa .sda
+.SM .sfx .sh .sh2 .shar .shk .sis .sit .slp .spark .spm .t64 .tar .tar.bz2
+.SM .tar.gz .tar.Z .tar.z .tardist .taz .tbz .tgz .uu .uua .uue .wal .wsz
+.SM .x64 .xpi .Z .z .zip .zoo .zz .[psrud]00 winmail.dat
 .LP
 It is trivial to add more archive types to
 .BR fv .
@@ -71,7 +80,8 @@ Use
 as the archive type (extension) instead of determining it from the file name.
 .TP
 .B \-v
-Set verbose mode. Display the type of archive before the listing.
+Set verbose mode. Display the type of archive before the listing.  If \-l is
+also given, display a description of each archive type supported.
 .\" ---------------------------------------------------------------------------
 .SH "EXIT STATUS"
 .B fv
@@ -93,7 +103,7 @@ for displaying directories of MS-DOS archives.
 is similar in concept to
 .BR als (1),
 part of the atool package
-(see <URL:http://www.student.lu.se/~nbi98oli/atool.html>).
+(see <URL:http://www.nongnu.org/atool/>).
 .SH COPYRIGHT
 .B fv
 is placed into the public domain by Daniel Fandrich.
