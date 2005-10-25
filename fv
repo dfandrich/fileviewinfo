@@ -1,9 +1,13 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.10 2005/05/11 07:03:20 dan Exp $
+# $Id: fv,v 1.11 2005/10/25 05:40:26 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.11  2005/10/25 05:40:26  dan
+# Added .kmz, .tbz, .fpm, .pbi, .alz archive types.
+# Added verbose version of -l listing.
+#
 # Revision 1.10  2005/05/11 07:03:20  dan
 # Added rzip support. Added -v option to display archive type.
 #
@@ -54,33 +58,35 @@
 #
 # TO DO:
 #  - look into POSIX package tools (e.g. http://www.gnu.org/software/swbis/)
-#  - add PC-BSD installer files .pbi http://www.pcbsd.org/PBC.html
-#  - when -lv is called, display each extension on a line with title
 #  - if type can't be determined, determine type using 'file'
 #	 - make a big switch statement taking in file's output and returning
 #      file extension
 #    - separate switch statement using file's --mime option if available
-#  - mention in man page that file name must be given--stdin isn't supported
+
+if [ X"$1" = X"-v" ] ; then
+	FV_VERBOSE=1
+	shift
+fi
 
 if [ $# -eq 0 -o X"$1" = X"-?" -o X"$1" = X"-h"  ] ; then
 	echo 'fv ver. 1.2.1'
-	echo 'Usage: fv [-?hlv] [-t type] archive1 [ archive2 ... ]'
+	echo 'Usage: fv [-v] [-?] [-h] [-l] [-t type] archive1 [ archive2 ... ]'
 	echo 'Displays directory listings for many archive types.'
 	exit 3
 fi
 
 if [ X"$1" = X"-l" ] ; then
 	# requires: textutils, sed
-	echo 'Supported file extensions:'
-	# Scan this script looking for wildcard case statement entries
-	sed -n -e 's/^[ 	][ 	]*\(\*[^#)]*\)[)\\].*$/\1/p' "$0" | sed -e 's/ *| */\
+	if [ X"$FV_VERBOSE" = X1 ] ; then
+		# Scan this script looking for archive label lines
+		sed -n -e 's/^.\+archive[_]label //p' "$0" | sort -f
+	else
+		echo 'Supported file extensions:'
+		# Scan this script looking for wildcard case statement entries
+		sed -n -e 's/^[ 	][ 	]*\(\*[^#)]*\)[)\\].*$/\1/p' "$0" | sed -e 's/ *| */\
 /g' | sed -e 's/\*//g' -e '/^\**$/d' | sort -f | fmt
+	fi
 	exit
-fi
-
-if [ X"$1" = X"-v" ] ; then
-	FV_VERBOSE=1
-	shift
 fi
 
 staticfiletype=""
@@ -125,6 +131,12 @@ for f in "$@" ; do
 		# requires: linunace
 		*.ace)	archive_label ACE archive 
 			unace v "$f"
+			;;
+
+		# See http://www.kipple.pe.kr/win/unalz/
+		# requires: unalz
+		*.alz)	archive_label ALZ archive
+			unalz -l "$f"
 			;;
 
 		# requires: arc
@@ -265,6 +277,12 @@ for f in "$@" ; do
 			par2ls "$f"
 			;;
 
+		# PC-BSD
+		# requires: sed, bzip2
+		*.pbi) archive_label PC-BSD package
+			sed '1,/^__PBI_ARCHIVE__$/d' "$f" | bunzip2 -c | tar xOf - Package.tar | tar tvf -
+			;;
+
 		# (Don't know what kind of suffix this one uses)
 		# (Untested)
 		*.pkg)	archive_label SysV packager '(SCO UNIX, IRIX)'
@@ -345,10 +363,11 @@ EOF
 		# Netscape .nif
 		# eCos package .epk
 		# QNX package .qpk
+		# Frugalware package .fpm
 		# HP-UX package .depot.gz
 		# compressed tar(1) archive
 		# requires: tar, gzip
-		*.nif | *.epk | *.qpk | *.depot.gz | \
+		*.nif | *.epk | *.qpk | *.depot.gz | *.fpm | \
 		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz) 
 			archive_label gzip-compressed tar archive
 			#tar tzvf "$f"
@@ -359,7 +378,7 @@ EOF
 		# Stampede Linux package
 		# requires: tar, bzip2
 		*.slp | \
-		*.tar.bz2)	archive_label bzip2-compressed tar archive
+		*.tar.bz2 | *.tbz)	archive_label bzip2-compressed tar archive
 			bzip2 -dc "$f" | tar tvf -
 			;;
 
@@ -383,13 +402,13 @@ EOF
 			;;
 
 		# zip archive
-		# Java jar
-		# Mozilla Java Cross Platform Installer
-		# Perl package
-		# Winamp compressed skin file
-		# Winamp compressed skin file
+		# Java .jar
+		# Mozilla Java Cross Platform Installer .xpi
+		# Perl package .par
+		# Winamp compressed skin file .wsz .wal
+		# Google Earth .kmz
 		# requires: unzip
-		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal)
+		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz)
 			archive_label ZIP archive
 			unzip -v "$f"
 			;;
