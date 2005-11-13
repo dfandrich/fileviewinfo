@@ -1,9 +1,12 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.11 2005/10/25 05:40:26 dan Exp $
+# $Id: fv,v 1.12 2005/11/13 06:23:23 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.12  2005/11/13 06:23:23  dan
+# Added .sxi, .sxd types.  Cleaned up some of the comments.
+#
 # Revision 1.11  2005/10/25 05:40:26  dan
 # Added .kmz, .tbz, .fpm, .pbi, .alz archive types.
 # Added verbose version of -l listing.
@@ -79,7 +82,7 @@ if [ X"$1" = X"-l" ] ; then
 	# requires: textutils, sed
 	if [ X"$FV_VERBOSE" = X1 ] ; then
 		# Scan this script looking for archive label lines
-		sed -n -e 's/^.\+archive[_]label //p' "$0" | sort -f
+		sed -n -e "s/'//g" -e 's/^[^#]\+archive[_]label //p' "$0" | sort -f
 	else
 		echo 'Supported file extensions:'
 		# Scan this script looking for wildcard case statement entries
@@ -207,8 +210,9 @@ for f in "$@" ; do
 			ar p "$f" data.tar.gz | gzip -dc | tar tvf -
 			;;
 
-		# requires: binutils, tar, gzip, grep, file
-		*.ipk)	archive_label Familiar distribution archive
+		# See http://www.handhelds.org/
+		# requires: binutils, file, grep, gzip, tar
+		*.ipk)	archive_label Itsy Package
 			# Detect the old or new style ipk format
 			if file "$f" | egrep -iq 'Debian|ar archive' ; then
 				ar p "$f" data.tar.gz | gzip -dc | tar tvf -
@@ -277,7 +281,7 @@ for f in "$@" ; do
 			par2ls "$f"
 			;;
 
-		# PC-BSD
+		# See http://www.pcbsd.org/
 		# requires: sed, bzip2
 		*.pbi) archive_label PC-BSD package
 			sed '1,/^__PBI_ARCHIVE__$/d' "$f" | bunzip2 -c | tar xOf - Package.tar | tar tvf -
@@ -382,8 +386,8 @@ EOF
 			bzip2 -dc "$f" | tar tvf -
 			;;
 
-		# tar archive
-		# tardist IRIX package
+		# tar archive .tar
+		# tardist IRIX package .tardist
 		# requires: tar
 		*.tar | *.tardist)	archive_label tar archive
 			tar tvf "$f"
@@ -401,14 +405,16 @@ EOF
 			sed -n 's/^begin //p' "$f"
 			;;
 
-		# zip archive
+		# zip archive .zip
 		# Java .jar
 		# Mozilla Java Cross Platform Installer .xpi
 		# Perl package .par
 		# Winamp compressed skin file .wsz .wal
 		# Google Earth .kmz
+		# OpenOffice Impress Presentation .sxi
+		# OpenOffice Drawing .sxd
 		# requires: unzip
-		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz)
+		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | *.sxi | *.sxd)
 			archive_label ZIP archive
 			unzip -v "$f"
 			;;
@@ -418,7 +424,7 @@ EOF
 			zoo -list "$f"
 			;;
 
-		# See http://debin.org/zzip/
+		# See http://debin.net/zzip/
 		# requires: zzip
 		# (Untested)
 		*.zz)	archive_label ZZIP archive
