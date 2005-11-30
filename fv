@@ -1,9 +1,12 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.12 2005/11/13 06:23:23 dan Exp $
+# $Id: fv,v 1.13 2005/11/30 07:52:37 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.13  2005/11/30 07:52:37  dan
+# Improved -v -l to display alternate descriptions of archive types.
+#
 # Revision 1.12  2005/11/13 06:23:23  dan
 # Added .sxi, .sxd types.  Cleaned up some of the comments.
 #
@@ -81,8 +84,9 @@ fi
 if [ X"$1" = X"-l" ] ; then
 	# requires: textutils, sed
 	if [ X"$FV_VERBOSE" = X1 ] ; then
-		# Scan this script looking for archive label lines
-		sed -n -e "s/'//g" -e 's/^[^#]\+archive[_]label //p' "$0" | sort -f
+		# Scan this script looking for archive label lines and Also comments
+		sed -n -e "s/'//g" -e 's/^[^#]\+archive[_]label //p' \
+		 -e 's/^[ 	]*# Also \(.*\) [a-z0-9A-Z\.,]*$/\1/p' "$0" | sort -f
 	else
 		echo 'Supported file extensions:'
 		# Scan this script looking for wildcard case statement entries
@@ -305,9 +309,10 @@ for f in "$@" ; do
 			;;
 
 		# (Obsolete format; from Red Hat Linux distributions < 4.0)
+		# See http://www.redhat.com/
 		# requires: tar, cpio, gzip
 		*.rpp)	archive_label Red Hat RPP package
-			tar xOvf "$f" cpio-archive.gz | gzip -dc | cpio --list --verbose
+			tar xOf "$f" cpio-archive.gz | gzip -dc | cpio --list --verbose
 			;;
 
 		# See http://rzip.samba.org/
@@ -364,12 +369,12 @@ EOF
 			fvcbm "$f"
 			;;
 
-		# Netscape .nif
-		# eCos package .epk
-		# QNX package .qpk
-		# Frugalware package .fpm
-		# HP-UX package .depot.gz
-		# compressed tar(1) archive
+		# gzip-compressed tar archive
+		# Also Netscape package .nif
+		# Also eCos package .epk
+		# Also QNX package .qpk
+		# Also Frugalware package .fpm
+		# Also HP-UX package .depot.gz
 		# requires: tar, gzip
 		*.nif | *.epk | *.qpk | *.depot.gz | *.fpm | \
 		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz) 
@@ -379,7 +384,7 @@ EOF
 			;;
 
 		# bzip2-compressed tar archive
-		# Stampede Linux package
+		# Also Stampede Linux package
 		# requires: tar, bzip2
 		*.slp | \
 		*.tar.bz2 | *.tbz)	archive_label bzip2-compressed tar archive
@@ -387,7 +392,7 @@ EOF
 			;;
 
 		# tar archive .tar
-		# tardist IRIX package .tardist
+		# Also tardist IRIX package .tardist
 		# requires: tar
 		*.tar | *.tardist)	archive_label tar archive
 			tar tvf "$f"
@@ -406,15 +411,16 @@ EOF
 			;;
 
 		# zip archive .zip
-		# Java .jar
-		# Mozilla Java Cross Platform Installer .xpi
-		# Perl package .par
-		# Winamp compressed skin file .wsz .wal
-		# Google Earth .kmz
-		# OpenOffice Impress Presentation .sxi
-		# OpenOffice Drawing .sxd
+		# Also Java jar file .jar
+		# Also Mozilla Java Cross Platform Installer .xpi
+		# Also Perl package .par
+		# Also Winamp compressed skin file .wsz,.wal
+		# Also Google Earth .kmz
+		# Also OpenOffice Impress Presentation .sxi
+		# Also OpenOffice Drawing .sxd
 		# requires: unzip
-		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | *.sxi | *.sxd)
+		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
+		*.sxi | *.sxd)
 			archive_label ZIP archive
 			unzip -v "$f"
 			;;
