@@ -53,10 +53,10 @@ This version supports the following file extensions:
 .SM .7z .a .ace .alz .arc .arj .bun .bz2 .cab .cbmarc .cf .cgz .chm .cpio
 .SM .cpio.bz2 .cpio.gz .cpio.Z .cpio.z .d64 .dar .deb .depot.gz .epk .fpm
 .SM .gz .ha .hp .hqx .ipk .iso .jar .kmz .lbr .lha .lha .lnx .lzh .lzh .lzo
-.SM .mac .mar .n64 .nif .par .par2 .pbi .pkg .qpk .rar .rpm .rpp .rz .sa .sda
-.SM .sfx .sh .sh2 .shar .shk .sis .sit .slp .spark .spm .t64 .tar .tar.bz2
-.SM .tar.gz .tar.Z .tar.z .tardist .taz .tbz .tgz .uu .uua .uue .wal .wsz
-.SM .x64 .xpi .Z .z .zip .zoo .zz .[psrud]00 winmail.dat
+.SM .mac .mar .n64 .nif .par .par2 .pbi .pkg .qpk .rar .rpm .rpp .rz .sa
+.SM .sda .sfx .sh .sh2 .shar .shk .sis .sit .slp .spark .spm .sxd .sxi .t64
+.SM .tar .tar.bz2 .tar.gz .tar.Z .tar.z .tardist .taz .tbz .tgz .uu .uua
+.SM .uue .wal .wsz .x64 .xpi .Z .z .zip .zoo .zz .[psrud]00 winmail.dat
 .LP
 It is trivial to add more archive types to
 .BR fv .
@@ -81,7 +81,8 @@ as the archive type (extension) instead of determining it from the file name.
 .TP
 .B \-v
 Set verbose mode. Display the type of archive before the listing.  If \-l is
-also given, display a description of each archive type supported.
+also given, display a description of each archive type supported instead of
+the file extensions.
 .\" ---------------------------------------------------------------------------
 .SH "EXIT STATUS"
 .B fv
