@@ -1,9 +1,12 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.13 2005/11/30 07:52:37 dan Exp $
+# $Id: fv,v 1.14 2005/12/09 06:33:51 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.14  2005/12/09 06:33:51  dan
+# Added .pq6 type and some minor edits.
+#
 # Revision 1.13  2005/11/30 07:52:37  dan
 # Improved -v -l to display alternate descriptions of archive types.
 #
@@ -63,7 +66,9 @@
 # most cases).
 #
 # TO DO:
+#  - See Wikipedia: http://en.wikipedia.org/wiki/List_of_archive_formats
 #  - look into POSIX package tools (e.g. http://www.gnu.org/software/swbis/)
+#  - add .dmg type using the Mac OS X diskutil program
 #  - if type can't be determined, determine type using 'file'
 #	 - make a big switch statement taking in file's output and returning
 #      file extension
@@ -75,7 +80,7 @@ if [ X"$1" = X"-v" ] ; then
 fi
 
 if [ $# -eq 0 -o X"$1" = X"-?" -o X"$1" = X"-h"  ] ; then
-	echo 'fv ver. 1.2.1'
+	echo 'fv ver. 1.2.2'
 	echo 'Usage: fv [-v] [-?] [-h] [-l] [-t type] archive1 [ archive2 ... ]'
 	echo 'Displays directory listings for many archive types.'
 	exit 3
@@ -170,7 +175,7 @@ for f in "$@" ; do
 			;;
 
 		# requires: cabextract
-		*.cab)	archive_label Microsoft CAB archive
+		*.cab)	archive_label Microsoft Cabinet archive
 			cabextract -l "$f"
 			;;
 
@@ -288,13 +293,19 @@ for f in "$@" ; do
 		# See http://www.pcbsd.org/
 		# requires: sed, bzip2
 		*.pbi) archive_label PC-BSD package
-			sed '1,/^__PBI_ARCHIVE__$/d' "$f" | bunzip2 -c | tar xOf - Package.tar | tar tvf -
+			sed '1,/^__PBI_ARCHIVE__$/d' "$f" | bzip2 -dc | tar xOf - Package.tar | tar tvf -
 			;;
 
 		# (Don't know what kind of suffix this one uses)
 		# (Untested)
 		*.pkg)	archive_label SysV packager '(SCO UNIX, IRIX)'
 			pkginfo -d "`dirname "$f"`" -l "`basename "$f"`"
+			;;
+
+		# requires: paq6
+		# See http://www.cs.fit.edu/~mmahoney/compression/#paq6
+		*.pq6)	archive_label PAQ6 compressed archive
+			sed '//,$d' "$f"
 			;;
 
 		# requires: unrar
@@ -338,7 +349,7 @@ EOF
 			;;
 
 		# requires: macutils
-		*.sit)	archive_label Macintosh SIT archive
+		*.sit)	archive_label Macintosh StuffIt archive
 			macunpack -il "$f"
 			;;
 
