@@ -1,7 +1,10 @@
-# $Id: Makefile,v 1.2 2005/02/03 05:46:51 dan Exp $
+# $Id: Makefile,v 1.3 2005/12/22 06:33:53 dan Exp $
 # Makefile for installing fv
 #
 # $Log: Makefile,v $
+# Revision 1.3  2005/12/22 06:33:53  dan
+# Makefile now gets the version number from fv itself.
+#
 # Revision 1.2  2005/02/03 05:46:51  dan
 # Make dependencies for dist target. Bumped version to 1.2
 #
@@ -11,13 +14,13 @@
 
 prefix=/usr
 
-VERSION=1.2
+VERSION=$(shell ./fv -\? | sed -n '1s/^.*ver. //p')
 SOURCES = fv fv.1
 DISTFILES = $(SOURCES) Makefile fv.spec
 CLEAN_FILES = fv.man fv.html
 
 all:
-	@echo Use \'make prefix=/usr/local install\' to install fv in the given
+	@echo Use \'make prefix=/usr/local install\' to install fv $(VERSION) in the given
 	@echo directory root or \'make dist\' to create a distribution archive
 
 clean:
