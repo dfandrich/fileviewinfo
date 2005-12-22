@@ -1,7 +1,7 @@
 # Initial spec file created by autospec ver. 0.8 with rpm 2.4 compatibility
 Summary: File viewer, an archive directory lister
 Name: fv
-%define version 1.2
+%define version 1.3
 Version: %{version}
 Release: 1
 Group: Utilities/Archiving
@@ -39,6 +39,9 @@ make install prefix="$RPM_BUILD_ROOT"/usr
 %attr(-,root,root) %doc /usr/man/man1/fv.1*
 
 %changelog
+* Wed Dec 21 2005 Dan Fandrich <dan@coneharvesters.com>
+- Upgraded to ver. 1.3
+
 * Wed Feb  2 2005 Dan Fandrich <dan@coneharvesters.com>
 - Upgraded to ver. 1.2
 
