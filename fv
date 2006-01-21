@@ -1,9 +1,14 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.15 2005/12/22 06:29:57 dan Exp $
+# $Id: fv,v 1.16 2006/01/21 07:03:19 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.16  2006/01/21 07:03:19  dan
+# Added description of metadata within fv file.
+# Added .rub package
+# Cleaned up some descriptions.
+#
 # Revision 1.15  2005/12/22 06:29:57  dan
 # Make .pbi viewable with older bzip2 by using bzcat.
 # Bump version number to 1.3.
@@ -65,14 +70,39 @@
 # 96-11-23  ver. 1.0  Dan Fandrich  first public release
 # 95-11-23  ver. 0.1  Dan Fandrich  <dan@fch.wimsey.bc.ca> created
 #
-# The requires: lines below the archive name refer to the package(s) required
-# by fv to list the archive contents (RedHat package names are listed in
-# most cases).
+# Format of archive entries in this file:
+#
+# * The requires: comment lines below the archive name refer to the
+#   software package(s) required to view the content list of the archive
+#   (RedHat package names are listed in most cases).  This information is not
+#   currently used by the program but is merely a note to the curious user.
+#
+# * An archive_label line must be found within the code handling each
+#   archive type.  Any special shell characters must be enclosed in single
+#   quotes.  These lines are listed along with the Also lines using the
+#   -v -l option.
+#
+# * A comment line beginning See gives a URL with more information about
+#   the archive format. This information is not currently used by
+#   the program but is merely a note to the curious user.
+#
+# * A comment line beginning Also gives an alternative archive name for the
+#   following archive type similar to the format of archive_label, except
+#   that the comment ends with the file extension and special shell characters
+#   must not be quoted.  These lines are listed along with the archive_label
+#   lines using the -v -l option.
+#
+# * Each case entry line matching a file extension must have a tab character
+#   in the first position.  These extensions are listed using the -l option.
+#
 #
 # TO DO:
 #  - See Wikipedia: http://en.wikipedia.org/wiki/List_of_archive_formats
 #  - look into POSIX package tools (e.g. http://www.gnu.org/software/swbis/)
 #  - add .dmg type using the Mac OS X diskutil program
+#    - other possible progs: hdiutil, mount_hfs, newfs_hfs (some of these might
+#      be SF.net only)
+#    - hdiutil imageinfo $f is better than nothing
 #  - if type can't be determined, determine type using 'file'
 #	 - make a big switch statement taking in file's output and returning
 #      file extension
@@ -84,7 +114,7 @@ if [ X"$1" = X"-v" ] ; then
 fi
 
 if [ $# -eq 0 -o X"$1" = X"-?" -o X"$1" = X"-h"  ] ; then
-	echo 'fv ver. 1.3'
+	echo 'fv ver. 1.3.1'
 	echo 'Usage: fv [-v] [-?] [-h] [-l] [-t type] archive1 [ archive2 ... ]'
 	echo 'Displays directory listings for many archive types.'
 	exit 3
@@ -95,7 +125,7 @@ if [ X"$1" = X"-l" ] ; then
 	if [ X"$FV_VERBOSE" = X1 ] ; then
 		# Scan this script looking for archive label lines and Also comments
 		sed -n -e "s/'//g" -e 's/^[^#]\+archive[_]label //p' \
-		 -e 's/^[ 	]*# Also \(.*\) [a-z0-9A-Z\.,]*$/\1/p' "$0" | sort -f
+		 -e 's/^[ 	]*# Also \(.*\) [\.a-z0-9A-Z,_]*$/\1/p' "$0" | sort -f
 	else
 		echo 'Supported file extensions:'
 		# Scan this script looking for wildcard case statement entries
@@ -133,7 +163,7 @@ for f in "$@" ; do
 	fi
 	echo "$f":
 	case "$filetype" in
-		# see http://www.p7zip.sf.net/
+		# See http://www.p7zip.sf.net/
 		# requires: p7zip
 		*.7z)	archive_label 7zip archive
 			7za l "$f"
@@ -242,7 +272,7 @@ for f in "$@" ; do
 			;;
 
 		# requires: sed
-		*.hp)	archive_label HP48 distribution archives as posted to comp.sources.hp48
+		*.hp)	archive_label HP48 distribution archive as posted to comp.sources.hp48
 			sed -n -e 's/^\(BEGIN_.*\) /\1	/p' "$f"
 			;;
 
@@ -306,8 +336,8 @@ for f in "$@" ; do
 			pkginfo -d "`dirname "$f"`" -l "`basename "$f"`"
 			;;
 
-		# requires: paq6
 		# See http://www.cs.fit.edu/~mmahoney/compression/#paq6
+		# requires: paq6
 		*.pq6)	archive_label PAQ6 compressed archive
 			sed '//,$d' "$f"
 			;;
@@ -384,22 +414,23 @@ EOF
 			fvcbm "$f"
 			;;
 
-		# gzip-compressed tar archive
+		# gzip-compressed tar archive .tar.gz
 		# Also Netscape package .nif
 		# Also eCos package .epk
 		# Also QNX package .qpk
 		# Also Frugalware package .fpm
 		# Also HP-UX package .depot.gz
+		# Also Rubix package .rub
 		# requires: tar, gzip
-		*.nif | *.epk | *.qpk | *.depot.gz | *.fpm | \
+		*.nif | *.epk | *.qpk | *.depot.gz | *.fpm | *.rub | \
 		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz) 
 			archive_label gzip-compressed tar archive
 			#tar tzvf "$f"
 			gzip -dc "$f" | tar tvf -
 			;;
 
-		# bzip2-compressed tar archive
-		# Also Stampede Linux package
+		# bzip2-compressed tar archive .tar.bz2
+		# Also Stampede Linux package .slp
 		# requires: tar, bzip2
 		*.slp | \
 		*.tar.bz2 | *.tbz)	archive_label bzip2-compressed tar archive
@@ -459,7 +490,7 @@ EOF
 			gzip -vl "$f"
 			;;
 
-		# requires: fileutils, textutils, sh-utils, sed
+		# requires: fileutils, textutils, sh-utils, awk
 		*.bz2)	archive_label bzip2-compressed file
 		    if [ -e "$f" ] ; then
 				echo "method  crc      date           compressed uncompressed_name"
