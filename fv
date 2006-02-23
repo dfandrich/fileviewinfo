@@ -1,9 +1,12 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.16 2006/01/21 07:03:19 dan Exp $
+# $Id: fv,v 1.17 2006/02/23 22:24:57 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.17  2006/02/23 22:24:57  dan
+# Added KDE office file types, OpenOffice Writer
+#
 # Revision 1.16  2006/01/21 07:03:19  dan
 # Added description of metadata within fv file.
 # Added .rub package
@@ -421,8 +424,16 @@ EOF
 		# Also Frugalware package .fpm
 		# Also HP-UX package .depot.gz
 		# Also Rubix package .rub
+		# Also KWord Document .kwd
+		# Also KSpread Spreadsheet .ksp
+		# Also KPresenter Document .kpr
+		# Also KChart Chart .chrt
+		# Also KFormula Document .kfo
+		# Also Kivio Document .flw
+		# Also Kontour Illustration .kil
 		# requires: tar, gzip
 		*.nif | *.epk | *.qpk | *.depot.gz | *.fpm | *.rub | \
+		*.kpr | *.chrt | *.kfo | *.flw | *.kil | *.ksp | *.kwd | \
 		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz) 
 			archive_label gzip-compressed tar archive
 			#tar tzvf "$f"
@@ -464,9 +475,11 @@ EOF
 		# Also Google Earth .kmz
 		# Also OpenOffice Impress Presentation .sxi
 		# Also OpenOffice Drawing .sxd
+		# Also OpenOffice Writer Document .sxw
+		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
-		*.sxi | *.sxd)
+		*.sxi | *.sxd | *.sxw)
 			archive_label ZIP archive
 			unzip -v "$f"
 			;;
