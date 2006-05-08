@@ -1,9 +1,12 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.18 2006/03/22 06:42:20 dan Exp $
+# $Id: fv,v 1.19 2006/05/08 20:59:29 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.19  2006/05/08 20:59:29  dan
+# Added .lzma
+#
 # Revision 1.18  2006/03/22 06:42:20  dan
 # Improved help display.
 # Added .tbz2
@@ -82,11 +85,12 @@
 # * The requires: comment lines below the archive name refer to the
 #   software package(s) required to view the content list of the archive
 #   (RedHat package names are listed in most cases).  This information is not
-#   currently used by the program but is merely a note to the curious user.
+#   currently used by the program but is merely a note to the curious user
+#   who wants to know how to look inside a new archive type.
 #
 # * An archive_label line must be found within the code handling each
 #   archive type.  Any special shell characters must be enclosed in single
-#   quotes.  These lines are listed along with the Also lines using the
+#   quotes.  These lines are listed (along with the Also lines) using the
 #   -v -l option.
 #
 # * A comment line beginning See gives a URL with more information about
@@ -309,6 +313,22 @@ for f in "$@" ; do
 		# requires: lha
 		*.lha | *.lzh)	archive_label LHARC archive
 			lha v "$f"
+			;;
+
+		# See http://www.7-zip.org/sdk.html
+		# requires: python >= 1.6
+		*.lzma)	archive_label LZMA compressed file
+			python - "$f" <<EOF
+import struct, sys, os, string, math
+fn=sys.argv[1]
+f=open(fn)
+prop=f.read(1) # properties
+dict,length = struct.unpack('<IQ', f.read(12))
+basefn=os.path.basename(fn)
+basefn=basefn[:string.rfind(basefn,'.')]
+print 'dict    length filename'
+print '%2d %11d %s' % (math.log(dict)/math.log(2),length,basefn)
+EOF
 			;;
 
 		# See http://www.lzop.org/
