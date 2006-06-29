@@ -1,9 +1,13 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.19 2006/05/08 20:59:29 dan Exp $
+# $Id: fv,v 1.20 2006/06/29 20:34:35 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.20  2006/06/29 20:34:35  dan
+# Added .jffs2, .tlz, .tar.lzma, .lzma, .kgb, .pup types.
+# Improved portability of .ipk
+#
 # Revision 1.19  2006/05/08 20:59:29  dan
 # Added .lzma
 #
@@ -118,6 +122,8 @@
 #	 - make a big switch statement taking in file's output and returning
 #      file extension
 #    - separate switch statement using file's --mime option if available
+#  - Add .ccs, Conary Change Set package http://wiki.conary.com/wiki/Conary
+#     - Syntax is probably: conary showcs --no-recurse --trove-headers --lsl "$f"
 
 usage () {
 	echo 'fv ver. 1.3.1'
@@ -282,7 +288,7 @@ for f in "$@" ; do
 		*.ipk)	archive_label Itsy Package
 			# Detect the old or new style ipk format
 			if file "$f" | egrep -iq 'Debian|ar archive' ; then
-				ar p "$f" data.tar.gz | gzip -dc | tar tvf -
+				ar -p "$f" data.tar.gz | gzip -dc | tar tvf -
 			else
 				# Internal file name may or may not be prefixed with ./
 				# which is what the \* catches.
@@ -310,25 +316,16 @@ for f in "$@" ; do
 			isoinfo -l -R -i "$f"
 			;;
 
+		# requires: mtd-utils
+		# This just dumps file names without directory structure, but it's
+		# better than nothing
+		*.jffs2)	archive_label JFFS2 filesystem image file
+			jffs2dump -c "$f" | sed -n 's/^.*, name //p'
+			;;
+
 		# requires: lha
 		*.lha | *.lzh)	archive_label LHARC archive
 			lha v "$f"
-			;;
-
-		# See http://www.7-zip.org/sdk.html
-		# requires: python >= 1.6
-		*.lzma)	archive_label LZMA compressed file
-			python - "$f" <<EOF
-import struct, sys, os, string, math
-fn=sys.argv[1]
-f=open(fn)
-prop=f.read(1) # properties
-dict,length = struct.unpack('<IQ', f.read(12))
-basefn=os.path.basename(fn)
-basefn=basefn[:string.rfind(basefn,'.')]
-print 'dict    length filename'
-print '%2d %11d %s' % (math.log(dict)/math.log(2),length,basefn)
-EOF
 			;;
 
 		# See http://www.lzop.org/
@@ -377,9 +374,21 @@ EOF
 			;;
 
 		# See http://www.cs.fit.edu/~mmahoney/compression/#paq6
-		# requires: paq6
-		*.pq6)	archive_label PAQ6 compressed archive
+		# See http://kgbarchiver.sourceforge.net/
+		# Also KGB archiver .kgb
+		*.pq6 | *.kgb)	archive_label PAQ6 compressed archive
 			sed '//,$d' "$f"
+			;;
+
+		# requires: unzip
+		# See http://www.puppylinux.com/
+		*.pup)
+			archive_label Puppy Linux package
+			if unzip -l "$f" dotpop.tar.gz >/dev/null; then
+				unzip -p "$f" dotpup.tar.gz | gzip -dc | tar tvf -
+			else
+				unzip -lv "$f"
+			fi
 			;;
 
 		# requires: unrar
@@ -494,6 +503,12 @@ EOF
 			tar tvf "$f"
 			;;
 
+		# Also Tukaani Linux package .tlz
+		# requires: lzma, tar
+		*.tlz | *.tar.lzma)	archive_label LZMA compressed tar archive
+			lzma d -so "$f" | tar tvf -
+			;;
+
 		# See http://tnef.sourceforge.net/
 		# requires: tnef
 		# (Untested)
@@ -537,11 +552,6 @@ EOF
 
 # Compressed files must come after compressed archives
 
-		# requires: gzip
-		*.gz | *.Z | *.z)	archive_label gzip-compressed file
-			gzip -vl "$f"
-			;;
-
 		# requires: fileutils, textutils, sh-utils, awk
 		*.bz2)	archive_label bzip2-compressed file
 		    if [ -e "$f" ] ; then
@@ -559,6 +569,31 @@ EOF
 				printf "bzip2-%s %8s %s %13s %s" "$FILECOMPRESS" "$FILECRC" "$FILEDATE" "$FILESIZE" "$FILENAME"
 			else
 				echo "$f: No such file or directory"
+			fi
+			;;
+
+		# requires: gzip
+		*.gz | *.Z | *.z)	archive_label gzip-compressed file
+			gzip -vl "$f"
+			;;
+
+		# See http://www.7-zip.org/sdk.html
+		# requires: lzma or python >= 1.6
+		*.lzma)	archive_label LZMA compressed file
+		    if which lzmainfo  >/dev/null 2>&1 ; then
+		    	lzmainfo "$f"
+		    else
+				python - "$f" <<EOF
+import struct, sys, os, string, math
+fn=sys.argv[1]
+f=open(fn)
+prop=f.read(1) # properties
+dict,length = struct.unpack('<Iq', f.read(12))
+basefn=os.path.basename(fn)
+basefn=basefn[:string.rfind(basefn,'.')]
+print 'dict    length filename'
+print '%2d %11d %s' % (math.log(dict)/math.log(2),length,basefn)
+EOF
 			fi
 			;;
 
