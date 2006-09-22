@@ -1,9 +1,12 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.21 2006/07/14 21:46:58 dan Exp $
+# $Id: fv,v 1.22 2006/09/22 22:51:30 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.22  2006/09/22 22:51:30  dan
+# Added .ipg, .qpr, .sqsh, .tc archive types
+#
 # Revision 1.21  2006/07/14 21:46:58  dan
 # Added .sdk, .bxy, .pk3, .ccs
 #
@@ -133,7 +136,7 @@ usage () {
 	echo 'Usage: fv [-v] [-?] [-h] [-l] [-t type] archive1 [ archive2 ... ]'
 	echo '  -v     Show verbose output'
 	echo '  -h,-?  Show this help'
-	echo '  -l     List supported file extensions (file types with -v)'
+	echo '  -l     List supported file extensions (or file types with -v)'
 	echo '  -t     Treat the archives as having the specified file extension'
 	exit 3
 }
@@ -474,10 +477,17 @@ EOF
 			fvcbm "$f"
 			;;
 
+		# requires: squashfs
+		# See http://squashfs.sf.net
+		*.sqsh) archive_label Squashfs filesystem image
+			unsquashfs -l "$f"
+			;;
+
 		# gzip-compressed tar archive .tar.gz
 		# Also Netscape package .nif
 		# Also eCos package .epk
 		# Also QNX package .qpk
+		# Also QNX package archive .qpr
 		# Also Frugalware package .fpm
 		# Also HP-UX package .depot.gz
 		# Also Rubix package .rub
@@ -489,7 +499,7 @@ EOF
 		# Also Kivio Document .flw
 		# Also Kontour Illustration .kil
 		# requires: tar, gzip
-		*.nif | *.epk | *.qpk | *.depot.gz | *.fpm | *.rub | \
+		*.nif | *.epk | *.qpk | *.qpr | *.depot.gz | *.fpm | *.rub | \
 		*.kpr | *.chrt | *.kfo | *.flw | *.kil | *.ksp | *.kwd | \
 		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz) 
 			archive_label gzip-compressed tar archive
@@ -510,6 +520,21 @@ EOF
 		# requires: tar
 		*.tar | *.tardist)	archive_label tar archive
 			tar tvf "$f"
+			;;
+
+		# See http://www.encode.ru/tc/
+		# requires: python >= 1.6
+		*.tc)	archive_label tc-compressed file
+			python - "$f" <<EOF
+import struct, sys, os, string
+fn=sys.argv[1]
+f=open(fn)
+length = struct.unpack('<I', f.read(4))[0]
+basefn=os.path.basename(fn)
+basefn=basefn[:string.rfind(basefn,'.')]
+print '    length filename'
+print '%10d %s' % (length, basefn)
+EOF
 			;;
 
 		# Also Tukaani Linux package .tlz
@@ -536,6 +561,7 @@ EOF
 		# Also Perl package .par
 		# Also Winamp compressed skin file .wsz,.wal
 		# Also Google Earth .kmz
+		# Also iPod Game .ipg
 		# Also OpenOffice Impress Presentation .sxi
 		# Also OpenOffice Drawing .sxd
 		# Also OpenOffice Writer Document .sxw
@@ -543,7 +569,7 @@ EOF
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
-		*.sxi | *.sxd | *.sxw | *.pk3)
+		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg)
 			archive_label ZIP archive
 			unzip -v "$f"
 			;;
