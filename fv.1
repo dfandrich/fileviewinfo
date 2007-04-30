@@ -1,6 +1,6 @@
 .\" -*- nroff -*-
-.\" $Id: fv.1,v 1.13 2006/07/14 21:48:53 dan Exp $
-.TH FV 1 "14 Jul 2006" "fv Version 1.3.2"
+.\" $Id: fv.1,v 1.14 2007/04/30 17:41:32 dan Exp $
+.TH FV 1 "30 Apr 2007" "fv Version 1.3.3"
 .SH NAME
 fv \- archive and package directory lister
 .SH SYNOPSIS
@@ -53,17 +53,17 @@ This version supports the following file extensions:
 .LP
 .SM .7z .a .ace .alz .arc .arj .bun .bxy .bz2 .cab .cbmarc .ccs .cf .cgz .chm
 .SM .chrt .cpio .cpio.bz2 .cpio.gz .cpio.Z .cpio.z .d64 .dar .deb .depot.gz
-.SM .epk .flw .fpm .gz .ha .hp .hqx .ipk .iso .jar .jffs2 .kfo .kgb .kil
-.SM .kmz .kpr .ksp .kwd .lbr .lha .lnx .lzh .lzma .lzo .mac .mar .n64 .nif
-.SM .par .par2 .pbi .pk3 .pkg .pq6 .pup .qpk .rar .rpm .rpp .rub .rz .sa
-.SM .sda .sdk .sfx .sh .sh2 .shar .shk .sis .sit .slp .spark .spm .sxd .sxi
-.SM .sxw .t64 .tar .tar.bz2 .tar.gz .tar.lzma .tar.Z .tar.z .tardist .taz
-.SM .tbz .tbz2 .tgz .tlz .uu .uua .uue .wal .wsz .x64 .xpi .Z .z .zip .zoo
-.SM .zz .[psrud]00 winmail.dat
+.SM .epk .flw .fpm .gz .ha .hp .hqx .ipg .ipk .iso .jar .jffs2 .kfo .kgb
+.SM .kil .kmz .kpr .ksp .kwd .lbr .lha .lnx .lzh .lzma .lzo .mac .mar .n64
+.SM .nif .par .par2 .pbi .pk3 .pkg .pq6 .pup .qpk .qpr .rar .rpm .rpp .rub
+.SM .rz .sa .sda .sdk .sfx .sh .sh2 .shar .shk .sis .sit .slp .spark .spm
+.SM .sqsh .sxd .sxi .sxw .t64 .tar .tar.bz2 .tar.gz .tar.lzma .tar.Z .tar.z
+.SM .tardist .taz .tbz .tbz2 .tc .tgz .tlz .uu .uua .uue .wad .wal .wsz .x64
+.SM .xpi .Z .z .zip .zoo .zz .[psrud]00 winmail.dat
 .LP
-Not all file types supported are strictly archive types; several are
-structured documents formats.  Most of these use existing archive formats
-and can be explored using standard archive tools.
+Not all files supported are strictly archive types; several structured
+documents formats are also supported.  Most of these are build on
+existing archive formats and can be explored using standard archive tools.
 .LP
 It is trivial to add more file types to
 .BR fv .
@@ -72,6 +72,7 @@ Please contact the author if you know of one not included.
 These are the file types supported:
 .LP
 .RS
+
 7zip archive
 .LP
 ACE archive 
@@ -108,6 +109,8 @@ Debian distribution archive
 .LP
 Disk Archiver archive
 .LP
+Doom WAD archive
+.LP
 eCos package
 .LP
 Frugalware package
@@ -123,6 +126,8 @@ ha archive
 HP-UX package
 .LP
 HP48 distribution archive as posted to comp.sources.hp48
+.LP
+iPod Game
 .LP
 ISO9660 filesystem image file
 .LP
@@ -192,6 +197,8 @@ Puppy Linux package
 .LP
 QNX package
 .LP
+QNX package archive
+.LP
 Quake3 packed file
 .LP
 RAR compressed archive
@@ -208,6 +215,8 @@ SEA ARC archive
 .LP
 shell archive
 .LP
+Squashfs filesystem image
+.LP
 Stampede Linux package
 .LP
 SymbianOS SIS installable package
@@ -217,6 +226,8 @@ SysV package (SCO UNIX, IRIX)
 tar archive
 .LP
 tardist IRIX package
+.LP
+tc-compressed file
 .LP
 Tukaani Linux package
 .LP
@@ -252,7 +263,8 @@ as the archive type (extension) instead of determining it from the file name.
 .B \-v
 Set verbose mode. Display the type of archive before the listing.  If \-l is
 also given, display a description of each archive type supported instead of
-the file extensions.
+the file extensions.  If two \-v options are given, the archive command
+is displayed as it is executed.
 .\" ---------------------------------------------------------------------------
 .SH "EXIT STATUS"
 .B fv
@@ -263,7 +275,7 @@ it returns 1 and if no arguments are given it returns 3.
 .SH BUGS
 .BR fv 's
 command-line option processing is very limited; the order which options appear
-is significant and only one options may follow each -.
+is significant and only one option may follow each -.
 .\" ---------------------------------------------------------------------------
 .SH AUTHOR
 Daniel Fandrich <dan@coneharvesters.com>
