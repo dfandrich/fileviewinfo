@@ -1,7 +1,10 @@
-# $Id: Makefile,v 1.3 2005/12/22 06:33:53 dan Exp $
+# $Id: Makefile,v 1.4 2008/07/08 18:34:19 dan Exp $
 # Makefile for installing fv
 #
 # $Log: Makefile,v $
+# Revision 1.4  2008/07/08 18:34:19  dan
+# Changed man page link base URL
+#
 # Revision 1.3  2005/12/22 06:33:53  dan
 # Makefile now gets the version number from fv itself.
 #
@@ -31,7 +34,7 @@ fv.man: fv.1
 
 fv.html: fv.man
 	#man2html -topm 5 -compress -cgiurl 'http://www.linux.com/develop/man/$${section}/$${title}/' < $^ > $@
-	man2html -topm 5 -compress -seealso -cgiurl 'http://batboy.fms.indiana.edu/manpages/r/$${title}.$${section}.html' < $^ > $@
+	man2html -topm 5 -compress -seealso -cgiurl 'http://www.mediacollege.com/cgi-bin/man/page.cgi?topic=$${title}' < $^ > $@
 	#txt2html --linkonly < $@ > fv.tmp && mv -f fv.tmp $@
 	#-tidy -m $@
 
