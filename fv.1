@@ -1,6 +1,6 @@
 .\" -*- nroff -*-
-.\" $Id: fv.1,v 1.14 2007/04/30 17:41:32 dan Exp $
-.TH FV 1 "30 Apr 2007" "fv Version 1.3.3"
+.\" $Id: fv.1,v 1.15 2008/07/08 18:27:59 dan Exp $
+.TH FV 1 "08 Jul 2008" "fv Version 1.4"
 .SH NAME
 fv \- archive and package directory lister
 .SH SYNOPSIS
@@ -45,21 +45,23 @@ displayed as it is encountered.  The error message \(lqNot a known
 archive format\(rq is displayed for unknown suffixes.
 .LP
 Several archive types do not have common file suffixes, so arbitrary but
-unique suffixes are used.  To find the complete list of archive types
-and suffixes supported, execute
+unique suffixes are used.  A few file extensions are ambiguous and could
+refer to more than one type.  The \-t option can be used in such cases to
+force decoding as an alternate type.  To find the complete list of archive
+types and suffixes supported, execute
 .B fv
 with the \-l option.
 This version supports the following file extensions:
 .LP
 .SM .7z .a .ace .alz .arc .arj .bun .bxy .bz2 .cab .cbmarc .ccs .cf .cgz .chm
 .SM .chrt .cpio .cpio.bz2 .cpio.gz .cpio.Z .cpio.z .d64 .dar .deb .depot.gz
-.SM .epk .flw .fpm .gz .ha .hp .hqx .ipg .ipk .iso .jar .jffs2 .kfo .kgb
-.SM .kil .kmz .kpr .ksp .kwd .lbr .lha .lnx .lzh .lzma .lzo .mac .mar .n64
-.SM .nif .par .par2 .pbi .pk3 .pkg .pq6 .pup .qpk .qpr .rar .rpm .rpp .rub
-.SM .rz .sa .sda .sdk .sfx .sh .sh2 .shar .shk .sis .sit .slp .spark .spm
-.SM .sqsh .sxd .sxi .sxw .t64 .tar .tar.bz2 .tar.gz .tar.lzma .tar.Z .tar.z
-.SM .tardist .taz .tbz .tbz2 .tc .tgz .tlz .uu .uua .uue .wad .wal .wsz .x64
-.SM .xpi .Z .z .zip .zoo .zz .[psrud]00 winmail.dat
+.SM .docx .epk .flw .fpm .gz .ha .hp .hqx .ipg .ipk .iso .jar .jffs2 .kfo .kgb
+.SM .kil .kmz .kpr .ksp .kwd .lbr .lbr .lha .lnx .lpkg .lzh .lzma .lzo .mac
+.SM .mar .n64 .nif .nth .odt .par .par2 .pbi .pet .pk3 .pkg .pq6 .pup .qpk
+.SM .qpr .rar .rpm .rpp .rsn .rub .rz .sa .sda .sdk .sfx .sh .sh2 .shar .shk
+.SM .sis .sit .slp .spark .spm .sqsh .sxd .sxi .sxw .t64 .tar .tar.bz2 .tar.gz
+.SM .tar.lzma .tar.Z .tar.z .tardist .taz .tbz .tbz2 .tc .tgz .tlz .uu .uua
+.SM .uue .wad .wal .wsz .x64 .xpi .Z .z .zip .zoo .zz .[psrud]00 winmail.dat
 .LP
 Not all files supported are strictly archive types; several structured
 documents formats are also supported.  Most of these are build on
@@ -72,7 +74,6 @@ Please contact the author if you know of one not included.
 These are the file types supported:
 .LP
 .RS
-
 7zip archive
 .LP
 ACE archive 
@@ -102,6 +103,8 @@ Compound File Compiler archive
 compressed cpio archive
 .LP
 Conary Change Set
+.LP
+CP/M LBR archive
 .LP
 cpio archive
 .LP
@@ -155,6 +158,8 @@ KWord Document
 .LP
 LHARC archive
 .LP
+Lua Package
+.LP
 LZMA compressed file
 .LP
 LZMA compressed tar archive
@@ -173,11 +178,17 @@ Microsoft Cabinet archive
 .LP
 Microsoft Compressed HTML
 .LP
+Microsoft Office Open XML
+.LP
 Microsoft TNEF e-mail attachment
 .LP
 Mozilla Java Cross Platform Installer
 .LP
 Netscape package
+.LP
+Nokia mobile phone theme
+.LP
+OpenDocument
 .LP
 OpenOffice Drawing
 .LP
@@ -192,6 +203,8 @@ Parity Archive ver. 2
 PC-BSD package
 .LP
 Perl package
+.LP
+Puppy Linux Extra Treats package
 .LP
 Puppy Linux package
 .LP
@@ -214,6 +227,8 @@ rzip archive
 SEA ARC archive
 .LP
 shell archive
+.LP
+SNES sound archive
 .LP
 Squashfs filesystem image
 .LP
