@@ -1,0 +1,322 @@
+#!/bin/sh
+# fvi - file metainformation lister
+# Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
+# $Id: fvi,v 1.1 2009/06/02 06:47:09 dan Exp $
+#
+# $Log: fvi,v $
+# Revision 1.1  2009/06/02 06:47:09  dan
+# Initial check-in of fvi.
+#
+#
+# Format of file type entries in this file:
+#
+# * The requires: comment lines below the file type refer to the
+#   software package(s) required to view the metadata of the file
+#   (RedHat package names are listed in most cases).  This information is not
+#   currently used by the program but is merely a note to the curious user
+#   who wants to know how to look inside a new file type.
+#
+# * An filetype_label line must be found within the code handling each
+#   file type.  Any special shell characters must be enclosed in single
+#   quotes.  These lines are listed (along with the Also lines) using the
+#   -v -l option.
+#
+# * A comment line beginning See gives a URL with more information about
+#   the file format. This information is not currently used by
+#   the program but is merely a note to the curious user.
+#
+# * A comment line beginning Also gives an alternative file name for the
+#   following file type similar to the format of filetype_label, except
+#   that the comment ends with the file extension and special shell characters
+#   must not be quoted.  These lines are listed along with the filetype_label
+#   lines using the -v -l option.
+#
+# * Each case entry line matching a file extension must have a tab character
+#   in the first position.  These extensions are listed using the -l option.
+#
+#
+# TO DO:
+#  - if type can't be determined, determine type using 'file'
+#	 - make a big switch statement taking in file's output and returning
+#      file extension
+#    - separate switch statement using file's --mime option if available
+#    - handle .sis, .rar
+
+usage () {
+	echo 'fvi ver. 0.1'
+	echo 'Displays metadata for many file types.'
+	echo ''
+	echo 'Usage: fvi [-v] [-?] [-h] [-l] [-t type] file1 [ file2 ... ]'
+	echo '  -v     Show verbose output (more than once for more verbosity)'
+	echo '  -h,-?  Show this help'
+	echo '  -l     List supported file extensions (or file types with -v)'
+	echo '  -t     Treat the files as having the specified file extension'
+	exit 3
+}
+
+if [ X"$1" = X"-v" ] ; then
+	FV_VERBOSE=1
+	shift
+	if [ X"$1" = X"-v" ] ; then
+		FV_VERBOSE=2
+		shift
+	fi
+fi
+
+if [ $# -eq 0 -o X"$1" = X"-?" -o X"$1" = X"-h"  ] ; then
+	usage
+fi
+
+if [ X"$1" = X"-l" ] ; then
+	# requires: textutils, sed
+	if [ X"$FV_VERBOSE" != X ] ; then
+		# Scan this script looking for label lines and Also comments
+		sed -n -e "s/'//g" -e 's/^[^#]\+filetype[_]label //p' \
+		 -e 's/^[ 	]*# Also \(.*\) [\.a-z0-9A-Z,_]*$/\1/p' "$0" | sort -f
+	else
+		echo 'Supported file extensions:'
+		# Scan this script looking for wildcard case statement entries
+		sed -n -e 's/^[ 	][ 	]*\(\*[^#)]*\)[)\\].*$/\1/p' "$0" | sed -e 's/ *| */\
+/g' | sed -e 's/\*//g' -e '/^\**$/d' | sort -f | fmt
+	fi
+	exit
+fi
+
+staticfiletype=""
+if [ X"$1" = X"-t" ] ; then
+	staticfiletype="$2"
+	# Make sure file type starts with . for comparision purposes
+	case "$staticfiletype" in
+		.*) ;;
+		 *)	staticfiletype=".$staticfiletype"
+		    ;;
+	esac
+	shift
+	shift
+fi
+
+if [ $# -eq 0 ] ; then
+	usage
+fi
+
+filetype_label () {
+	# Display the file type in verbose mode
+	if [ X"$FV_VERBOSE" != X ] ; then
+		echo "$*"
+		if [ X"$FV_VERBOSE" = X2 ] ; then
+		  # echo the actual command used to display the file
+		  set -x
+		fi
+	fi
+}
+
+for f in "$@" ; do
+	if [ X"$staticfiletype" = X"" ] ; then
+		filetype=`basename "$f"`
+	else
+		filetype="$staticfiletype"
+	fi
+	echo "$f":
+	case "$filetype" in
+
+		# requires: avifile-samples
+		*.avi)	filetype_label Microsoft Audio Video Interleaved
+			avitype "$f"
+			;;
+
+		# (Untested)
+		*.dmg)	filetype_label Mac OS X Disk Image
+			hdiutil imageinfo "$f"
+			;;
+
+		# requires: flac
+		*.flac)	filetype_label FLAC audio
+			metaflac --list "$f"
+			;;
+
+		# requires: libungif-progs
+		*.gif)	filetype_label GIF image
+			giftext "$f"
+			;;
+
+		# requires: cdrecord
+		*.iso)	filetype_label ISO9660 filesystem image file
+			isoinfo -d -i "$f"
+			;;
+
+		# requires: jhead || exiv2 || exif
+		*.jpg)	filetype_label JPEG image
+			jhead "$f" || exiv2 pr "$f" || exif "$f"
+			;;
+
+		# requires: id3ed || mp3info || id3lib || id3v2
+		*.mp3)	filetype_label MP3 audio file
+			id3ed -i "$f" || mp3info "$f" || id3info "$f" || id3v2 -l "$f"
+			;;
+
+		# requires: libquicktime-progs
+		*.mp4 | *.mpg4 | *.mov | *.qt)	filetype_label Quicktime video
+			qtinfo "$f"
+			;;
+
+		# requires: libquicktime-progs
+		*.m4a)	filetype_label Quicktime audio
+			qtinfo "$f"
+			;;
+
+		# requires: gettext
+		# requires: sed
+		*.mo) filetype_label Binary message catalog file
+			msgunfmt "$f" | sed '/^$/,$d'
+			;;
+
+		# requires: vorbis-tools
+		*.ogg)	filetype_label OGG audio/video
+			ogginfo "$f"
+			;;
+
+		# requires: xpdf
+		*.pdf)	filetype_label Portable Document Format document
+			pdfinfo "$f"
+			;;
+
+		# requires: openssl
+		*.pem) filetype_label PEM certificate
+			openssl x509 -text -in "$f"
+			;;
+
+		# requires: netpbm
+		*.ppm | *.pbm | *.pgm | *.pam | *.pnm)	filetype_label Portable pixmap image
+			pnmfile "$f"
+			;;
+
+		# See http://www.rpm.org/
+		# requires: rpm
+		*.rpm | *.spm)	filetype_label Red Hat RPM package
+			rpm -qip "$f"
+			;;
+
+		# requires: libtiff-progs
+		*.tif | *.tiff)	filetype_label Tagged Image File Format image
+			tiffinfo "$f" || tiffdump "$f"
+			;;
+
+		# requires: bittorrent
+		*.torrent)	filetype_label BitTorrent torrent file
+			torrentinfo-console "$f"
+			;;
+
+		# zip archive .zip
+		# Also Java jar file .jar
+		# Also Mozilla Java Cross Platform Installer .xpi
+		# Also Perl package .par
+		# Also Winamp compressed skin file .wsz,.wal
+		# Also Google Earth .kmz
+		# Also iPod Game .ipg
+		# Also OpenOffice Impress Presentation .sxi
+		# Also OpenOffice Drawing .sxd
+		# Also OpenOffice Writer Document .sxw
+		# Also OpenDocument .odt
+		# Also Quake3 packed file .pk3
+		# Also Nokia mobile phone theme .nth
+		# Also Microsoft Office Open XML .docx
+		# SkyOS .pkg file are in .zip format, but the extension conflicts
+		# requires: unzip
+		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
+		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | *.odt | \
+		*.docx)
+			filetype_label ZIP archive
+			zipinfo -h -z "$f" -x '*'
+			;;
+
+# Catch-all handlers
+
+		# Catch-all bitmapped image information displayer
+		# requires: imagemagick
+		*.raw | *.pcl | *.xpm | *.jbig | *.jp2 | *.png | *.fpx | *.pcx | \
+		*.xbm \
+		)	filetype_label Bitmapped image file
+			identify -verbose "$f"
+			;;
+
+		# Catch-all vector information displayer
+		# requires: imagemagick
+		*.ps | *.eps | *.hpgl | *.fig | *.cgm | *.gplt | \
+		*.rle | *.wmf | *.svg \
+		)	filetype_label Vector image file
+			identify -verbose "$f"
+			;;
+
+		# Catch-all font information displayer
+		# requires: imagemagick
+		*.ttf | *.pfa | *.pfb \
+		)	filetype_label Font file
+			identify -verbose "$f"
+			;;
+
+		# Catch-all video formats
+		# requires: ffmpeg
+		# First batch of extensions come from "ffmpeg -formats"
+		# which lists some things that probably aren't actual file extensions
+	*.3g2 | *.3gp | *.4xm | *.MTV | *.RoQ | *.aac | *.ac3 | *.adts | *.aiff | \
+	*.alaw | *.amr | *.apc | *.ape | *.asf | *.asf_stream | *.au | *.avi | \
+	*.avs | *.bethsoftvid | *.c93 | *.crc | *.daud | *.dirac | *.dsicin | *.dts | \
+	*.dv | *.dv1394 | *.dvd | *.dxa | *.ea | *.ffm | *.film_cpk | *.flac | *.flic | \
+	*.flv | *.framecrc | *.gif | *.gxf | *.h261 | *.h263 | *.h264 | *.idcin | \
+	*.image2 | *.image2pipe | *.ingenient | *.ipmovie | *.libnut | *.m4v |\
+	*.matroska | *.mjpeg | *.mm | *.mmf | *.mov | *.mov | *.mp4 | *.m4a | \
+	*.3gp | *.3g2 | *.mj2 | *.mp2 | *.mp3 | *.mp4 | *.mpc | *.mpeg | *.mpeg1video | \
+	*.mpeg2video | *.mpegts | *.mpegtsraw | *.mpegvideo | *.mpjpeg | *.mulaw |\
+	*.mxf | *.nsv | *.null | *.nut | *.nuv | *.ogg | *.oss | *.psp | *.psxstr | \
+	*.rawvideo | *.redir | *.rm | *.rtp | *.rtsp | *.s16be | *.s16le | *.s8 | \
+	*.sdp | *.shn | *.siff | *.smk | *.sol | *.svcd | *.swf | *.thp | \
+	*.tiertexseq | *.tta | *.txd | *.u16be | *.u16le | *.u8 | *.vc1 | \
+	*.vcd | *.video4linux | *.video4linux2 | *.vmd | *.vob | *.voc | \
+	*.wav | *.wc3movie | *.wsaud | *.wsvqa | *.wv | *.x11grab | *.yuv4mpegpipe | \
+	\
+	*.mpg4 | *.wmv \
+		)	filetype_label Video file
+			ffmpeg -i "$f"
+			;;
+
+# Plain compressed files must come after otherwise compressed files
+
+		# requires: fv, bzip2
+		*.bz2)	filetype_label bzip2-compressed file
+			fv -t bz2 "$f"
+			;;
+
+		# requires: fv, gzip
+		*.gz | *.Z | *.z)	filetype_label gzip-compressed file
+			fv -t gz "$f"
+			;;
+
+		# requires: fv, lzma
+		*.lzma)	filetype_label LZMA compressed file
+			fv -t lzma "$f"
+			;;
+
+		# requires: fv, xz
+		*.xz)	filetype_label XZ compressed file
+			fv -t xz "$f"
+			;;
+
+		# Unknown format
+		# requires: file
+		*)	echo "$filetype: Unsupported file format." 1>&2
+			file "$f" 1>&2
+			# Indicate that an error has occurred
+			false
+			;;
+
+	esac
+	if [ X"$FV_VERBOSE" = X2 ] ; then
+	  set +x
+	fi
+	# Save the return code of the last program run so we can return that from
+	# the script. This won't work for some of the metadata programs, but it's
+	# better than nothing.
+	rc=$?
+	echo ""
+done
+exit $rc
