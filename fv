@@ -1,9 +1,12 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.25 2008/07/08 18:29:27 dan Exp $
+# $Id: fv,v 1.26 2009/06/02 06:49:44 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.26  2009/06/02 06:49:44  dan
+# Added .odg, .epub, .xz, .xar, .sto file types. Fixed .tar.lzma
+#
 # Revision 1.25  2008/07/08 18:29:27  dan
 # Bumped version to 1.4
 #
@@ -128,6 +131,7 @@
 #
 #
 # TO DO:
+#  - rename package to avoid conflicts with the FITS format file viewer
 #  - See Wikipedia: http://en.wikipedia.org/wiki/List_of_archive_formats
 #  - Add PeaZIP .pea type http://sourceforge.net/projects/peazip/
 #	 (only GUI tool is available for this currently)
@@ -147,7 +151,7 @@
 #      find tmpdir -name payload.tar.bz2 -type f -print | xargs fv
 
 usage () {
-	echo 'fv ver. 1.4'
+	echo 'fv ver. 1.4.1'
 	echo 'Displays directory listings for many archive types.'
 	echo ''
 	echo 'Usage: fv [-v] [-?] [-h] [-l] [-t type] archive1 [ archive2 ... ]'
@@ -555,11 +559,18 @@ EOF
 			bzip2 -dc "$f" | tar tvf -
 			;;
 
+		# requires: tar, xz
+		*.tar.xz) 
+			archive_label xz-compressed tar archive
+			xz -dc "$f" | tar tvf -
+			;;
+
 		# tar archive .tar
 		# Also tardist IRIX package .tardist
 		# Also Lua Package .lpkg
+		# Also stopmotion movie .sto
 		# requires: tar
-		*.tar | *.tardist | *.lpkg)	archive_label tar archive
+		*.tar | *.tardist | *.lpkg | *.sto)	archive_label tar archive
 			tar tvf "$f"
 			;;
 
@@ -581,7 +592,7 @@ EOF
 		# Also Tukaani Linux package .tlz
 		# requires: lzma, tar
 		*.tlz | *.tar.lzma)	archive_label LZMA compressed tar archive
-			lzma d -so "$f" | tar tvf -
+			lzma -dc "$f" | tar tvf -
 			;;
 
 		# See http://alcopop.org/games/doom/
@@ -602,6 +613,12 @@ EOF
 			sed -n 's/^begin //p' "$f"
 			;;
 
+		# See http://xar.googlecode.com/
+		# requires: xar
+		*.xar)	archive_label XAR archive
+			xar -t -f "$f"
+			;;
+
 		# zip archive .zip
 		# Also Java jar file .jar
 		# Also Mozilla Java Cross Platform Installer .xpi
@@ -613,14 +630,16 @@ EOF
 		# Also OpenOffice Drawing .sxd
 		# Also OpenOffice Writer Document .sxw
 		# Also OpenDocument .odt
+		# Also OpenDocument Drawing .odg
 		# Also Quake3 packed file .pk3
 		# Also Nokia mobile phone theme .nth
 		# Also Microsoft Office Open XML .docx
+		# Also EPub Document .epub
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
 		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | *.odt | \
-		*.docx)
+		*.odg | *.docx | *.epub)
 			archive_label ZIP archive
 			unzip -v "$f"
 			;;
@@ -682,6 +701,11 @@ print 'dict    length filename'
 print '%2d %11d %s' % (math.log(dict)/math.log(2),length,basefn)
 EOF
 			fi
+			;;
+
+		# requires: xz
+		*.xz)	archive_label xz-compressed file
+			xz -vl "$f"
 			;;
 
 		# Unknown format
