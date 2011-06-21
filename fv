@@ -1,9 +1,13 @@
 #!/bin/sh
 # fv - archive and package directory lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.26 2009/06/02 06:49:44 dan Exp $
+# $Id: fv,v 1.27 2011/06/21 00:24:47 dan Exp $
 #
 # $Log: fv,v $
+# Revision 1.27  2011/06/21 00:24:47  dan
+# Added .opk, .squashfs, .txz, .pisi, .depot, .uRamdisk, .apk, .war, .xps,
+# .resource, .application, .zpaq file types
+#
 # Revision 1.26  2009/06/02 06:49:44  dan
 # Added .odg, .epub, .xz, .xar, .sto file types. Fixed .tar.lzma
 #
@@ -151,7 +155,7 @@
 #      find tmpdir -name payload.tar.bz2 -type f -print | xargs fv
 
 usage () {
-	echo 'fv ver. 1.4.1'
+	echo 'fv ver. 1.4.2'
 	echo 'Displays directory listings for many archive types.'
 	echo ''
 	echo 'Usage: fv [-v] [-?] [-h] [-l] [-t type] archive1 [ archive2 ... ]'
@@ -318,7 +322,8 @@ for f in "$@" ; do
 
 		# requires: binutils, tar
 		# On a Debian system, this should use 'dpkg -c "$f"' instead
-		*.deb)  archive_label Debian distribution archive
+		# Also OpenMoko package .opk
+		*.deb | *.opk)  archive_label Debian distribution archive
 			ar p "$f" data.tar.gz | gzip -dc | tar tvf -
 			;;
 
@@ -416,6 +421,12 @@ for f in "$@" ; do
 		# (Untested)
 		*.pkg)	archive_label 'SysV package (SCO UNIX, IRIX)'
 			pkginfo -d "`dirname "$f"`" -l "`basename "$f"`"
+			;;
+
+		# See http://en.pardus-wiki.org/Package-manager
+		# requires: lzma, tar, unzip
+		*.pisi)	archive_label Pardus package
+			unzip -q -c  "$f" install.tar.lzma | lzma -dc | tar -tvf -
 			;;
 
 		# See http://www.cs.fit.edu/~mmahoney/compression/#paq6
@@ -516,7 +527,7 @@ EOF
 
 		# requires: squashfs
 		# See http://squashfs.sf.net
-		*.sqsh) archive_label Squashfs filesystem image
+		*.sqsh | *.squashfs) archive_label Squashfs filesystem image
 			unsquashfs -l "$f"
 			;;
 
@@ -560,7 +571,7 @@ EOF
 			;;
 
 		# requires: tar, xz
-		*.tar.xz) 
+		*.tar.xz | *.txz)
 			archive_label xz-compressed tar archive
 			xz -dc "$f" | tar tvf -
 			;;
@@ -569,8 +580,9 @@ EOF
 		# Also tardist IRIX package .tardist
 		# Also Lua Package .lpkg
 		# Also stopmotion movie .sto
+		# Also HP-UX package .depot
 		# requires: tar
-		*.tar | *.tardist | *.lpkg | *.sto)	archive_label tar archive
+		*.tar | *.tardist | *.lpkg | *.sto | *.depot)	archive_label tar archive
 			tar tvf "$f"
 			;;
 
@@ -593,6 +605,12 @@ EOF
 		# requires: lzma, tar
 		*.tlz | *.tar.lzma)	archive_label LZMA compressed tar archive
 			lzma -dc "$f" | tar tvf -
+			;;
+
+		# See http://www.denx.de/wiki/U-Boot/
+		# requires: coreutils cpio gzip
+		*.uRamdisk)	archive_label U-boot ramdisk image
+			tail -c +65 "$f" | gzip -dc | cpio -t -v
 			;;
 
 		# See http://alcopop.org/games/doom/
@@ -620,6 +638,7 @@ EOF
 			;;
 
 		# zip archive .zip
+		# Also Android package .apk
 		# Also Java jar file .jar
 		# Also Mozilla Java Cross Platform Installer .xpi
 		# Also Perl package .par
@@ -635,11 +654,16 @@ EOF
 		# Also Nokia mobile phone theme .nth
 		# Also Microsoft Office Open XML .docx
 		# Also EPub Document .epub
+		# Also Java Web Start .war
+		# Also XML Paper Specification .xps
+		# Also Syllable Resource Package .resource
+		# Also Syllable Application Package .application
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
 		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | *.odt | \
-		*.odg | *.docx | *.epub)
+		*.odg | *.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
+		*.application)
 			archive_label ZIP archive
 			unzip -v "$f"
 			;;
@@ -647,6 +671,12 @@ EOF
 		# requires: zoo
 		*.zoo)	archive_label ZOO archive
 			zoo -list "$f"
+			;;
+
+		# See http://mattmahoney.net/dc/zpaq.html
+		# requires: zpaq
+		*.zpaq)	archive_label ZPAQ compressed archive
+			zpaq l "$f"
 			;;
 
 		# See http://debin.net/zzip/
@@ -662,7 +692,7 @@ EOF
 		*.bz2)	archive_label bzip2-compressed file
 		    if [ -e "$f" ] ; then
 				echo "method  crc      date           compressed uncompressed_name"
-				FILEINFO=`ls -l "$f"`
+				FILEINFO=`env LC_ALL=C ls -l "$f"`
 				#FILESIZE=`echo "$FILEINFO" | cut -c 30-42`
 				FILESIZE=`echo "$FILEINFO" | awk '{print $5}'`
 				#FILEDATE=`echo "$FILEINFO" | cut -c 43-54`
