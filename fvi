@@ -1,9 +1,12 @@
 #!/bin/sh
 # fvi - file metainformation lister
 # Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fvi,v 1.1 2009/06/02 06:47:09 dan Exp $
+# $Id: fvi,v 1.2 2011/06/21 00:22:30 dan Exp $
 #
 # $Log: fvi,v $
+# Revision 1.2  2011/06/21 00:22:30  dan
+# Added many file types
+#
 # Revision 1.1  2009/06/02 06:47:09  dan
 # Initial check-in of fvi.
 #
@@ -41,9 +44,10 @@
 #      file extension
 #    - separate switch statement using file's --mime option if available
 #    - handle .sis, .rar
+#    - handle .mts (video)
 
 usage () {
-	echo 'fvi ver. 0.1'
+	echo 'fvi ver. 0.2'
 	echo 'Displays metadata for many file types.'
 	echo ''
 	echo 'Usage: fvi [-v] [-?] [-h] [-l] [-t type] file1 [ file2 ... ]'
@@ -119,9 +123,39 @@ for f in "$@" ; do
 	echo "$f":
 	case "$filetype" in
 
+		# requires Android SDK
+		*.apk)	filetype_label Android package
+			aapt d badging "$f"
+			;;
+
 		# requires: avifile-samples
 		*.avi)	filetype_label Microsoft Audio Video Interleaved
 			avitype "$f"
+			;;
+
+		# requires: openssl
+		*.crl) filetype_label X509 CRL
+			openssl crl -text -in "$f"
+			;;
+
+		# requires: tar
+		*.depot) filetype_label HP-UX package
+			tar xOf "$f" catalog/INDEX
+			;;
+
+		# requires: tar gzip
+		*.depot.gz) filetype_label HP-UX package
+			gzip -dc "$f" | tar xOf - catalog/INDEX
+			;;
+
+		# requires: openssl
+		*.der) filetype_label DER certificate
+			openssl x509 -text -inform der -in "$f"
+			;;
+
+		# needs Android SDK
+		*.dex)	filetype_label Android Java class file
+			dexdump -f "$f"
 			;;
 
 		# (Untested)
@@ -145,17 +179,17 @@ for f in "$@" ; do
 			;;
 
 		# requires: jhead || exiv2 || exif
-		*.jpg)	filetype_label JPEG image
+		*.jpg | *.jpeg | *.jfif)	filetype_label JPEG image
 			jhead "$f" || exiv2 pr "$f" || exif "$f"
 			;;
 
-		# requires: id3ed || mp3info || id3lib || id3v2
+		# requires: python-id3 || id3ed || mp3info || id3lib || id3v2
 		*.mp3)	filetype_label MP3 audio file
-			id3ed -i "$f" || mp3info "$f" || id3info "$f" || id3v2 -l "$f"
+			listid3v2.py "$f" || id3ed -i "$f" || mp3info "$f" || id3info "$f" || id3v2 -l "$f"
 			;;
 
 		# requires: libquicktime-progs
-		*.mp4 | *.mpg4 | *.mov | *.qt)	filetype_label Quicktime video
+		*.mp4 | *.mpg4 | *.mov | *.qt | *.3gp)	filetype_label Quicktime video
 			qtinfo "$f"
 			;;
 
@@ -170,8 +204,18 @@ for f in "$@" ; do
 			msgunfmt "$f" | sed '/^$/,$d'
 			;;
 
+		# requires: mkvtoolnix
+		*.mkv | *.webm) filetype_label Matroska video file
+			mkvinfo "$f"
+			;;
+
+		# requires: binutils
+		*.o)	filetype_label Object file
+			objdump -afph "$f"
+			;;
+
 		# requires: vorbis-tools
-		*.ogg)	filetype_label OGG audio/video
+		*.ogg | *.ogv)	filetype_label OGG audio/video
 			ogginfo "$f"
 			;;
 
@@ -180,9 +224,16 @@ for f in "$@" ; do
 			pdfinfo "$f"
 			;;
 
+		# Also X.509 certificate  .crt
+		# Also X.509 CA certificate  .cacrt
 		# requires: openssl
-		*.pem) filetype_label PEM certificate
+		*.pem | *.cacrt | *.crt) filetype_label PEM certificate
 			openssl x509 -text -in "$f"
+			;;
+
+		# requires: pngtools
+		*.png)	filetype_label Portable Network Graphics image
+			pnginfo "$f"
 			;;
 
 		# requires: netpbm
@@ -206,7 +257,12 @@ for f in "$@" ; do
 			torrentinfo-console "$f"
 			;;
 
+		*.wav)	filetype_label WAV audio file
+			wavplay -i "$f"
+			;;
+
 		# zip archive .zip
+		# Also Android package .apk
 		# Also Java jar file .jar
 		# Also Mozilla Java Cross Platform Installer .xpi
 		# Also Perl package .par
@@ -217,14 +273,17 @@ for f in "$@" ; do
 		# Also OpenOffice Drawing .sxd
 		# Also OpenOffice Writer Document .sxw
 		# Also OpenDocument .odt
+		# Also OpenDocument Drawing .odg
 		# Also Quake3 packed file .pk3
 		# Also Nokia mobile phone theme .nth
 		# Also Microsoft Office Open XML .docx
+		# Also EPub Document .epub
+		# Also Java Web Start .war
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
 		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | *.odt | \
-		*.docx)
+		*.odg | *.docx | *.epub | *.apk | *.war)
 			filetype_label ZIP archive
 			zipinfo -h -z "$f" -x '*'
 			;;
@@ -254,7 +313,7 @@ for f in "$@" ; do
 			identify -verbose "$f"
 			;;
 
-		# Catch-all video formats
+		# Catch-all video and audio formats
 		# requires: ffmpeg
 		# First batch of extensions come from "ffmpeg -formats"
 		# which lists some things that probably aren't actual file extensions
@@ -274,8 +333,9 @@ for f in "$@" ; do
 	*.vcd | *.video4linux | *.video4linux2 | *.vmd | *.vob | *.voc | \
 	*.wav | *.wc3movie | *.wsaud | *.wsvqa | *.wv | *.x11grab | *.yuv4mpegpipe | \
 	\
-	*.mpg4 | *.wmv \
-		)	filetype_label Video file
+	*.mpg4 | *.wmv | \
+	*.amv | *.ram \
+		)	filetype_label Video or audio file
 			ffmpeg -i "$f"
 			;;
 
@@ -286,8 +346,9 @@ for f in "$@" ; do
 			fv -t bz2 "$f"
 			;;
 
+		# Also Windows Media compressed skin file .wmz
 		# requires: fv, gzip
-		*.gz | *.Z | *.z)	filetype_label gzip-compressed file
+		*.gz | *.Z | *.z | *.wmz)	filetype_label gzip-compressed file
 			fv -t gz "$f"
 			;;
 
