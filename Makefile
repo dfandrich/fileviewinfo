@@ -1,7 +1,10 @@
-# $Id: Makefile,v 1.4 2008/07/08 18:34:19 dan Exp $
+# $Id: Makefile,v 1.5 2011/06/21 00:25:38 dan Exp $
 # Makefile for installing fv
 #
 # $Log: Makefile,v $
+# Revision 1.5  2011/06/21 00:25:38  dan
+# Added fvi
+#
 # Revision 1.4  2008/07/08 18:34:19  dan
 # Changed man page link base URL
 #
@@ -18,7 +21,7 @@
 prefix=/usr
 
 VERSION=$(shell ./fv -\? | sed -n '1s/^.*ver. //p')
-SOURCES = fv fv.1
+SOURCES = fv fvi fv.1
 DISTFILES = $(SOURCES) Makefile fv.spec
 CLEAN_FILES = fv.man fv.html
 
@@ -29,7 +32,7 @@ all:
 clean:
 	-rm -f $(CLEAN_FILES)
 
-fv.man: fv.1
+%.man: %.1
 	nroff -man $^ > $@
 
 fv.html: fv.man
