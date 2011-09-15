@@ -47,7 +47,7 @@
 #    - handle .mts (video)
 
 usage () {
-	echo 'fvi ver. 0.2'
+	echo 'fvi ver. 0.2.1'
 	echo 'Displays metadata for many file types.'
 	echo ''
 	echo 'Usage: fvi [-v] [-?] [-h] [-l] [-t type] file1 [ file2 ... ]'
@@ -163,6 +163,12 @@ for f in "$@" ; do
 			hdiutil imageinfo "$f"
 			;;
 
+		# Also 
+		# requires: ebook-tools
+		*.epub)	filetype_label EPub Document
+			einfo "$f"
+			;;
+
 		# requires: flac
 		*.flac)	filetype_label FLAC audio
 			metaflac --list "$f"
@@ -173,6 +179,19 @@ for f in "$@" ; do
 			giftext "$f"
 			;;
 
+		# See http://www.handhelds.org/
+		# requires: binutils, file, grep, gzip, tar
+		*.ipk)	filetype_label Itsy Package
+			# Detect the old or new style ipk format
+			if file "$f" | egrep -iq 'Debian|ar archive' ; then
+				ar -p "$f" control.tar.gz | gzip -dc | tar xOf -
+			else
+				# Internal file name may or may not be prefixed with ./
+				# which is what the \* catches.
+				gzip -dc "$f" | tar xOf - \*control.tar.gz | gzip -dc | tar xOf -
+			fi
+			;;
+
 		# requires: cdrecord
 		*.iso)	filetype_label ISO9660 filesystem image file
 			isoinfo -d -i "$f"
@@ -181,6 +200,11 @@ for f in "$@" ; do
 		# requires: jhead || exiv2 || exif
 		*.jpg | *.jpeg | *.jfif)	filetype_label JPEG image
 			jhead "$f" || exiv2 pr "$f" || exif "$f"
+			;;
+
+		# requires: openssl
+		*.key) filetype_label Private key
+			openssl asn1parse -in "$f"
 			;;
 
 		# requires: python-id3 || id3ed || mp3info || id3lib || id3v2
@@ -277,7 +301,6 @@ for f in "$@" ; do
 		# Also Quake3 packed file .pk3
 		# Also Nokia mobile phone theme .nth
 		# Also Microsoft Office Open XML .docx
-		# Also EPub Document .epub
 		# Also Java Web Start .war
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
