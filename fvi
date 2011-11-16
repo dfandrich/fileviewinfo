@@ -155,7 +155,7 @@ for f in "$@" ; do
 
 		# needs Android SDK
 		*.dex)	filetype_label Android Java class file
-			dexdump -f "$f"
+			dexlist "$f"
 			;;
 
 		# (Untested)
@@ -321,10 +321,11 @@ for f in "$@" ; do
 			identify -verbose "$f"
 			;;
 
+		# Also Windows Media compressed skin file .wmz
 		# Catch-all vector information displayer
 		# requires: imagemagick
 		*.ps | *.eps | *.hpgl | *.fig | *.cgm | *.gplt | \
-		*.rle | *.wmf | *.svg \
+		*.rle | *.wmf | *.wmz | *.svg \
 		)	filetype_label Vector image file
 			identify -verbose "$f"
 			;;
@@ -369,9 +370,8 @@ for f in "$@" ; do
 			fv -t bz2 "$f"
 			;;
 
-		# Also Windows Media compressed skin file .wmz
 		# requires: fv, gzip
-		*.gz | *.Z | *.z | *.wmz)	filetype_label gzip-compressed file
+		*.gz | *.Z | *.z)	filetype_label gzip-compressed file
 			fv -t gz "$f"
 			;;
 
