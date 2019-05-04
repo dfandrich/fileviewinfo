@@ -324,7 +324,7 @@ for f in "$@" ; do
 		# On a Debian system, this should use 'dpkg -c "$f"' instead
 		# Also OpenMoko package .opk
 		*.deb | *.opk)  archive_label Debian distribution archive
-			ar p "$f" data.tar.gz | gzip -dc | tar tvf -
+			ar p "$f" data.tar.gz | gzip -dc | tar tvf - || ( ar p "$f" data.tar.xz | xz -dc | tar tvf - )
 			;;
 
 		# See http://www.handhelds.org/
