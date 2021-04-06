@@ -215,7 +215,7 @@ for f in "$@" ; do
 			dar -l "$f"
 			;;
 
-		# requires: binutils, tar
+		# requires: binutils, gzip, tar, xz
 		# On a Debian system, this should use 'dpkg -c "$f"' instead
 		# Also OpenMoko package .opk
 		*.deb | *.opk)  archive_label Debian distribution archive
@@ -233,6 +233,12 @@ for f in "$@" ; do
 				# which is what the \* catches.
 				gzip -dc "$f" | tar xOf - \*data.tar.gz | gzip -dc | tar tvf -
 			fi
+			;;
+
+		# requires: binutils, gzip, tar
+		# Also Ruby package .gem
+		*.gem)	archive_label Ruby Package
+			tar xOf "$f" data.tar.gz | gzip -dc | tar tvf -
 			;;
 
 		# I've forgotten what this is
@@ -345,7 +351,7 @@ for f in "$@" ; do
 		# requires: unrar
 		# Also SNES sound archive .rsn
 		*.rar | *.rsn)	archive_label RAR compressed archive
-			unrar l "$f"
+			unrar v "$f"
 			;;
 
 		# See http://www.rpm.org/
@@ -449,6 +455,20 @@ EOF
 			gzip -dc "$f" | tar tvf -
 			;;
 
+		# lzip-compressed tar archive .tar.lz
+		# requires: tar, lzip
+		*.tar.lz)
+			archive_label lzip-compressed tar archive
+			lzip -dc "$f" | tar tvf -
+			;;
+
+		# zstd-compressed tar archive .tar.zst
+		# requires: tar, zstd
+		*.tar.zst)
+			archive_label zstd-compressed tar archive
+			zstd -dc "$f" | tar tvf -
+			;;
+
 		# .pet gets its own entry to give gzip the -q option; otherwise it
 		# complains about the CRC tacked on to the end
 		# requires: tar, gzip
@@ -461,7 +481,7 @@ EOF
 		# Also Stampede Linux package .slp
 		# requires: tar, bzip2
 		*.slp | \
-		*.tar.bz2 | *.tbz | *.tbz2)	archive_label bzip2-compressed tar archive
+		*.tar.bz2 | *.tbz | *.tbz2) archive_label bzip2-compressed tar archive
 			bzip2 -dc "$f" | tar tvf -
 			;;
 
@@ -554,12 +574,15 @@ EOF
 		# Also XML Paper Specification .xps
 		# Also Syllable Resource Package .resource
 		# Also Syllable Application Package .application
+		# Also (unknown 3D package) .f3d
+		# Also Python package .egg
+		# Also Krita image .kra
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
 		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | *.odt | \
 		*.odg | *.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
-		*.application | *.docm)
+		*.application | *.docm | *.f3d | *.egg | *.kra)
 			archive_label ZIP archive
 			unzip -v "$f"
 			;;
