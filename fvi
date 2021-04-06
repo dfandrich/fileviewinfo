@@ -200,7 +200,7 @@ for f in "$@" ; do
 
 		# requires: python-id3 || id3ed || mp3info || id3lib || id3v2
 		*.mp3)	filetype_label MP3 audio file
-			listid3v2.py "$f" || id3ed -i "$f" || mp3info "$f" || id3info "$f" || id3v2 -l "$f"
+			id3v2 -l "$f" || listid3v2.py "$f" || id3ed -i "$f" || mp3info "$f" || id3info "$f"
 			;;
 
 		# requires: libquicktime-progs
@@ -262,8 +262,9 @@ for f in "$@" ; do
 			rpm -qip "$f"
 			;;
 
+		# Also Digital Negative Raw Image .dng
 		# requires: libtiff-progs
-		*.tif | *.tiff)	filetype_label Tagged Image File Format image
+		*.tif | *.tiff | *.dng)	filetype_label Tagged Image File Format image
 			tiffinfo "$f" || tiffdump "$f"
 			;;
 
@@ -323,7 +324,7 @@ for f in "$@" ; do
 
 		# Catch-all font information displayer
 		# requires: imagemagick
-		*.ttf | *.pfa | *.pfb \
+		*.ttf | *.pfa | *.pfb | *.otf \
 		)	filetype_label Font file
 			identify -verbose "$f"
 			;;
