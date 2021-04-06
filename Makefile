@@ -1,22 +1,4 @@
-# $Id: Makefile,v 1.5 2011/06/21 00:25:38 dan Exp $
 # Makefile for installing fv
-#
-# $Log: Makefile,v $
-# Revision 1.5  2011/06/21 00:25:38  dan
-# Added fvi
-#
-# Revision 1.4  2008/07/08 18:34:19  dan
-# Changed man page link base URL
-#
-# Revision 1.3  2005/12/22 06:33:53  dan
-# Makefile now gets the version number from fv itself.
-#
-# Revision 1.2  2005/02/03 05:46:51  dan
-# Make dependencies for dist target. Bumped version to 1.2
-#
-# Revision 1.1  2003/04/02 07:22:35  dan
-# Initial revision.
-#
 
 prefix=/usr
 

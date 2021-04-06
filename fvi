@@ -1,15 +1,6 @@
 #!/bin/sh
 # fvi - file metainformation lister
-# Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fvi,v 1.2 2011/06/21 00:22:30 dan Exp $
-#
-# $Log: fvi,v $
-# Revision 1.2  2011/06/21 00:22:30  dan
-# Added many file types
-#
-# Revision 1.1  2009/06/02 06:47:09  dan
-# Initial check-in of fvi.
-#
+# Placed into the public domain by Dan Fandrich <dan@coneharvesters.com>
 #
 # Format of file type entries in this file:
 #
@@ -47,7 +38,7 @@
 #    - handle .mts (video)
 
 usage () {
-	echo 'fvi ver. 0.2.1'
+	echo 'fvi ver. 0.2.2'
 	echo 'Displays metadata for many file types.'
 	echo ''
 	echo 'Usage: fvi [-v] [-?] [-h] [-l] [-t type] file1 [ file2 ... ]'

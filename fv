@@ -1,111 +1,6 @@
 #!/bin/sh
 # fv - archive and package directory lister
-# Place into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# $Id: fv,v 1.27 2011/06/21 00:24:47 dan Exp $
-#
-# $Log: fv,v $
-# Revision 1.27  2011/06/21 00:24:47  dan
-# Added .opk, .squashfs, .txz, .pisi, .depot, .uRamdisk, .apk, .war, .xps,
-# .resource, .application, .zpaq file types
-#
-# Revision 1.26  2009/06/02 06:49:44  dan
-# Added .odg, .epub, .xz, .xar, .sto file types. Fixed .tar.lzma
-#
-# Revision 1.25  2008/07/08 18:29:27  dan
-# Bumped version to 1.4
-#
-# Revision 1.24  2008/07/08 18:23:52  dan
-# Added .lbr, .rsn, .pet, .lpkg, .odt, .nth, .docx file types
-#
-# Revision 1.23  2007/04/30 17:33:43  dan
-# Added .wad compound files.
-# Giving two -v options displays the archive command being executed.
-#
-# Revision 1.22  2006/09/22 22:51:30  dan
-# Added .ipg, .qpr, .sqsh, .tc archive types
-#
-# Revision 1.21  2006/07/14 21:46:58  dan
-# Added .sdk, .bxy, .pk3, .ccs
-#
-# Revision 1.20  2006/06/29 20:34:35  dan
-# Added .jffs2, .tlz, .tar.lzma, .lzma, .kgb, .pup types.
-# Improved portability of .ipk
-#
-# Revision 1.19  2006/05/08 20:59:29  dan
-# Added .lzma
-#
-# Revision 1.18  2006/03/22 06:42:20  dan
-# Improved help display.
-# Added .tbz2
-#
-# Revision 1.17  2006/02/23 22:24:57  dan
-# Added KDE office file types, OpenOffice Writer
-#
-# Revision 1.16  2006/01/21 07:03:19  dan
-# Added description of metadata within fv file.
-# Added .rub package
-# Cleaned up some descriptions.
-#
-# Revision 1.15  2005/12/22 06:29:57  dan
-# Make .pbi viewable with older bzip2 by using bzcat.
-# Bump version number to 1.3.
-#
-# Revision 1.14  2005/12/09 06:33:51  dan
-# Added .pq6 type and some minor edits.
-#
-# Revision 1.13  2005/11/30 07:52:37  dan
-# Improved -v -l to display alternate descriptions of archive types.
-#
-# Revision 1.12  2005/11/13 06:23:23  dan
-# Added .sxi, .sxd types.  Cleaned up some of the comments.
-#
-# Revision 1.11  2005/10/25 05:40:26  dan
-# Added .kmz, .tbz, .fpm, .pbi, .alz archive types.
-# Added verbose version of -l listing.
-#
-# Revision 1.10  2005/05/11 07:03:20  dan
-# Added rzip support. Added -v option to display archive type.
-#
-# Revision 1.9  2005/02/24 07:55:23  dan
-# Eliminated use of temporary files for .deb and .ipk file types, thereby
-# closing a security hole.
-# Added -t option to select a specific archive type for a file.
-# Renamed CBM .arc to .cbmarc
-# Improve detection of .ipk format version.
-# Added winmail.dat type.
-#
-# Revision 1.8  2005/02/03 05:37:02  dan
-# No longer abort if one archive type isn't known.
-# Bumped version to 1.2.
-#
-# Revision 1.7  2004/12/02 05:51:30  dan
-# Added .7z, .wal, .wsz, .tardist, .depot.gz
-#
-# Revision 1.6  2004/07/10 22:51:32  dan
-# Added untested extensions .bun .dar .mar (different) .par .par2 .spark .zz
-# Improved .deb .ipk
-# Made -l work on a greater variety of systems
-#
-# Revision 1.5  2004/07/08 05:49:01  dan
-# Added file extensions .sis .chm .slp .ace
-# Added -l option to display supported file extensions.
-#
-# Revision 1.4  2003/06/03 06:16:48  dan
-# Added old .ipk style.
-# Added .qpk, .cpio.bz2
-# Extract temporary achives in /tmp
-#
-# Revision 1.3  2003/04/02 07:23:15  dan
-# Changed return code for argument error.
-#
-# Revision 1.2  2003/04/02 06:37:53  dan
-# Bumped version number to 1.1.
-# Exit with the archive list command exit code (in most cases).
-# Added many archive types.
-# Added comments about package dependencies for displaying each archive type.
-#
-# 96-11-23  ver. 1.0  Dan Fandrich  first public release
-# 95-11-23  ver. 0.1  Dan Fandrich  <dan@fch.wimsey.bc.ca> created
+# Placed into the public domain by Dan Fandrich <dan@coneharvesters.com>
 #
 # Format of archive entries in this file:
 #
@@ -155,7 +50,7 @@
 #      find tmpdir -name payload.tar.bz2 -type f -print | xargs fv
 
 usage () {
-	echo 'fv ver. 1.4.2'
+	echo 'fv ver. 1.4.3'
 	echo 'Displays directory listings for many archive types.'
 	echo ''
 	echo 'Usage: fv [-v] [-?] [-h] [-l] [-t type] archive1 [ archive2 ... ]'
