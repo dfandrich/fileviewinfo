@@ -368,19 +368,18 @@ for f in "$@" ; do
 			;;
 
 		# See http://rzip.samba.org/
-		# requires: python >= 1.6
+		# requires: python >= 3
 		*.rz)	archive_label rzip archive
-			python - "$f" <<EOF
-import struct, sys, os, string
+			python3 - "$f" <<EOF
+import struct, sys, os
 fn=sys.argv[1]
-f=open(fn)
-magic,ver1,ver2 = struct.unpack('4sBB', f.read(6))
-if magic!='RZIP': sys.stderr.write('Not an rzip archive\n'); sys.exit(1);
-length = struct.unpack('!II', f.read(8))
-basefn=os.path.basename(fn)
-basefn=basefn[:string.rfind(basefn,'.')]
-print 'rz ver    length filename'
-print '%2d.%02d %10d %s' % (ver1,ver2, length[1] * 0x100000000L + length[0], basefn)
+with open(fn, 'rb') as f:
+	magic,ver1,ver2 = struct.unpack('4sBB', f.read(6))
+	if magic!=b'RZIP': print('Not an rzip archive', file=sys.stderr); sys.exit(1);
+	length = struct.unpack('!II', f.read(8))
+basefn=os.path.basename(fn).rsplit('.')[0]
+print('rz ver    length filename')
+print('%2d.%02d %10d %s' % (ver1,ver2, length[1] * 0x100000000 + length[0], basefn))
 EOF
 			;;
 
@@ -502,17 +501,16 @@ EOF
 			;;
 
 		# See http://www.encode.ru/tc/
-		# requires: python >= 1.6
+		# requires: python >= 3
 		*.tc)	archive_label tc-compressed file
-			python - "$f" <<EOF
-import struct, sys, os, string
+			python3 - "$f" <<EOF
+import struct, sys, os
 fn=sys.argv[1]
-f=open(fn)
-length = struct.unpack('<I', f.read(4))[0]
-basefn=os.path.basename(fn)
-basefn=basefn[:string.rfind(basefn,'.')]
-print '    length filename'
-print '%10d %s' % (length, basefn)
+with open(fn, 'rb') as f:
+	length = struct.unpack('<I', f.read(4))[0]
+basefn=os.path.basename(fn).rsplit('.')[0]
+print('    length filename')
+print('%10d %s' % (length, basefn))
 EOF
 			;;
 
@@ -633,21 +631,20 @@ EOF
 			;;
 
 		# See http://www.7-zip.org/sdk.html
-		# requires: lzma or python >= 1.6
+		# requires: lzma or python >= 3
 		*.lzma)	archive_label LZMA compressed file
 		    if which lzmainfo  >/dev/null 2>&1 ; then
 		    	lzmainfo "$f"
 		    else
-				python - "$f" <<EOF
-import struct, sys, os, string, math
+				python3 - "$f" <<EOF
+import struct, sys, os, math
 fn=sys.argv[1]
-f=open(fn)
-prop=f.read(1) # properties
-dict,length = struct.unpack('<Iq', f.read(12))
-basefn=os.path.basename(fn)
-basefn=basefn[:string.rfind(basefn,'.')]
-print 'dict    length filename'
-print '%2d %11d %s' % (math.log(dict)/math.log(2),length,basefn)
+with open(fn, 'rb') as f:
+	prop=f.read(1) # properties
+	dict,length = struct.unpack('<Iq', f.read(12))
+basefn=os.path.basename(fn).rsplit('.')[0]
+print('dict    length filename')
+print('%2d %11d %s' % (math.log(dict)/math.log(2),length,basefn))
 EOF
 			fi
 			;;
