@@ -31,23 +31,19 @@
 #
 # TO DO:
 #  - rename package to avoid conflicts with the FITS format file viewer
-#  - See Wikipedia: http://en.wikipedia.org/wiki/List_of_archive_formats
+#  - See Wikipedia: https://en.wikipedia.org/wiki/List_of_archive_formats
 #  - Add PeaZIP .pea type http://sourceforge.net/projects/peazip/
 #	 (only GUI tool is available for this currently)
-#  - look into POSIX package tools (e.g. http://www.gnu.org/software/swbis/)
-#  - add .dmg type using the Mac OS X diskutil program
-#    - other possible progs: hdiutil, mount_hfs, newfs_hfs (some of these might
-#      be SF.net only)
-#    - hdiutil imageinfo $f is better than nothing
-#  - if type can't be determined, determine type using 'file'
-#	 - make a big switch statement taking in file's output and returning
-#      file extension
-#    - separate switch statement using file's --mime option if available
+#  - look into POSIX package tools (e.g. https://www.gnu.org/software/swbis/)
 #  - add autopackage support with extension .package http://autopackage.org
 #    - mkdir tmpdir
 #	   sed -n 2p "$f" | grep -q "^# autopackage 1" || echo not autopackage
 #	   bash "$f" -w tmpdir --delay
 #      find tmpdir -name payload.tar.bz2 -type f -print | xargs fv
+#  - if type can't be determined, determine type using 'file'
+#	 - make a big switch statement taking in file's output and returning
+#      file extension
+#    - separate switch statement using file's --mime option if available
 
 usage () {
 	echo 'fv ver. 1.4.3'
@@ -222,6 +218,26 @@ for f in "$@" ; do
 			ar p "$f" data.tar.gz | gzip -dc | tar tvf - || ( ar p "$f" data.tar.xz | xz -dc | tar tvf - )
 			;;
 
+		# requires dmg2img, kpartx, apfs_fuse (https://github.com/sgan81/apfs-fuse)
+		*.dmg)	archive_label Apple disk image
+			FVTMPDIR="$(mktemp -d)"
+			dmg2img "$f" "$FVTMPDIR/image.img"
+			DMGDEVICE="$(sudo kpartx -asrv "$FVTMPDIR/image.img" | awk '/^add map/ {print "/dev/mapper/" $3}')"
+			if [ -z "$FVTMPDIR" -o -z "$FVTMPDIR" ] ; then
+				echo "Error: cannot manipulate DMG file; are dmg2img and kpartx installed?"
+			else
+				mkdir "$FVTMPDIR/mnt"
+				# The kernel itself can mount an HFS dmg, so use apfs-fuse only if that fails
+				sudo mount -r "$DMGDEVICE" "$FVTMPDIR/mnt" 2>/dev/null || sudo apfs-fuse -o allow_other "$DMGDEVICE" "$FVTMPDIR/mnt"
+				(cd "$FVTMPDIR/mnt" && find . -exec ls -ld {} +)
+				# clean up
+				sudo umount "$FVTMPDIR/mnt"
+				sudo kpartx -d "$FVTMPDIR/image.img"
+				rm -f "$FVTMPDIR/image.img"
+				rmdir -p "$FVTMPDIR"/* 2>/dev/null
+			fi
+			;;
+
 		# See http://www.handhelds.org/
 		# requires: binutils, file, grep, gzip, tar
 		*.ipk)	archive_label Itsy Package
@@ -231,7 +247,7 @@ for f in "$@" ; do
 			else
 				# Internal file name may or may not be prefixed with ./
 				# which is what the \* catches.
-				gzip -dc "$f" | tar xOf - \*data.tar.gz | gzip -dc | tar tvf -
+				gzip -dc "$f" | tar xOf - --wildcards \*data.tar.gz | gzip -dc | tar tvf -
 			fi
 			;;
 
@@ -563,6 +579,17 @@ EOF
 		# Also OpenOffice Writer Document .sxw
 		# Also OpenDocument .odt
 		# Also OpenDocument Drawing .odg
+		# Also OpenDocument Spreadsheet .ods
+		# Also OpenDocument Presentation .odp
+		# Also OpenDocument Formula .odf
+		# Also OpenDocument .fodt
+		# Also OpenDocument Drawing .fodg
+		# Also OpenDocument Spreadsheet .fods
+		# Also OpenDocument Presentation .fodp
+		# Also OpenDocument Drawing Template .otg
+		# Also OpenDocument Presentation Template .otp
+		# Also OpenDocument Spreadsheet Template .ots
+		# Also OpenDocument Presentation Template .otp
 		# Also Quake3 packed file .pk3
 		# Also Nokia mobile phone theme .nth
 		# Also Microsoft Office Open XML .docx
@@ -578,8 +605,10 @@ EOF
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
-		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | *.odt | \
-		*.odg | *.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
+		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | \
+		*.odt | *.ods | *.odp | *.odg | *.odf | *.fodt | *.fods | *.fodp | *.fodg | \
+		*.otp | *.otg | *.ots | *.otp | \
+		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
 		*.application | *.docm | *.f3d | *.egg | *.kra)
 			archive_label ZIP archive
 			unzip -v "$f"
