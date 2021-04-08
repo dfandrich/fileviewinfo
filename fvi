@@ -308,7 +308,7 @@ for f in "$@" ; do
 		# Catch-all bitmapped image information displayer
 		# requires: imagemagick
 		*.raw | *.pcl | *.xpm | *.jbig | *.jp2 | *.png | *.fpx | *.pcx | \
-		*.xbm \
+		*.xbm | *.webp | *.heic \
 		)	filetype_label Bitmapped image file
 			identify -verbose "$f"
 			;;
@@ -340,7 +340,7 @@ for f in "$@" ; do
 	*.flv | *.framecrc | *.gif | *.gxf | *.h261 | *.h263 | *.h264 | *.idcin | \
 	*.image2 | *.image2pipe | *.ingenient | *.ipmovie | *.libnut | *.m4v |\
 	*.matroska | *.mjpeg | *.mm | *.mmf | *.mov | *.mov | *.mp4 | *.m4a | \
-	*.3gp | *.3g2 | *.mj2 | *.mp2 | *.mp3 | *.mp4 | *.mpc | *.mpeg | *.mpeg1video | \
+	*.mj2 | *.mp2 | *.mp3 | *.mp4 | *.mpc | *.mpeg | *.mpeg1video | \
 	*.mpeg2video | *.mpegts | *.mpegtsraw | *.mpegvideo | *.mpjpeg | *.mulaw |\
 	*.mxf | *.nsv | *.null | *.nut | *.nuv | *.ogg | *.oss | *.psp | *.psxstr | \
 	*.rawvideo | *.redir | *.rm | *.rtp | *.rtsp | *.s16be | *.s16le | *.s8 | \
