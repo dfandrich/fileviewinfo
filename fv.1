@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.TH FV 1 "08 Jul 2008" "fv Version 1.4"
+.TH FV 1 "24 May 2021" "fv Version 1.4.3"
 .SH NAME
 fv \- archive and package directory lister
 .SH SYNOPSIS
@@ -52,15 +52,19 @@ types and suffixes supported, execute
 with the \-l option.
 This version supports the following file extensions:
 .LP
-.SM .7z .a .ace .alz .arc .arj .bun .bxy .bz2 .cab .cbmarc .ccs .cf .cgz .chm
-.SM .chrt .cpio .cpio.bz2 .cpio.gz .cpio.Z .cpio.z .d64 .dar .deb .depot.gz
-.SM .docx .epk .flw .fpm .gz .ha .hp .hqx .ipg .ipk .iso .jar .jffs2 .kfo .kgb
-.SM .kil .kmz .kpr .ksp .kwd .lbr .lbr .lha .lnx .lpkg .lzh .lzma .lzo .mac
-.SM .mar .n64 .nif .nth .odt .par .par2 .pbi .pet .pk3 .pkg .pq6 .pup .qpk
-.SM .qpr .rar .rpm .rpp .rsn .rub .rz .sa .sda .sdk .sfx .sh .sh2 .shar .shk
-.SM .sis .sit .slp .spark .spm .sqsh .sxd .sxi .sxw .t64 .tar .tar.bz2 .tar.gz
-.SM .tar.lzma .tar.Z .tar.z .tardist .taz .tbz .tbz2 .tc .tgz .tlz .uu .uua
-.SM .uue .wad .wal .wsz .x64 .xpi .Z .z .zip .zoo .zz .[psrud]00 winmail.dat
+.SM .7z .a .ace .alz .apk .application .arc .arj .bun .bxy .bz2 .cab .cbmarc
+.SM .ccs .cf .cgz .chm .chrt .cpio .cpio.bz2 .cpio.gz .cpio.Z .cpio.z .d64
+.SM .dar .deb .depot .depot.gz .dmg .docm .docx .egg .epk .epub .f3d .flw
+.SM .fodg .fodp .fods .fodt .fpm .gem .gz .ha .hp .hqx .ipg .ipk .iso .jar
+.SM .jffs2 .kfo .kgb .kil .kmz .kpr .kra .ksp .kwd .lbr .lbr .lha .lnx .lpkg
+.SM .lzh .lzma .lzo .mac .mar .n64 .nif .nth .odf .odg .odp .ods .odt .opk
+.SM .otg .otp .otp .ots .par .par2 .pbi .pet .pisi .pk3 .pkg .pq6 .pup .qpk
+.SM .qpr .rar .resource .rpm .rpp .rsn .rub .rz .sa .sda .sdk .sfx .sh .sh2
+.SM .shar .shk .sis .sit .slp .spark .spm .sqsh .squashfs .sto .sxd .sxi
+.SM .sxw .t64 .tar .tar.bz2 .tar.gz .tar.lz .tar.lzma .tar.xz .tar.Z .tar.z
+.SM .tar.zst .tardist .taz .tbz .tbz2 .tc .tgz .tlz .txz .uRamdisk .uu .uua
+.SM .uue .wad .wal .war .wsz .x64 .xar .xpi .xps .xz .Z .z .zip .zoo .zpaq
+.SM .zz .[psrud]00 winmail.dat
 .LP
 Not all files supported are strictly archive types; several structured
 documents formats are also supported.  Most of these are build on
@@ -73,11 +77,15 @@ Please contact the author if you know of one not included.
 These are the file types supported:
 .LP
 .RS
+(unknown 3D package)
+.LP
 7zip archive
 .LP
-ACE archive 
-.LP
 ALZ archive
+.LP
+Android package
+.LP
+Apple disk image
 .LP
 Apple II archive
 .LP
@@ -115,6 +123,8 @@ Doom WAD archive
 .LP
 eCos package
 .LP
+EPub Document
+.LP
 Frugalware package
 .LP
 Google Earth
@@ -137,6 +147,8 @@ Itsy Package
 .LP
 Java jar file
 .LP
+Java Web Start
+.LP
 JFFS2 filesystem image file
 .LP
 KChart Chart
@@ -151,6 +163,8 @@ Kontour Illustration
 .LP
 KPresenter Document
 .LP
+Krita image
+.LP
 KSpread Spreadsheet
 .LP
 KWord Document
@@ -158,6 +172,8 @@ KWord Document
 LHARC archive
 .LP
 Lua Package
+.LP
+lzip-compressed tar archive
 .LP
 LZMA compressed file
 .LP
@@ -179,6 +195,8 @@ Microsoft Compressed HTML
 .LP
 Microsoft Office Open XML
 .LP
+Microsoft Office Open XML with Macros
+.LP
 Microsoft TNEF e-mail attachment
 .LP
 Mozilla Java Cross Platform Installer
@@ -189,6 +207,22 @@ Nokia mobile phone theme
 .LP
 OpenDocument
 .LP
+OpenDocument Drawing
+.LP
+OpenDocument Drawing Template
+.LP
+OpenDocument Formula
+.LP
+OpenDocument Presentation
+.LP
+OpenDocument Presentation Template
+.LP
+OpenDocument Spreadsheet
+.LP
+OpenDocument Spreadsheet Template
+.LP
+OpenMoko package
+.LP
 OpenOffice Drawing
 .LP
 OpenOffice Impress Presentation
@@ -196,6 +230,8 @@ OpenOffice Impress Presentation
 OpenOffice Writer Document
 .LP
 PAQ6 compressed archive
+.LP
+Pardus package
 .LP
 Parity Archive ver. 2
 .LP
@@ -206,6 +242,8 @@ Perl package
 Puppy Linux Extra Treats package
 .LP
 Puppy Linux package
+.LP
+Python package
 .LP
 QNX package
 .LP
@@ -221,6 +259,10 @@ Red Hat RPP package
 .LP
 Rubix package
 .LP
+Ruby Package
+.LP
+Ruby package
+.LP
 rzip archive
 .LP
 SEA ARC archive
@@ -232,6 +274,12 @@ SNES sound archive
 Squashfs filesystem image
 .LP
 Stampede Linux package
+.LP
+stopmotion movie
+.LP
+Syllable Application Package
+.LP
+Syllable Resource Package
 .LP
 SymbianOS SIS installable package
 .LP
@@ -245,13 +293,27 @@ tc-compressed file
 .LP
 Tukaani Linux package
 .LP
+U-boot ramdisk image
+.LP
 uuencoded file
 .LP
 Winamp compressed skin file
 .LP
+XAR archive
+.LP
+XML Paper Specification
+.LP
+xz-compressed file
+.LP
+xz-compressed tar archive
+.LP
 ZIP archive
 .LP
 ZOO archive
+.LP
+ZPAQ compressed archive
+.LP
+zstd-compressed tar archive
 .LP
 ZZIP archive
 .LP
@@ -294,7 +356,7 @@ is significant and only one option may follow each -.
 .SH AUTHOR
 Daniel Fandrich <dan@coneharvesters.com>
 .LP
-See <URL:http://www.npsnet.com/danf/software/>.
+See https://github.com/dfandrich/fileviewinfo/
 .LP
 The name
 .B fv
@@ -306,7 +368,7 @@ for displaying directories of MS-DOS archives.
 is similar in concept to
 .BR als (1),
 part of the atool package
-(see <URL:http://www.nongnu.org/atool/>).
+(see https://www.nongnu.org/atool/).
 .\" ---------------------------------------------------------------------------
 .SH COPYRIGHT
 .B fv
