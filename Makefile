@@ -15,13 +15,15 @@ clean:
 	-rm -f $(CLEAN_FILES)
 
 %.man: %.1
-	nroff -man $^ > $@
+	# This will output a man page with a charset for the current locale
+	nroff -man -c $^ > $@
 
 fv.html: fv.man
-	#man2html -topm 5 -compress -cgiurl 'http://www.linux.com/develop/man/$${section}/$${title}/' < $^ > $@
-	man2html -topm 5 -compress -seealso -cgiurl 'http://www.mediacollege.com/cgi-bin/man/page.cgi?topic=$${title}' < $^ > $@
-	#txt2html --linkonly < $@ > fv.tmp && mv -f fv.tmp $@
-	#-tidy -m $@
+	# This is the man2html from https://www.nongnu.org/man2html/
+	man2html -topm 5 -compress -seealso -cgiurl 'https://www.linux.org/docs/man$${section}/$${title}.html' < $^ > $@
+	# These are alternate conversion programs
+	#txt2html --linkonly < $@ > fv.tmp && mv -f fv.tmp $@ && tidy -m $@
+	#groff -man -Thtml < $^ > $@
 
 install:
 	test -d $(prefix)/bin || install -d $(prefix)/bin
