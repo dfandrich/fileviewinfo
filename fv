@@ -225,6 +225,8 @@ for f in "$@" ; do
 			DMGDEVICE="$(sudo kpartx -asrv "$FVTMPDIR/image.img" | awk '/^add map/ {print "/dev/mapper/" $3}')"
 			if [ -z "$FVTMPDIR" -o -z "$FVTMPDIR" ] ; then
 				echo "Error: cannot manipulate DMG file; are dmg2img and kpartx installed?"
+				# Indicate that an error has occurred
+				false
 			else
 				mkdir "$FVTMPDIR/mnt"
 				# The kernel itself can mount an HFS dmg, so use apfs-fuse only if that fails
