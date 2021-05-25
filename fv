@@ -75,12 +75,12 @@ if [ X"$1" = X"-l" ] ; then
 	if [ X"$FV_VERBOSE" != X ] ; then
 		# Scan this script looking for archive label lines and Also comments
 		sed -n -e "s/'//g" -e 's/^[^#]\+archive[_]label //p' \
-		 -e 's/^[ 	]*# Also \(.*\) [\.a-z0-9A-Z,_]*$/\1/p' "$0" | sort -f
+		 -e 's/^[ 	]*# Also \(.*\) [\.a-z0-9A-Z,_]*$/\1/p' "$0" | sort -f | uniq
 	else
 		echo 'Supported file extensions:'
 		# Scan this script looking for wildcard case statement entries
 		sed -n -e 's/^[ 	][ 	]*\(\*[^#)]*\)[)\\].*$/\1/p' "$0" | sed -e 's/ *| */\
-/g' | sed -e 's/\*//g' -e '/^\**$/d' | sort -f | fmt
+/g' | sed -e 's/\*//g' -e '/^\**$/d' | sort -f | uniq | fmt
 	fi
 	exit
 fi
