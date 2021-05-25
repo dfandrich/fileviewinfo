@@ -160,6 +160,13 @@ for f in "$@" ; do
 			einfo "$f"
 			;;
 
+
+		# (Untested)
+		# requires: pev
+		*.exe)	filetype_label Windows executable
+			pescan -v "$f"
+			;;
+
 		# requires: flac
 		*.flac)	filetype_label FLAC audio
 			metaflac --list "$f"
@@ -339,7 +346,7 @@ for f in "$@" ; do
 	*.dv | *.dv1394 | *.dvd | *.dxa | *.ea | *.ffm | *.film_cpk | *.flac | *.flic | \
 	*.flv | *.framecrc | *.gif | *.gxf | *.h261 | *.h263 | *.h264 | *.idcin | \
 	*.image2 | *.image2pipe | *.ingenient | *.ipmovie | *.libnut | *.m4v |\
-	*.matroska | *.mjpeg | *.mm | *.mmf | *.mov | *.mov | *.mp4 | *.m4a | \
+	*.matroska | *.mjpeg | *.mm | *.mmf | *.mov | *.mov | *.m4a | \
 	*.mj2 | *.mp2 | *.mp3 | *.mp4 | *.mpc | *.mpeg | *.mpeg1video | \
 	*.mpeg2video | *.mpegts | *.mpegtsraw | *.mpegvideo | *.mpjpeg | *.mulaw |\
 	*.mxf | *.nsv | *.null | *.nut | *.nuv | *.ogg | *.oss | *.psp | *.psxstr | \
@@ -349,7 +356,7 @@ for f in "$@" ; do
 	*.vcd | *.video4linux | *.video4linux2 | *.vmd | *.vob | *.voc | \
 	*.wav | *.wc3movie | *.wsaud | *.wsvqa | *.wv | *.x11grab | *.yuv4mpegpipe | \
 	\
-	*.mpg4 | *.wmv | \
+	*.mpg4 | *.wmv | *.mts | \
 	*.amv | *.ram \
 		)	filetype_label Video or audio file
 			ffmpeg -i "$f"
