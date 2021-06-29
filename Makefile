@@ -4,7 +4,7 @@ prefix=/usr
 
 VERSION=$(shell ./fv -\? | sed -n '1s/^.*ver. //p')
 SOURCES = fv fvi fv.1
-DISTFILES = $(SOURCES) Makefile fv.spec
+DISTFILES = $(SOURCES) Makefile
 CLEAN_FILES = fv.man fv.html
 
 all:
