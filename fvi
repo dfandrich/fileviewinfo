@@ -114,6 +114,12 @@ for f in "$@" ; do
 	echo "$f":
 	case "$filetype" in
 
+		# See http://www.p7zip.sf.net/
+		# requires: p7zip
+		*.7z)	filetype_label 7zip archive
+			7za l -slt "$f" | sed '/^----------/,$d'
+			;;
+
 		# requires Android SDK
 		*.apk)	filetype_label Android package
 			aapt d badging "$f"
@@ -186,7 +192,7 @@ for f in "$@" ; do
 			else
 				# Internal file name may or may not be prefixed with ./
 				# which is what the \* catches.
-				gzip -dc "$f" | tar xOf - \*control.tar.gz | gzip -dc | tar xOf -
+				gzip -dc "$f" | tar xOf - --wildcards \*control.tar.gz | gzip -dc | tar xOf -
 			fi
 			;;
 
@@ -246,8 +252,8 @@ for f in "$@" ; do
 			pdfinfo "$f"
 			;;
 
-		# Also X.509 certificate  .crt
-		# Also X.509 CA certificate  .cacrt
+		# Also X.509 certificate .crt
+		# Also X.509 CA certificate .cacrt
 		# requires: openssl
 		*.pem | *.cacrt | *.crt) filetype_label PEM certificate
 			openssl x509 -text -in "$f"
@@ -267,6 +273,23 @@ for f in "$@" ; do
 		# requires: rpm
 		*.rpm | *.spm)	filetype_label Red Hat RPM package
 			rpm -qip "$f"
+			;;
+
+		# requires: squashfs
+		# See http://squashfs.sf.net
+		*.sqsh | *.squashfs) filetype_label Squashfs filesystem image
+			unsquashfs -s "$f"
+			;;
+
+		# See http://www.encode.ru/tc/
+		# requires: python >= 3
+		*.tc)	file_label tc-compressed file
+			fv -t tc "$f"
+			;;
+
+		# requires: fv, python
+		*.rz)	filetype_label rzip archive
+			fv -t rz "$f"
 			;;
 
 		# Also Digital Negative Raw Image .dng
@@ -388,23 +411,39 @@ for f in "$@" ; do
 # Plain compressed files must come after otherwise compressed files
 
 		# requires: fv, bzip2
+		# Also Stampede Linux package .slp
+		# Also bzip2-compressed tar archive .tbz, .tbz2
+		*.slp | *.tbz | *.tbz2 | \
 		*.bz2)	filetype_label bzip2-compressed file
 			fv -t bz2 "$f"
 			;;
 
 		# requires: fv, gzip
+		*.cgz | *.pet | \
+		*.nif | *.epk | *.qpk | *.qpr | *.fpm | *.rub | \
+		*.kpr | *.chrt | *.kfo | *.flw | *.kil | *.ksp | *.kwd | \
+		*.tgz | *.taz | \
 		*.gz | *.Z | *.z)	filetype_label gzip-compressed file
 			fv -t gz "$f"
 			;;
 
 		# requires: fv, lzma
+		# Also Tukaani Linux package .tlz
+		*.tlz | \
 		*.lzma)	filetype_label LZMA compressed file
 			fv -t lzma "$f"
 			;;
 
 		# requires: fv, xz
+		# Also xz-compressed tar archive .txz
+		*.txz | \
 		*.xz)	filetype_label XZ compressed file
 			fv -t xz "$f"
+			;;
+
+		# requires: fv, zstd
+		*.zst)	filetype_label zstd-compressed file
+			fv -t zst "$f"
 			;;
 
 		# Unknown format
