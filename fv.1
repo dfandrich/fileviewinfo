@@ -56,15 +56,15 @@ This version supports the following file extensions:
 .SM .ccs .cf .cgz .chm .chrt .cpio .cpio.bz2 .cpio.gz .cpio.Z .cpio.z .d64
 .SM .dar .deb .depot .depot.gz .dmg .docm .docx .egg .epk .epub .f3d .flw
 .SM .fodg .fodp .fods .fodt .fpm .gem .gz .ha .hp .hqx .ipg .ipk .iso .jar
-.SM .jffs2 .kfo .kgb .kil .kmz .kpr .kra .ksp .kwd .lbr .lbr .lha .lnx .lpkg
+.SM .jffs2 .kfo .kgb .kil .kmz .kpr .kra .ksp .kwd .lbr .lha .lnx .lpkg
 .SM .lzh .lzma .lzo .mac .mar .n64 .nif .nth .odf .odg .odp .ods .odt .opk
-.SM .otg .otp .otp .ots .par .par2 .pbi .pet .pisi .pk3 .pkg .pq6 .pup .qpk
-.SM .qpr .rar .resource .rpm .rpp .rsn .rub .rz .sa .sda .sdk .sfx .sh .sh2
-.SM .shar .shk .sis .sit .slp .spark .spm .sqsh .squashfs .sto .sxd .sxi
-.SM .sxw .t64 .tar .tar.bz2 .tar.gz .tar.lz .tar.lzma .tar.xz .tar.Z .tar.z
-.SM .tar.zst .tardist .taz .tbz .tbz2 .tc .tgz .tlz .txz .uRamdisk .uu .uua
-.SM .uue .wad .wal .war .wsz .x64 .xar .xpi .xps .xz .Z .z .zip .zoo .zpaq
-.SM .zz .[psrud]00 winmail.dat
+.SM .otg .otp .ots .par .par2 .pbi .pet .pisi .pk3 .pkg .pq6 .pup .qpk .qpr
+.SM .rar .resource .rpm .rpp .rsn .rub .rz .sa .sda .sdk .sfx .sh .sh2 .shar
+.SM .shk .sis .sit .slp .spark .spm .sqsh .squashfs .sto .sxd .sxi .sxw .t64
+.SM .tar .tar.bz2 .tar.gz .tar.lz .tar.lzma .tar.xz .tar.Z .tar.z .tar.zst
+.SM .tardist .taz .tbz .tbz2 .tc .tgz .tlz .txz .uRamdisk .uu .uua .uue .wad
+.SM .wal .war .whl .wsz .x64 .xar .xpi .xps .xz .Z .z .zip .zoo .zpaq .zz
+.SM .SM .[psrud]00 winmail.dat
 .LP
 Not all files supported are strictly archive types; several structured
 documents formats are also supported.  Most of these are build on
@@ -80,6 +80,8 @@ These are the file types supported:
 (unknown 3D package)
 .LP
 7zip archive
+.LP
+ACE archive
 .LP
 ALZ archive
 .LP
@@ -245,6 +247,8 @@ Puppy Linux package
 .LP
 Python package
 .LP
+Python wheel package
+.LP
 QNX package
 .LP
 QNX package archive
@@ -364,13 +368,15 @@ was inspired by Vernon D. Buerg's program
 .I fv
 for displaying directories of MS-DOS archives.
 .LP
-.B fv
-is similar in concept to
-.BR als (1),
-part of the atool package
-(see https://www.nongnu.org/atool/).
 .\" ---------------------------------------------------------------------------
 .SH COPYRIGHT
 .B fv
 is placed into the public domain by Daniel Fandrich.
 It is provided \(lqas is\(rq, without any express or implied warranties.
+.\" ---------------------------------------------------------------------------
+.SH "SEE ALSO"
+.B fv
+is similar in concept to
+.BR als (1),
+part of the atool package
+(see https://www.nongnu.org/atool/).
