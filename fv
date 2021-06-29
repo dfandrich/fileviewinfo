@@ -133,7 +133,7 @@ for f in "$@" ; do
 			;;
 
 		# requires: linunace
-		*.ace)	archive_label ACE archive 
+		*.ace)	archive_label ACE archive
 			unace v "$f"
 			;;
 
