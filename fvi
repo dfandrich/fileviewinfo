@@ -297,15 +297,38 @@ for f in "$@" ; do
 		# Also OpenOffice Writer Document .sxw
 		# Also OpenDocument .odt
 		# Also OpenDocument Drawing .odg
+		# Also OpenDocument Spreadsheet .ods
+		# Also OpenDocument Presentation .odp
+		# Also OpenDocument Formula .odf
+		# Also OpenDocument .fodt
+		# Also OpenDocument Drawing .fodg
+		# Also OpenDocument Spreadsheet .fods
+		# Also OpenDocument Presentation .fodp
+		# Also OpenDocument Drawing Template .otg
+		# Also OpenDocument Presentation Template .otp
+		# Also OpenDocument Spreadsheet Template .ots
+		# Also OpenDocument Presentation Template .otp
 		# Also Quake3 packed file .pk3
 		# Also Nokia mobile phone theme .nth
 		# Also Microsoft Office Open XML .docx
+		# Also Microsoft Office Open XML with Macros .docm
+		# Also EPub Document .epub
 		# Also Java Web Start .war
+		# Also XML Paper Specification .xps
+		# Also Syllable Resource Package .resource
+		# Also Syllable Application Package .application
+		# Also (unknown 3D package) .f3d
+		# Also Python package .egg
+		# Also Python wheel package .whl
+		# Also Krita image .kra
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
 		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | *.odt | \
-		*.odg | *.docx | *.epub | *.apk | *.war)
+		*.ods | *.odp | *.odg | *.odf | *.fodt | *.fods | *.fodp | *.fodg | \
+		*.otp | *.otg | *.ots | \
+		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
+		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl)
 			filetype_label ZIP archive
 			zipinfo -h -z "$f" -x '*'
 			;;
