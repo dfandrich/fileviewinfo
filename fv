@@ -603,15 +603,16 @@ EOF
 		# Also Syllable Application Package .application
 		# Also (unknown 3D package) .f3d
 		# Also Python package .egg
+		# Also Python wheel package .whl
 		# Also Krita image .kra
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
-		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | \
-		*.odt | *.ods | *.odp | *.odg | *.odf | *.fodt | *.fods | *.fodp | *.fodg | \
-		*.otp | *.otg | *.ots | *.otp | \
+		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | *.odt | \
+		*.ods | *.odp | *.odg | *.odf | *.fodt | *.fods | *.fodp | *.fodg | \
+		*.otp | *.otg | *.ots | \
 		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
-		*.application | *.docm | *.f3d | *.egg | *.kra)
+		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl)
 			archive_label ZIP archive
 			unzip -v "$f"
 			;;
@@ -683,6 +684,11 @@ EOF
 		# requires: xz
 		*.xz)	archive_label xz-compressed file
 			xz -vl "$f"
+			;;
+
+		# requires: zstd
+		*.zst) archive_label zstd-compressed file
+			zstd -l "$f"
 			;;
 
 		# Unknown format
