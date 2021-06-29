@@ -1,0 +1,281 @@
+.\" -*- nroff -*-
+.TH FVI 1 "28 Jun 2021" "fvi Version 0.2.2"
+.SH NAME
+fvi \- File view info metadata displayer
+.SH SYNOPSIS
+.B fvi
+[
+.B \-v
+]
+[
+.B \-?
+]
+[
+.B \-h
+]
+[
+.B \-l
+]
+[
+.B \-t
+type ]
+file1
+[
+.I file2 ...
+]
+.SH DESCRIPTION
+.B fvi
+is a wrapper around many file metadata display programs available on *NIX
+systems. It provides a quick way to display metadata about a file without
+without having to remember which program is the right one to use for each type.
+.LP
+The file type is determined from the filename suffix (unless the
+.B \-t
+option is given), which selects which information viewing program to run.
+The file argument must point to an actual filename; the file contents cannot be
+given on standard input.
+.LP
+If the program which is needed to displayy information is not available
+on the system, the error message \(lqcommand not found\(rq is
+displayed as it is encountered.  The error message \(lqUnsupported file
+format.\(rq is displayed for unknown suffixes.
+.LP
+To find the complete list of file types and suffixes supported, execute
+.B fvi
+with the \-l option.
+This version supports the following file extensions:
+.LP
+.SM .3g2 .3gp .4xm .7z .aac .ac3 .adts .aiff .alaw .amr .amv .apc .ape .apk
+.SM .application .asf .asf_stream .au .avi .avs .bethsoftvid .bz2 .c93 .cacrt
+.SM .cgm .cgz .chrt .crc .crl .crt .daud .depot .depot.gz .der .dex .dirac
+.SM .dmg .dng .docm .docx .dsicin .dts .dv .dv1394 .dvd .dxa .ea .egg .epk
+.SM .eps .epub .exe .f3d .ffm .fig .film_cpk .flac .flic .flv .flw .fodg
+.SM .fodp .fods .fodt .fpm .fpx .framecrc .gif .gplt .gxf .gz .h261 .h263
+.SM .h264 .heic .hpgl .idcin .image2 .image2pipe .ingenient .ipg .ipk .ipmovie
+.SM .iso .jar .jbig .jfif .jp2 .jpeg .jpg .key .kfo .kil .kmz .kpr .kra .ksp
+.SM .kwd .libnut .lzma .m4a .m4v .matroska .mj2 .mjpeg .mkv .mm .mmf .mo
+.SM .mov .mp2 .mp3 .mp4 .mpc .mpeg .mpeg1video .mpeg2video .mpegts .mpegtsraw
+.SM .mpegvideo .mpg4 .mpjpeg .mts .MTV .mulaw .mxf .nif .nsv .nth .null .nut
+.SM .nuv .o .odf .odg .odp .ods .odt .ogg .ogv .oss .otf .otg .otp .ots .pam
+.SM .par .pbm .pcl .pcx .pdf .pem .pet .pfa .pfb .pgm .pk3 .png .pnm .ppm .ps
+.SM .psp .psxstr .qpk .qpr .qt .ram .raw .rawvideo .redir .resource .rle .rm
+.SM .RoQ .rpm .rtp .rtsp .rub .rz .s16be .s16le .s8 .sdp .shn .siff .slp .smk
+.SM .sol .spm .sqsh .squashfs .svcd .svg .swf .sxd .sxi .sxw .taz .tbz .tbz2
+.SM .tc .tgz .thp .tiertexseq .tif .tiff .tlz .torrent .tta .ttf .txd .txz
+.SM .u16be .u16le .u8 .vc1 .vcd .video4linux .video4linux2 .vmd .vob .voc
+.SM .wal .war .wav .wc3movie .webm .webp .whl .wmf .wmv .wmz .wsaud .wsvqa
+.SM .wsz .wv .x11grab .xbm .xpi .xpm .xps .xz .yuv4mpegpipe .Z .z .zip .zst
+.LP
+It is trivial to add more file types to
+.BR fvi .
+Please contact the author if you know of one not included.
+.LP
+These are the file types supported:
+.LP
+.RS
+(unknown 3D package)
+.LP
+7zip archive
+.LP
+Android Java class file
+.LP
+Android package
+.LP
+Binary message catalog file
+.LP
+Bitmapped image file
+.LP
+BitTorrent torrent file
+.LP
+bzip2-compressed file
+.LP
+bzip2-compressed tar archive .tbz,
+.LP
+DER certificate
+.LP
+Digital Negative Raw Image
+.LP
+EPub Document
+.LP
+FLAC audio
+.LP
+Font file
+.LP
+GIF image
+.LP
+Google Earth
+.LP
+gzip-compressed file
+.LP
+HP-UX package
+.LP
+iPod Game
+.LP
+ISO9660 filesystem image file
+.LP
+Itsy Package
+.LP
+Java jar file
+.LP
+Java Web Start
+.LP
+JPEG image
+.LP
+Krita image
+.LP
+LZMA compressed file
+.LP
+Mac OS X Disk Image
+.LP
+Matroska video file
+.LP
+Microsoft Audio Video Interleaved
+.LP
+Microsoft Office Open XML
+.LP
+Microsoft Office Open XML with Macros
+.LP
+Mozilla Java Cross Platform Installer
+.LP
+MP3 audio file
+.LP
+Nokia mobile phone theme
+.LP
+Object file
+.LP
+OGG audio/video
+.LP
+OpenDocument
+.LP
+OpenDocument Drawing
+.LP
+OpenDocument Drawing Template
+.LP
+OpenDocument Formula
+.LP
+OpenDocument Presentation
+.LP
+OpenDocument Presentation Template
+.LP
+OpenDocument Spreadsheet
+.LP
+OpenDocument Spreadsheet Template
+.LP
+OpenOffice Drawing
+.LP
+OpenOffice Impress Presentation
+.LP
+OpenOffice Writer Document
+.LP
+PEM certificate
+.LP
+Perl package
+.LP
+Portable Document Format document
+.LP
+Portable Network Graphics image
+.LP
+Portable pixmap image
+.LP
+Private key
+.LP
+Python package
+.LP
+Python wheel package
+.LP
+Quake3 packed file
+.LP
+Quicktime audio
+.LP
+Quicktime video
+.LP
+Red Hat RPM package
+.LP
+rzip archive
+.LP
+Squashfs filesystem image
+.LP
+Stampede Linux package
+.LP
+Syllable Application Package
+.LP
+Syllable Resource Package
+.LP
+Tagged Image File Format image
+.LP
+Tukaani Linux package
+.LP
+Vector image file
+.LP
+Video or audio file
+.LP
+WAV audio file
+.LP
+Winamp compressed skin file
+.LP
+Windows executable
+.LP
+Windows Media compressed skin file
+.LP
+X.509 CA certificate
+.LP
+X.509 certificate
+.LP
+X509 CRL
+.LP
+XML Paper Specification
+.LP
+XZ compressed file
+.LP
+xz-compressed tar archive
+.LP
+ZIP archive
+.LP
+zstd-compressed file
+.LP
+.RE
+.\" ---------------------------------------------------------------------------
+.SH OPTIONS
+.TP
+.B "\-? \-h"
+Show the
+.B fvi
+help information (this also appears if
+.B fvi
+is run with no arguments).
+.TP
+.B \-l
+Display a list of the file extensions supported.
+.TP
+.BI \-t \ type
+Use
+.I type
+as the file type (extension) instead of determining it from the file name.
+.TP
+.B \-v
+Set verbose mode. Display the type of file before the listing.  If \-l is
+also given, display a description of each file type supported instead of
+the file extensions.  If two \-v options are given, the file info display
+command is displayed as it is executed.
+.\" ---------------------------------------------------------------------------
+.SH "EXIT STATUS"
+.B fvi
+returns the the exit code of the file info display program, which may be zero
+even in case of error in some cases.  If the file type is unsupported
+it returns 1 and if no arguments are given it returns 3.
+.\" ---------------------------------------------------------------------------
+.SH BUGS
+.BR fvi 's
+command-line option processing is very limited; the order which options appear
+is significant and only one option may follow each -.
+.\" ---------------------------------------------------------------------------
+.SH AUTHOR
+Daniel Fandrich <dan@coneharvesters.com>
+.LP
+See https://github.com/dfandrich/fileviewinfo/
+.LP
+.\" ---------------------------------------------------------------------------
+.SH COPYRIGHT
+.B fvi
+is placed into the public domain by Daniel Fandrich.
+It is provided \(lqas is\(rq, without any express or implied warranties.
