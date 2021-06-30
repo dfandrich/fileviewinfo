@@ -7,7 +7,7 @@ mandir=$(datadir)/man
 
 VERSION=$(shell ./fv -\? | sed -n '1s/^.*ver. //p')
 SOURCES = fv fvi fv.1 fvi.1
-DISTFILES = $(SOURCES) Makefile
+DISTFILES = $(SOURCES) Makefile README.md COPYING
 CLEAN_FILES = fv.man fv.html fvi.man fvi.html
 
 all:
