@@ -183,6 +183,11 @@ for f in "$@" ; do
 			giftext "$f"
 			;;
 
+		# requires: gpxinfo or PyPi gpxpy
+		*.gpx)	filetype_label GPS exchange format file
+			gpxinfo "$f"
+			;;
+
 		# See http://www.handhelds.org/
 		# requires: binutils, file, grep, gzip, tar
 		*.ipk)	filetype_label Itsy Package
