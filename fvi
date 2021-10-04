@@ -188,6 +188,11 @@ for f in "$@" ; do
 			gpxinfo "$f"
 			;;
 
+		# requires: libheif
+		*.heic | *.heif)	filetype_label HEIF image
+			heif-info "$f"
+			;;
+
 		# See http://www.handhelds.org/
 		# requires: binutils, file, grep, gzip, tar
 		*.ipk)	filetype_label Itsy Package
@@ -280,6 +285,11 @@ for f in "$@" ; do
 			rpm -qip "$f"
 			;;
 
+		# requires: fv, python
+		*.rz)	filetype_label rzip archive
+			fv -t rz "$f"
+			;;
+
 		# requires: squashfs
 		# See http://squashfs.sf.net
 		*.sqsh | *.squashfs) filetype_label Squashfs filesystem image
@@ -290,11 +300,6 @@ for f in "$@" ; do
 		# requires: python >= 3
 		*.tc)	file_label tc-compressed file
 			fv -t tc "$f"
-			;;
-
-		# requires: fv, python
-		*.rz)	filetype_label rzip archive
-			fv -t rz "$f"
 			;;
 
 		# Also Digital Negative Raw Image .dng
