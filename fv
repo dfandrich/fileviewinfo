@@ -369,7 +369,7 @@ for f in "$@" ; do
 		# requires: unrar
 		# Also SNES sound archive .rsn
 		*.rar | *.rsn)	archive_label RAR compressed archive
-			unrar v "$f"
+			unrar v -idc "$f"
 			;;
 
 		# See http://www.rpm.org/
@@ -401,9 +401,9 @@ print('%2d.%02d %10d %s' % (ver1,ver2, length[1] * 0x100000000 + length[0], base
 EOF
 			;;
 
-		# requires: DumpSIS (http://www.geocities.com/jfldars/dumpsis.html)
+		# requires: DumpSIS (https://sourceforge.net/projects/sistk/)
 		*.sis)	archive_label SymbianOS SIS installable package
-			DumpSIS.pl "$f"
+			DumpSIS.pl -t "$f"
 			;;
 
 		# requires: macutils
