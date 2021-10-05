@@ -28,7 +28,7 @@ man: fv.man fv.html fvi.man fvi.html
 
 %.html: %.man
 	# This is the man2html from https://www.nongnu.org/man2html/
-	man2html -topm 5 -compress -seealso -cgiurl 'https://www.linux.org/docs/man$${section}/$${title}.html' < $^ > $@
+	man2html -topm 5 -compress -seealso -cgiurl 'https://linux.die.net/man/$${section}/$${title}' < $^ > $@
 	# These are alternate conversion programs
 	#txt2html --linkonly < $@ > fv.tmp && mv -f fv.tmp $@ && tidy -m $@
 	#groff -man -Thtml < $^ > $@
