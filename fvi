@@ -27,13 +27,6 @@
 #
 # * Each case entry line matching a file extension must have a tab character
 #   in the first position.  These extensions are listed using the -l option.
-#
-#
-# TO DO:
-#  - if type can't be determined, determine type using 'file'
-#	 - make a big switch statement taking in file's output and returning
-#      file extension
-#    - separate switch statement using file's --mime option if available
 
 usage () {
 	echo 'fvi ver. 0.2.2'
