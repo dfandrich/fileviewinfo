@@ -1,4 +1,6 @@
 # Makefile for installing fv
+# Placed into the public domain by Dan Fandrich <dan@coneharvesters.com>
+# See the file COPYING for details of how CC0 applies to this file.
 
 prefix=/usr
 bindir=$(prefix)/bin

@@ -35,6 +35,5 @@ compilation.  Install them by running this command as root:
 
 Daniel Fandrich <dan@coneharvesters.com>
 
-fv and fvi are placed into the public domain by Daniel Fandrich.  They are
-provided "as is", without any express or implied warranties. See
-[COPYING](COPYING) for details.
+The fileviewinfo package is placed into the public domain by Daniel Fandrich.
+See the file [COPYING](COPYING) for details of how CC0 applies to this file.
