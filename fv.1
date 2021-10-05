@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.TH FV 1 "24 May 2021" "fv Version 1.4.3"
+.TH FV 1 "04 Oct 2021" "fv Version 1.4.3"
 .SH NAME
 fv \- archive and package directory lister
 .SH SYNOPSIS
@@ -52,6 +52,7 @@ types and suffixes supported, execute
 with the \-l option.
 This version supports the following file extensions:
 .LP
+.\" This section comes from: ./fv -l | sed -e /^Supported/,1d -e 's/^/.SM /'
 .SM .7z .a .ace .alz .apk .application .arc .arj .bun .bxy .bz2 .cab .cbmarc
 .SM .ccs .cf .cgz .chm .chrt .cpio .cpio.bz2 .cpio.gz .cpio.Z .cpio.z .d64
 .SM .dar .deb .depot .depot.gz .dmg .docm .docx .egg .epk .epub .f3d .flw
@@ -63,8 +64,8 @@ This version supports the following file extensions:
 .SM .shk .sis .sit .slp .spark .spm .sqsh .squashfs .sto .sxd .sxi .sxw .t64
 .SM .tar .tar.bz2 .tar.gz .tar.lz .tar.lzma .tar.xz .tar.Z .tar.z .tar.zst
 .SM .tardist .taz .tbz .tbz2 .tc .tgz .tlz .txz .uRamdisk .uu .uua .uue .wad
-.SM .wal .war .whl .wsz .x64 .xar .xpi .xps .xz .Z .z .zip .zoo .zpaq .zz
-.SM .SM .[psrud]00 winmail.dat
+.SM .wal .war .whl .wsz .x64 .xar .xpi .xps .xz .Z .z .zip .zoo .zpaq .zst
+.SM .zz .[psrud]00 winmail.dat
 .LP
 Not all files supported are strictly archive types; several structured
 documents formats are also supported.  Most of these are build on
@@ -77,6 +78,8 @@ Please contact the author if you know of one not included.
 These are the file types supported:
 .LP
 .RS
+.\" This section comes from: ./fv -v -l | sed a.LP
+
 (unknown 3D package)
 .LP
 7zip archive
@@ -316,6 +319,8 @@ ZIP archive
 ZOO archive
 .LP
 ZPAQ compressed archive
+.LP
+zstd-compressed file
 .LP
 zstd-compressed tar archive
 .LP
