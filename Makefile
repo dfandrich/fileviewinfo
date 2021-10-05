@@ -41,7 +41,7 @@ dist: $(DISTFILES)
 	test ! -e fv-$(VERSION)
 	mkdir fv-$(VERSION)
 	cp -p $(DISTFILES) fv-$(VERSION)
-	tar --gzip -cvf fv-$(VERSION).tar.gz fv-$(VERSION)
+	tar -cvf - fv-$(VERSION) | gzip -9 > fv-$(VERSION).tar.gz
 	rm -rf fv-$(VERSION)
 
 distclean: clean
