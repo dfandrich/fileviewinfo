@@ -34,8 +34,6 @@
 #	 - make a big switch statement taking in file's output and returning
 #      file extension
 #    - separate switch statement using file's --mime option if available
-#    - handle .sis, .rar
-#    - handle .mts (video)
 
 usage () {
 	echo 'fvi ver. 0.2.2'
@@ -279,6 +277,11 @@ for f in "$@" ; do
 			pnmfile "$f"
 			;;
 
+		# requires: unrar
+		*.rar | *.rsn)	filetype_label RAR compressed archive
+			unrar vta -sl0 -idc "$f"
+			;;
+
 		# See http://www.rpm.org/
 		# requires: rpm
 		*.rpm | *.spm)	filetype_label Red Hat RPM package
@@ -288,6 +291,11 @@ for f in "$@" ; do
 		# requires: fv, python
 		*.rz)	filetype_label rzip archive
 			fv -t rz "$f"
+			;;
+
+		# requires: DumpSIS (https://sourceforge.net/projects/sistk/)
+		*.sis)	filetype_label SymbianOS SIS installable package
+			DumpSIS.pl -e "$f" | sed '/^Files$/,$d'
 			;;
 
 		# requires: squashfs
