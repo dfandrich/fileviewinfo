@@ -213,16 +213,6 @@ for f in "$@" ; do
 			openssl asn1parse -in "$f"
 			;;
 
-		# requires: python-id3 || id3ed || mp3info || id3lib || id3v2
-		*.mp3)	filetype_label MP3 audio file
-			id3v2 -l "$f" || listid3v2.py "$f" || id3ed -i "$f" || mp3info "$f" || id3info "$f"
-			;;
-
-		# requires: libquicktime-progs
-		*.mp4 | *.mpg4 | *.mov | *.qt | *.3gp)	filetype_label Quicktime video
-			qtinfo "$f"
-			;;
-
 		# requires: libquicktime-progs
 		*.m4a)	filetype_label Quicktime audio
 			qtinfo "$f"
@@ -237,6 +227,21 @@ for f in "$@" ; do
 		# requires: mkvtoolnix
 		*.mkv | *.webm) filetype_label Matroska video file
 			mkvinfo "$f"
+			;;
+
+		# requires: python-id3 || id3ed || mp3info || id3lib || id3v2 || mpgtx
+		*.mp3)	filetype_label MP3 audio file
+			id3v2 -l "$f" || listid3v2.py "$f" || id3ed -i "$f" || mp3info "$f" || id3info "$f" || tagmp3 show "$f"
+			;;
+
+		# requires: libquicktime-progs
+		*.mp4 | *.mpg4 | *.mov | *.qt | *.3gp)	filetype_label Quicktime video
+			qtinfo "$f"
+			;;
+
+		# requires: mpgtx
+		*.mpg | *.mpeg | *.mpe | *.m1v | *.m2v)	filetype_label MPEG video
+			mpginfo "$f"
 			;;
 
 		# requires: binutils
