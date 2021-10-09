@@ -261,9 +261,9 @@ for f in "$@" ; do
 
 		# Also X.509 certificate .crt
 		# Also X.509 CA certificate .cacrt
-		# requires: openssl
+		# requires: openssl || java-X-openjdk
 		*.pem | *.cacrt | *.crt) filetype_label PEM certificate
-			openssl x509 -text -in "$f"
+			openssl crl2pkcs7 -nocrl -certfile "$f" | openssl pkcs7 -print_certs -text -noout || keytool -printcert -v -file "$f"
 			;;
 
 		# requires: pngtools
