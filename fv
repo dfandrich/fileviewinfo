@@ -226,7 +226,7 @@ for f in "$@" ; do
 
 		# See http://www.handhelds.org/
 		# requires: binutils, file, grep, gzip, tar
-		*.ipk)	archive_label Itsy Package
+		*.ipk)	archive_label Itsy package
 			# Detect the old or new style ipk format
 			if file "$f" | egrep -iq 'Debian|ar archive' ; then
 				ar -p "$f" data.tar.gz | gzip -dc | tar tvf -
@@ -239,7 +239,7 @@ for f in "$@" ; do
 
 		# requires: binutils, gzip, tar
 		# Also Ruby package .gem
-		*.gem)	archive_label Ruby Package
+		*.gem)	archive_label Ruby package
 			tar xOf "$f" data.tar.gz | gzip -dc | tar tvf -
 			;;
 
@@ -494,7 +494,7 @@ EOF
 
 		# tar archive .tar
 		# Also tardist IRIX package .tardist
-		# Also Lua Package .lpkg
+		# Also Lua package .lpkg
 		# Also stopmotion movie .sto
 		# Also HP-UX package .depot
 		# requires: tar
@@ -583,8 +583,8 @@ EOF
 		# Also EPub Document .epub
 		# Also Java Web Start .war
 		# Also XML Paper Specification .xps
-		# Also Syllable Resource Package .resource
-		# Also Syllable Application Package .application
+		# Also Syllable resource package .resource
+		# Also Syllable application package .application
 		# Also (unknown 3D package) .f3d
 		# Also Python package .egg
 		# Also Python wheel package .whl
