@@ -9,7 +9,7 @@ mandir=$(datadir)/man
 
 VERSION=$(shell ./fv -\? | sed -n '1s/^.*ver. //p')
 SOURCES = fv fvi fv.1 fvi.1
-DISTFILES = $(SOURCES) Makefile README.md COPYING
+DISTFILES = $(SOURCES) Makefile README.md COPYING .gitignore
 CLEAN_FILES = fv.man fv.html fvi.man fvi.html
 
 all:
@@ -43,7 +43,7 @@ dist: $(DISTFILES)
 	test ! -e fv-$(VERSION)
 	mkdir fv-$(VERSION)
 	cp -p $(DISTFILES) fv-$(VERSION)
-	tar -cvf - fv-$(VERSION) | gzip -9 > fv-$(VERSION).tar.gz
+	tar -cvf - fv-$(VERSION) | gzip > fv-$(VERSION).tar.gz
 	rm -rf fv-$(VERSION)
 
 distclean: clean
