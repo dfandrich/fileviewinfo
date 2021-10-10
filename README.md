@@ -27,7 +27,8 @@ need to install to handle that file type.
 ## Installation
 
 The programs are written in portable Bourne shell and do not require
-compilation.  Install them by running this command as root:
+compilation (the makefile relies on some GNUisms, however).  Install them by
+running this command as root:
 
     make install
 
