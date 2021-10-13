@@ -3,9 +3,6 @@
 # Placed into the public domain by Dan Fandrich <dan@coneharvesters.com>
 # See the file COPYING for details of how CC0 applies to this file.
 
-# Program to run for each description
-DESCRIBE="describe --"
-
 # Non-null for old version of unzip (some time before 5.12)
 #OLDUNZIP=1
 
@@ -206,9 +203,11 @@ comment_pbm () {
 ###########################
 
 if [ $# -eq 0 ] ; then
-	echo 'Usage: autodescribe [ -q ] [ -t type ] file1 [ file2 ... ]'
+	echo 'Usage: autodescribe [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
 	echo 'Extracts comments from files'
-	echo '  -q       quiet output'
+	echo '  -e cmd   command to run once for each file with args: comment file'
+	echo '             e.g. "setfattr -n user.xdg.comment -v"'
+	echo '  -q         quiet output'
 	echo '  -t type  where type is one of the following:'
 	echo '             asm (assembly language source)'
 	echo '             c (C source code)'
@@ -232,6 +231,14 @@ if [ $# -eq 0 ] ; then
 	echo '             zip (zip archive)'
 	echo '             zoo (zoo archive)'
 	exit 1
+fi
+
+if [ "$1" = "-e" ] ; then
+	PROG="$2"
+	shift
+	shift
+else
+	PROG=
 fi
 
 if [ "$1" = "-q" ] ; then
@@ -343,7 +350,9 @@ for f in "$@" ; do
 			shquote "$COMMENT"
 			echo ""
 		fi
-		$DESCRIBE "$f" "$COMMENT"
+		if [ -n "$PROG" ]; then
+			eval $PROG $(shquote "$COMMENT") $(shquote "$f")
+		fi
 	fi
 done
 exit 0
