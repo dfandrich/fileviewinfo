@@ -105,7 +105,7 @@ for f in "$@" ; do
 	fi
 	echo "$f":
 	case "$filetype" in
-		# See http://www.p7zip.sf.net/
+		# See http://p7zip.sourceforge.net/
 		# requires: p7zip
 		*.7z)	archive_label 7zip archive
 			7za l "$f"
@@ -121,7 +121,7 @@ for f in "$@" ; do
 			unace v "$f"
 			;;
 
-		# See http://www.kipple.pe.kr/win/unalz/
+		# See http://www.kipple.pe.kr/win/unalz/ (defunct as of 2021)
 		# requires: unalz
 		*.alz)	archive_label ALZ archive
 			unalz -l "$f"
@@ -143,7 +143,7 @@ for f in "$@" ; do
 			unarj l "$f"
 			;;
 
-		# See http://www.star.le.ac.uk/~tjg/bun/
+		# See http://www.star.le.ac.uk/~tjg/bun/ (defunct as of 2021)
 		# requires: bun
 		# (Untested)
 		*.bun)	archive_label BUN archive
@@ -155,7 +155,7 @@ for f in "$@" ; do
 			cabextract -l "$f"
 			;;
 
-		# See http://wiki.conary.com/wiki/Conary
+		# See http://wiki.conary.com/wiki/Conary (defunct as of 2021)
 		# requires: conary
 		*.ccs)	archive_label Conary Change Set
 			conary showcs --info --all --all-troves --trove-headers --info --lsl --no-recurse "$f"
@@ -224,7 +224,7 @@ for f in "$@" ; do
 			fi
 			;;
 
-		# See http://www.handhelds.org/
+		# See http://www.handhelds.org/ (defunct as of 2021)
 		# requires: binutils, file, grep, gzip, tar
 		*.ipk)	archive_label Itsy package
 			# Detect the old or new style ipk format
@@ -270,7 +270,7 @@ for f in "$@" ; do
 			jffs2dump -c "$f" | sed -n 's/^.*, name //p'
 			;;
 
-		# See http://rus.members.beeb.net/lbrate.html
+		# See http://rus.members.beeb.net/lbrate.html (defunct as of 2021)
 		# requires: lbrate
 		*.lbr)	archive_label CP/M LBR archive
 			lbrate -vl "$f"
@@ -281,7 +281,7 @@ for f in "$@" ; do
 			lha v "$f"
 			;;
 
-		# See http://www.lzop.org/
+		# See https://www.lzop.org/
 		# requires: lzop
 		*.lzo)	archive_label LZOP compressed file
 			lzop -vl "$f"
@@ -300,21 +300,21 @@ for f in "$@" ; do
 		#	mar tv "$f"
 		#	;;
 
-		# See http://www.emantic.co.uk/mark/
+		# See http://www.emantic.co.uk/mark/ (defunct as of 2021)
 		# requires: mar
 		# (Untested)
 		*.mar)	archive_label Meta Archive
 			mar -t "$f"
 			;;
 
-		# See http://www.dakotacom.net/~donut/programs/par2ls.html
+		# See http://www.dakotacom.net/~donut/programs/par2ls.html (defunct as of 2021)
 		# requires: par2ls
 		# (Untested)
 		*.par2)	archive_label Parity Archive ver. 2
 			par2ls "$f"
 			;;
 
-		# See http://www.pcbsd.org/
+		# See http://www.pcbsd.org/ (defunct as of 2021)
 		# requires: tar, sed, bzip2
 		*.pbi) archive_label PC-BSD package
 			sed '1,/^__PBI_ARCHIVE__$/d' "$f" | bzcat | tar xOf - Package.tar | tar tvf -
@@ -326,21 +326,21 @@ for f in "$@" ; do
 			pkginfo -d "`dirname "$f"`" -l "`basename "$f"`"
 			;;
 
-		# See http://en.pardus-wiki.org/Package-manager
+		# See http://en.pardus-wiki.org/Package-manager (defunct as of 2021)
 		# requires: lzma, tar, unzip
 		*.pisi)	archive_label Pardus package
 			unzip -q -c  "$f" install.tar.lzma | lzma -dc | tar -tvf -
 			;;
 
-		# See http://www.cs.fit.edu/~mmahoney/compression/#paq6
-		# See http://kgbarchiver.sourceforge.net/
+		# See http://mattmahoney.net/dc/
+		# See https://sourceforge.net/projects/kgbarchiver/
 		# Also KGB archive .kgb
 		*.pq6 | *.kgb)	archive_label PAQ6 compressed archive
 			sed '//,$d' "$f"
 			;;
 
 		# requires: gzip, tar, unzip
-		# See http://www.puppylinux.com/
+		# See https://www.puppylinux.com/
 		*.pup)
 			archive_label Puppy Linux package
 			if unzip -l "$f" dotpop.tar.gz >/dev/null; then
@@ -356,20 +356,20 @@ for f in "$@" ; do
 			unrar v -idc "$f"
 			;;
 
-		# See http://www.rpm.org/
+		# See https://www.rpm.org/
 		# requires: rpm
 		*.rpm | *.spm)	archive_label Red Hat RPM package
 			rpm -qilvp "$f"
 			;;
 
 		# (Obsolete format; from Red Hat Linux distributions < 4.0)
-		# See http://www.redhat.com/
+		# See https://www.redhat.com/
 		# requires: tar, cpio, gzip
 		*.rpp)	archive_label Red Hat RPP package
 			tar xOf "$f" cpio-archive.gz | gzip -dc | cpio --list --verbose
 			;;
 
-		# See http://rzip.samba.org/
+		# See https://rzip.samba.org/
 		# requires: python >= 3
 		*.rz)	archive_label rzip archive
 			python3 - "$f" <<EOF
@@ -411,7 +411,7 @@ EOF
 			;;
 
 		# requires: nulib
-		# See http://www.nulib.com/
+		# See https://nulib.com/
 		*.shk | *.sh2 | *.sdk | *.bxy)	archive_label Apple II archive
 			nulib tv "$f"
 			;;
@@ -428,7 +428,7 @@ EOF
 			;;
 
 		# requires: squashfs
-		# See http://squashfs.sf.net
+		# See https://github.com/plougher/squashfs-tools
 		*.sqsh | *.squashfs) archive_label Squashfs filesystem image
 			unsquashfs -l "$f"
 			;;
@@ -522,13 +522,13 @@ EOF
 			lzma -dc "$f" | tar tvf -
 			;;
 
-		# See http://www.denx.de/wiki/U-Boot/
+		# See https://www.denx.de/wiki/U-Boot/
 		# requires: coreutils cpio gzip
 		*.uRamdisk)	archive_label U-boot ramdisk image
 			tail -c +65 "$f" | gzip -dc | cpio -t -v
 			;;
 
-		# See http://alcopop.org/games/doom/
+		# See https://jmtd.net/doom/
 		# requires: lswad
 		*.wad)	archive_label Doom WAD archive
 			lswad "$f"
@@ -546,7 +546,7 @@ EOF
 			sed -n 's/^begin //p' "$f"
 			;;
 
-		# See http://xar.googlecode.com/
+		# See http://xar.googlecode.com/ (defunct as of 2021)
 		# requires: xar
 		*.xar)	archive_label XAR archive
 			xar -t -f "$f"
@@ -612,7 +612,7 @@ EOF
 			zpaq l "$f"
 			;;
 
-		# See http://debin.net/zzip/
+		# See https://archives.damiendebin.net/zzip/
 		# requires: zzip
 		# (Untested)
 		*.zz)	archive_label ZZIP archive
@@ -646,7 +646,7 @@ EOF
 			gzip -vl "$f"
 			;;
 
-		# See http://www.7-zip.org/sdk.html
+		# See https://www.7-zip.org/sdk.html
 		# requires: lzma or python >= 3
 		*.lzma)	archive_label LZMA compressed file
 		    if which lzmainfo  >/dev/null 2>&1 ; then

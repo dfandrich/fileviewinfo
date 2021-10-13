@@ -106,7 +106,7 @@ for f in "$@" ; do
 	echo "$f":
 	case "$filetype" in
 
-		# See http://www.p7zip.sf.net/
+		# See http://p7zip.sourceforge.net/
 		# requires: p7zip
 		*.7z)	filetype_label 7zip archive
 			7za l -slt "$f" | sed '/^----------/,$d'
@@ -185,7 +185,7 @@ for f in "$@" ; do
 			heif-info "$f"
 			;;
 
-		# See http://www.handhelds.org/
+		# See http://www.handhelds.org/ (defunct as of 2021)
 		# requires: binutils, file, grep, gzip, tar
 		*.ipk)	filetype_label Itsy package
 			# Detect the old or new style ipk format
@@ -281,7 +281,7 @@ for f in "$@" ; do
 			unrar vta -sl0 -idc "$f"
 			;;
 
-		# See http://www.rpm.org/
+		# See https://www.rpm.org/
 		# requires: rpm
 		*.rpm | *.spm)	filetype_label Red Hat RPM package
 			rpm -qip "$f"
@@ -298,7 +298,7 @@ for f in "$@" ; do
 			;;
 
 		# requires: squashfs
-		# See http://squashfs.sf.net
+		# See https://github.com/plougher/squashfs-tools
 		*.sqsh | *.squashfs) filetype_label Squashfs filesystem image
 			unsquashfs -s "$f"
 			;;
