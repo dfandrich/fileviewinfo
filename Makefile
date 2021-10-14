@@ -8,9 +8,9 @@ datadir=$(prefix)/share
 mandir=$(datadir)/man
 
 VERSION=$(shell ./fv -\? | sed -n '1s/^.*ver. //p')
-SOURCES = fv fvi fv.1 fvi.1
+SOURCES = fv fvi autodescribe fv.1 fvi.1 autodescribe.1
 DISTFILES = $(SOURCES) Makefile README.md COPYING .gitignore
-CLEAN_FILES = fv.man fv.html fvi.man fvi.html
+CLEAN_FILES = fv.man fv.html fvi.man fvi.html autodescribe.man autodescribe.html
 
 all:
 	@echo Use \'make prefix=/usr/local install\' to install fileviewinfo $(VERSION) in the given
@@ -20,7 +20,7 @@ all:
 clean:
 	-rm -f $(CLEAN_FILES)
 
-man: fv.man fv.html fvi.man fvi.html
+man: fv.man fv.html fvi.man fvi.html autodescribe.man autodescribe.html
 
 %.man: %.1
 	# This will output a man page with a charset for the current locale
