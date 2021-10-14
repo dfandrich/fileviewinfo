@@ -1,0 +1,153 @@
+.\" -*- nroff -*-
+.TH AUTODESCRIBE 1 "14 Oct 2021" "autodescribe version 2.1"
+.SH NAME
+autodescribe \- automatically extract descriptions from files
+.SH SYNOPSIS
+.B autodescribe
+[
+.B \-e
+program ]
+[
+.B \-q
+]
+[
+.B \-t
+type ]
+file1
+[
+.I file2 ...
+]
+.SH DESCRIPTION
+.B autodescribe
+attempts to extracts a meaningful title from a given file that describes it.
+When supported by the file type, it generally uses a formal title or
+description metadata attribute. If not, it tries to synthesize a description
+from a comment or other text within the file. When relying on the latter
+heuristic, the result is not always perfect.
+.LP
+The file names and descriptions are output on stdout by default, using
+shell-compatible quoting for each. Using the \-e option, they can also be used
+as arguments to an optional user-defined program called for each file, which
+can be used to update a list of file descriptions, rename the files, insert the
+data into a database, update an extended filesystem attribute for each file or
+perform any other function.
+.LP
+Many file formats require a special program to extract the metadata. If the
+required program is not found, an error message like \(lqcommand not found\(rq
+is displayed.
+.LP
+It currently supports the following file types:
+.LP
+.RS
+.\" This section is manually edited from the output of: ./autodescribe
+asm (assembly language source)
+.LP
+c (C source code)
+.LP
+first_line (first line of text file)
+.LP
+gif (GIF image)
+.LP
+html (HTML text)
+.LP
+jpeg (JPEG JFIF image)
+.LP
+lzh (lzh/lha archive with desc.sdi comment)
+.LP
+pascal (Pascal source code)
+.LP
+ps (PostScript source code)
+.LP
+py (Python source code)
+.LP
+psfont (PostScript font)
+.LP
+pnm (pbm/pgm/ppm/pam Portable Bitmap)
+.LP
+rpm (rpm package)
+.LP
+sh (shell script)
+.LP
+subject (news article or mail file)
+.LP
+tgz (compressed tar archive)
+.LP
+tiff (TIFF image)
+.LP
+xbm (X bitmap)
+.LP
+xpm (X pixmap)
+.LP
+zip (zip archive)
+.LP
+zoo (zoo archive)
+.LP
+.RE
+.\" ---------------------------------------------------------------------------
+.SH OPTIONS
+.TP
+.BI \-e \ program
+Run
+.I program
+once for each file. It is given two arguments; the file comment and the file
+name. The program argument is subject to shell quoting so it can contain
+multiple words.
+.TP
+.BI \-t \ type
+Use
+.I type
+as the file type instead of determining it from the file name. The value of
+.I type
+must come from the list shown if
+.B autodescribe
+is run with no arguments.
+.TP
+.B \-q
+Set quiet mode. Don't display anything except in case of error.
+.\" ---------------------------------------------------------------------------
+.SH EXAMPLES
+.LP
+If the file
+.I foo.png
+contains a description
+.I Foo is gud
+then this command would add that to an extended file attribute on the file if
+run on a Linux system:
+.LP
+.B autodescribe
+\-e 'setfattr \-n user.xdg.comment \-v' foo.png
+.LP
+This would end up running the command
+.I setfattr \-n user.xdg.comment \-v 'Foo is gud' foo.png
+.LP
+This command would rename all the PDF files to their titles with a
+.I .pdf
+extension:
+.LP
+.B autodescribe
+\-e 'renuniq \-t %{DESC}%{EXT} \-d' *.pdf
+.LP
+This relies on the
+.I renuniq
+program from https://github.com/dfandrich/renuniq/
+.\" ---------------------------------------------------------------------------
+.SH "EXIT STATUS"
+.B autodescribe
+always returns 0 unless no arguments were given when it returns 1.
+.\" ---------------------------------------------------------------------------
+.SH BUGS
+.BR autodescribe 's
+command-line option processing is very limited; the order which options appear
+is significant and only one option may follow each dash. Its comment extraction
+is in some cases built around a simple regex that may be easily fooled.
+.\" ---------------------------------------------------------------------------
+.SH AUTHOR
+Daniel Fandrich <dan@coneharvesters.com>
+.LP
+See https://github.com/dfandrich/fileviewinfo/
+.LP
+.\" ---------------------------------------------------------------------------
+.SH COPYRIGHT
+.B autodescribe
+is placed into the public domain by Daniel Fandrich.
+See the file COPYING for details of how CC0 applies to this file.
