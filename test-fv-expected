@@ -1,0 +1,13 @@
+testfiles/type1.bz2:
+method  crc      date           compressed uncompressed_name
+bzip2-9 76f6b3e5 Oct 11 12:13            40 type1
+testfiles/type1.rz:
+rz ver    length filename
+ 2.01          4 type1
+
+testfiles/type1.shar:
+NOTE: shar contents listing is not completely reliable
+length mode       name
+------ ---------- ------------------------------------------
+     4 -rw-rw---- foo
+

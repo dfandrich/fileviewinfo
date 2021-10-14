@@ -1,0 +1,4 @@
+#define black_width 1
+#define black_height 1
+static char black_bits[] = {
+  0x01, };

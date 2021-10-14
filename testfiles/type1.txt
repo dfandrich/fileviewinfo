@@ -1,0 +1,4 @@
+
+Title of a plain text file
+
+The first line is assumed to be the title.

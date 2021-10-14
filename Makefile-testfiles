@@ -1,0 +1,180 @@
+# Instructions for generating sample files
+# These commands may be incomplete and some were documented after the fact &
+# are therefore not guaranteed to work. The resulting files are checked in so
+# that these commands never need to be run again.
+# Smaller file size was sometimes prioritized over ease of creation. All files
+# must also be able to be released to the public domain.
+
+foo:
+	echo foo >foo
+	# Note: some formats need this ownership changed to avoid leaking user info
+	# and for better consistency
+	chown root:root foo
+
+type1.png: type1.pbm
+	echo This file was manually converted and tags added from type1.pbm with Kolourpaint
+
+type2.png: type1.pbm
+	echo This file was manually converted and tags added from type1.pbm with Kolourpaint
+
+type1.pdf:
+	echo This file was manually created in Scribus with "Outline all fonts" enabled
+
+type1.epub:
+	echo This file was manually created in Libreoffice
+
+type1.arj: foo
+	echo ARJ archive comment >cmt
+	arj a type1.arj foo
+	arj c type1.arj -zcmt
+
+type1.rpm: autodescribe-test.spec
+	rpmbuild -bb -D'vendor nobody' -D'packager dfandrich' -D'_buildhost localhost' autodescribe-test.spec
+
+type1.wav:
+	dd if=/dev/zero count=64 bs=1 | sox -r 8000 -c 1 -t s1 - empty.wav
+	ffmpeg -i empty.wav -acodec copy -metadata title='WAV title' -y "$@"
+
+type1.aiff:
+	dd if=/dev/zero count=64 bs=1 | sox -r 8000 -c 1 -t s1 - empty.wav
+	ffmpeg -i empty.wav -acodec copy -metadata title='AIFF title' -y "$@"
+
+type1.mp3: type1.wav
+	lame --noreplaygain type1.wav "$@"
+	id3v2 -1 -a 'MP3 Artist' -t 'MP3 Song' -c 'MP3 Comment' "$@"
+
+type2.mp3: type1.wav
+	lame --noreplaygain type1.wav "$@"
+	id3v2 -2 -a 'MP3 Artist' -t 'MP3 Song' -c 'MP3 Comment' "$@"
+
+type1.flac: type1.wav
+	flac -o "$@" --padding=0 type1.wav
+	printf "TITLE=FLAC title\nARTIST=FLAC artist\n" | metaflac --remove-all-tags --import-tags-from=- -- "$@"
+
+type1.ogg:
+	dd if=/dev/zero count=64 bs=1 > empty.raw
+	oggenc -r -B 8 -C 1 -R 8000 -q -1 -a 'OGG artist' -t 'OGG title' -d 2021 -G Experimental -o "$@" empty.raw
+
+type2.ogg:
+	dd if=/dev/zero count=64 bs=1 > empty.raw
+	oggenc -r -B 8 -C 1 -R 8000 -q -1 -t 'OGG title' -o "$@" empty.raw
+
+type1.webm:
+	ppmmake black 160 120 | pnmtopng >black.png
+	ffmpeg -r 15 -f image2 -i black.png -metadata title='WEBM title' -y "$@"
+
+type1.mp4:
+	ppmmake black 160 120 | pnmtopng >black.png
+	ffmpeg -r 12 -f image2 -i black.png -metadata title='MPEG-4 title' -pix_fmt yuv420p -vcodec libx264 -bf 0 -tune stillimage -y "$@"
+
+type1.avi:
+	ppmmake black 160 120 | pnmtopng >black.png
+	ffmpeg -r 12 -f image2 -i black.png -metadata title='AVI title' -pix_fmt yuvj422p -vcodec mjpeg -y tmp.avi
+	# Mencoder produces a smaller file, so reencode it only for that reason
+	mencoder tmp.avi -of avi -ovc copy -info name='AVI title' -o "$@"
+
+type1.zpaq: foo
+	-rm "$@"
+	zpaq a "$@" foo
+
+type1.ppm:
+	ppmmake black 1 1 > "$@"
+
+type1.jpg:
+	ppmmake black 1 1 | pnmtojpeg --comment='JPEG comment' > "$@"
+
+type2.jpg:
+	ppmmake black 1 1 | pnmtojpeg > black.jpg
+	exif --tag=0x10e --ifd=0 -c -o "$@" --set-value='EXIF description' black.jpg
+
+type1.tar: foo
+	tar -cvf "$@" --owner=root --group=root -b 1 foo
+
+type1.cpio: foo
+	cpio -o --owner=root:root <<< foo > "$@"
+
+type1.tgz: foo foo.1
+	mkdir directory
+	cp foo directory
+	cp foo.1 directory
+	tar --owner=root --group=root -czvf "$@" directory/
+
+type1.lzh: foo
+	echo LZH comment in desc.sdi file > desc.sdi
+	lha a type1.lzh foo desc.sdi
+
+type1.zip: foo
+	printf 'Comment for file foo\nZip comment\nspanning two lines\n.\n' | zip -0 -c -z "$@" foo
+
+type2.zip: foo
+	printf 'ZIP comment in\ndesc.sdi file\n' > desc.sdi
+	zip -0 "$@" foo desc.sdi
+
+type1.shar: foo
+	shar foo > "$@"
+
+type1.gz: foo
+	gzip foo
+	mv foo.gz "$@"
+
+type1.bz2: foo
+	bzip2 foo
+	mv foo.bz2 "$@"
+
+type1.xz: foo
+	xz foo
+	mv foo.xz "$@"
+
+type1.Z: foo
+	compress foo
+	mv foo.Z "$@"
+
+type1.lzma: foo
+	lzma foo
+	mv foo.lzma "$@"
+
+type1.lzo: foo
+	lzop foo
+	mv foo.lzo "$@"
+
+type1.lz: foo
+	lzip foo
+	mv foo.lz "$@"
+
+type1.rz: foo
+	rzip -0 -o "$@" foo
+
+type1.7z: foo
+	7za a "$@" foo
+
+type1.amf:
+	openscad --export-format amf -o -  <(echo 'linear_extrude(1) polygon([[0,0], [0,1], [1,0], [0,0]]);') | xmlstarlet edit -a /amf/metadata -t elem -n 'metadata' -v "AMF name"  -a '/amf/metadata[not(@type)]' -t attr -n type -v name > "$@"
+
+type2.amf: type1.amf
+	mv type1.amf type2.amf
+	zip -qm type2-zip.amf type2.amf
+	mv type2-zip.amf type2.amf
+
+type1.stl:
+	openscad --export-format stl -o - <(echo 'linear_extrude(1) polygon([[0,0], [0,1], [1,0], [0,0]]);') | sed -e 's/OpenSCAD_Model$$/STL_name/' > "$@"
+
+type2.stl:
+	openscad --export-format binstl -o "$@" <(echo 'linear_extrude(1) polygon([[0,0], [0,1], [1,0], [0,0]]);')
+	printf 'STL name\n\x00\x00\x00\x00\x00\x00' | dd of="$@" conv=notrunc
+
+type1.3mf:
+	test ! -e 3D # Abort if found to avoid accidentally deleting more than we want
+	openscad --export-format 3mf -o "$@"  <(echo 'linear_extrude(1) polygon([[0,0], [0,1], [1,0], [0,0]]);')
+	unzip -q "$@" 3D/3dmodel.model
+	xmlstarlet edit -L -i  "/*[local-name()='model']/*[local-name()='resources']" -t elem -n metadata -v '3MF title'  -a "//*[local-name()='metadata'][not(@name)]" -t attr -n name -v Title 3D/3dmodel.model
+	zip -f "$@" 3D/3dmodel.model
+	rm -r 3D
+
+type1.dat: foo
+	pack foo "$@"
+
+type2.dat: foo
+	dat -a -f "$@" foo
+
+type1.squashfs: foo
+	mksquashfs foo "$@" -nopad -all-root -no-exports
