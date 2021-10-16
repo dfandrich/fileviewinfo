@@ -108,7 +108,7 @@ for f in "$@" ; do
 		# See http://p7zip.sourceforge.net/
 		# requires: p7zip
 		*.7z)	archive_label 7zip archive
-			7za l "$f"
+			7za l -- "$f"
 			;;
 
 		# requires: binutils
@@ -152,7 +152,7 @@ for f in "$@" ; do
 
 		# requires: cabextract
 		*.cab)	archive_label Microsoft Cabinet archive
-			cabextract -l "$f"
+			cabextract -l -- "$f"
 			;;
 
 		# See http://wiki.conary.com/wiki/Conary (defunct as of 2021)
@@ -174,12 +174,12 @@ for f in "$@" ; do
 		# requires: cpio, gzip
 		*.cpio.gz | *.cpio.Z | *.cpio.z | *.cgz)	
 			archive_label compressed cpio archive
-			gzip -dc "$f" | cpio --list --verbose
+			gzip -dc -- "$f" | cpio --list --verbose
 			;;
 
 		# requires: cpio, bzip2
 		*.cpio.bz2)	archive_label bzip2-compressed cpio archive
-			bzip2 -dc "$f" | cpio --list --verbose
+			bzip2 -dc -- "$f" | cpio --list --verbose
 			;;
 
 		# requires: cpio
@@ -233,14 +233,14 @@ for f in "$@" ; do
 			else
 				# Internal file name may or may not be prefixed with ./
 				# which is what the \* catches.
-				gzip -dc "$f" | tar xOf - --wildcards \*data.tar.gz | gzip -dc | tar tvf -
+				gzip -dc -- "$f" | tar xOf - --wildcards \*data.tar.gz | gzip -dc | tar tvf -
 			fi
 			;;
 
 		# requires: binutils, gzip, tar
 		# Also Ruby package .gem
 		*.gem)	archive_label Ruby package
-			tar xOf "$f" data.tar.gz | gzip -dc | tar tvf -
+			tar xOf - data.tar.gz < "$f" | gzip -dc | tar tvf -
 			;;
 
 		# I've forgotten what this is
@@ -250,7 +250,7 @@ for f in "$@" ; do
 
 		# requires: sed
 		*.hp)	archive_label HP48 distribution archive as posted to comp.sources.hp48
-			sed -n -e 's/^\(BEGIN_.*\) /\1	/p' "$f"
+			sed -n -e 's/^\(BEGIN_.*\) /\1	/p' < "$f"
 			;;
 
 		# requires: macutils
@@ -278,13 +278,13 @@ for f in "$@" ; do
 
 		# requires: lha
 		*.lha | *.lzh)	archive_label LHARC archive
-			lha v "$f"
+			lha v -- "$f"
 			;;
 
 		# See https://www.lzop.org/
 		# requires: lzop
 		*.lzo)	archive_label LZOP compressed file
-			lzop -vl "$f"
+			lzop -vl -- "$f"
 			;;
 
 		# (Is .mac the most common suffix for MacBinary files?)
@@ -317,7 +317,7 @@ for f in "$@" ; do
 		# See http://www.pcbsd.org/ (defunct as of 2021)
 		# requires: tar, sed, bzip2
 		*.pbi) archive_label PC-BSD package
-			sed '1,/^__PBI_ARCHIVE__$/d' "$f" | bzcat | tar xOf - Package.tar | tar tvf -
+			sed '1,/^__PBI_ARCHIVE__$/d' < "$f" | bzcat | tar xOf - Package.tar | tar tvf -
 			;;
 
 		# (Don't know what kind of suffix this one uses)
@@ -329,24 +329,24 @@ for f in "$@" ; do
 		# See http://en.pardus-wiki.org/Package-manager (defunct as of 2021)
 		# requires: lzma, tar, unzip
 		*.pisi)	archive_label Pardus package
-			unzip -q -c  "$f" install.tar.lzma | lzma -dc | tar -tvf -
+			unzip -q -c  -- "$f" install.tar.lzma | lzma -dc | tar -tvf -
 			;;
 
 		# See http://mattmahoney.net/dc/
 		# See https://sourceforge.net/projects/kgbarchiver/
 		# Also KGB archive .kgb
 		*.pq6 | *.kgb)	archive_label PAQ6 compressed archive
-			sed '//,$d' "$f"
+			sed '//,$d' < "$f"
 			;;
 
 		# requires: gzip, tar, unzip
 		# See https://www.puppylinux.com/
 		*.pup)
 			archive_label Puppy Linux package
-			if unzip -l "$f" dotpop.tar.gz >/dev/null; then
-				unzip -p "$f" dotpup.tar.gz | gzip -dc | tar tvf -
+			if unzip -l -- "$f" dotpop.tar.gz >/dev/null; then
+				unzip -p -- "$f" dotpup.tar.gz | gzip -dc | tar tvf -
 			else
-				unzip -lv "$f"
+				unzip -lv -- "$f"
 			fi
 			;;
 
@@ -359,14 +359,14 @@ for f in "$@" ; do
 		# See https://www.rpm.org/
 		# requires: rpm
 		*.rpm | *.spm)	archive_label Red Hat RPM package
-			rpm -qilvp "$f"
+			rpm -qilvp -- "$f"
 			;;
 
 		# (Obsolete format; from Red Hat Linux distributions < 4.0)
 		# See https://www.redhat.com/
 		# requires: tar, cpio, gzip
 		*.rpp)	archive_label Red Hat RPP package
-			tar xOf "$f" cpio-archive.gz | gzip -dc | cpio --list --verbose
+			tar xOf - cpio-archive.gz < "$f" | gzip -dc | cpio --list --verbose
 			;;
 
 		# See https://rzip.samba.org/
@@ -387,7 +387,7 @@ EOF
 
 		# requires: DumpSIS (https://sourceforge.net/projects/sistk/)
 		*.sis)	archive_label SymbianOS SIS installable package
-			DumpSIS.pl -t "$f"
+			DumpSIS.pl -t -- "$f"
 			;;
 
 		# requires: macutils
@@ -403,11 +403,11 @@ EOF
 			# display warning
 			echo 'NOTE: shar contents listing is not completely reliable'
 			# GNU shar 4.1
-			sed -n -e '1,/^# This shar contains/d' -e '/^#$/,$d' -e 's/^# //p' "$f"
+			sed -n -e '1,/^# This shar contains/d' -e '/^#$/,$d' -e 's/^# //p' < "$f"
 			# shar type A
-			sed -n -e '1,/with \/bin\/sh/d' -e '/^#$/,$d' -e 's/^#[ 	]/	/p' "$f"
+			sed -n -e '1,/with \/bin\/sh/d' -e '/^#$/,$d' -e 's/^#[ 	]/	/p' < "$f"
 			# shar type B
-			sed -n -e '/^#/!d' -e '/^# end of/d' -e 's/^#[ 	]//' -e '/^Contents/,$p' "$f"
+			sed -n -e '/^#/!d' -e '/^# end of/d' -e 's/^#[ 	]//' -e '/^Contents/,$p' < "$f"
 			;;
 
 		# requires: nulib
@@ -453,21 +453,21 @@ EOF
 		*.kpr | *.chrt | *.kfo | *.flw | *.kil | *.ksp | *.kwd | \
 		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz) 
 			archive_label gzip-compressed tar archive
-			gzip -dc "$f" | tar tvf -
+			gzip -dc -- "$f" | tar tvf -
 			;;
 
 		# lzip-compressed tar archive .tar.lz
 		# requires: tar, lzip
 		*.tar.lz)
 			archive_label lzip-compressed tar archive
-			lzip -dc "$f" | tar tvf -
+			lzip -dc -- "$f" | tar tvf -
 			;;
 
 		# zstd-compressed tar archive .tar.zst
 		# requires: tar, zstd
 		*.tar.zst)
 			archive_label zstd-compressed tar archive
-			zstd -dc "$f" | tar tvf -
+			zstd -dc -- "$f" | tar tvf -
 			;;
 
 		# .pet gets its own entry to give gzip the -q option; otherwise it
@@ -475,7 +475,7 @@ EOF
 		# requires: tar, gzip
 		*.pet) 
 			archive_label Puppy Linux Extra Treats package
-			gzip -qdc "$f" | tar tvf -
+			gzip -qdc -- "$f" | tar tvf -
 			;;
 
 		# bzip2-compressed tar archive .tar.bz2, .tbz, .tbz2
@@ -483,13 +483,13 @@ EOF
 		# requires: tar, bzip2
 		*.slp | \
 		*.tar.bz2 | *.tbz | *.tbz2) archive_label bzip2-compressed tar archive
-			bzip2 -dc "$f" | tar tvf -
+			bzip2 -dc -- "$f" | tar tvf -
 			;;
 
 		# requires: tar, xz
 		*.tar.xz | *.txz)
 			archive_label xz-compressed tar archive
-			xz -dc "$f" | tar tvf -
+			xz -dc -- "$f" | tar tvf -
 			;;
 
 		# tar archive .tar
@@ -499,7 +499,7 @@ EOF
 		# Also HP-UX package .depot
 		# requires: tar
 		*.tar | *.tardist | *.lpkg | *.sto | *.depot)	archive_label tar archive
-			tar tvf "$f"
+			tar tvf - < "$f"
 			;;
 
 		# See http://www.encode.ru/tc/
@@ -519,13 +519,13 @@ EOF
 		# Also Tukaani Linux package .tlz
 		# requires: lzma, tar
 		*.tlz | *.tar.lzma)	archive_label LZMA compressed tar archive
-			lzma -dc "$f" | tar tvf -
+			lzma -dc -- "$f" | tar tvf -
 			;;
 
 		# See https://www.denx.de/wiki/U-Boot/
 		# requires: coreutils cpio gzip
 		*.uRamdisk)	archive_label U-boot ramdisk image
-			tail -c +65 "$f" | gzip -dc | cpio -t -v
+			tail -c +65 < "$f" | gzip -dc | cpio -t -v
 			;;
 
 		# See https://jmtd.net/doom/
@@ -543,7 +543,7 @@ EOF
 
 		# requires: sed
 		*.uu | *.uue | *.uua)	archive_label uuencoded file
-			sed -n 's/^begin //p' "$f"
+			sed -n 's/^begin //p' < "$f"
 			;;
 
 		# See http://xar.googlecode.com/ (defunct as of 2021)
@@ -598,7 +598,7 @@ EOF
 		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
 		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl)
 			archive_label ZIP archive
-			unzip -v "$f"
+			unzip -v -- "$f"
 			;;
 
 		# requires: zoo
@@ -632,9 +632,9 @@ EOF
 				FILEDATE=`echo "$FILEINFO" | awk '{print $6 " " $7 " " $8}'`
 				FILENAME=`basename "$f" .bz2`
 				#FILECRC=`od -A n -j 10 -N 4 -t x1 "$f" | sed "s/ //g"`
-				FILECRC=`hexdump -e '4/1 "%02x" "\n"' -n 4 -s 10 "$f"`
+				FILECRC=`hexdump -e '4/1 "%02x" "\n"' -n 4 -s 10 < "$f"`
 				#FILECOMPRESS=`od -A n -j 3 -N 1 -t c "$f" | sed "s/ //g"`
-				FILECOMPRESS=`hexdump -e '"%_c" "\n"' -n 1 -s 3 "$f"`
+				FILECOMPRESS=`hexdump -e '"%_c" "\n"' -n 1 -s 3 < "$f"`
 				printf "bzip2-%s %8s %s %13s %s" "$FILECOMPRESS" "$FILECRC" "$FILEDATE" "$FILESIZE" "$FILENAME"
 			else
 				echo "$f: No such file or directory"
@@ -643,14 +643,14 @@ EOF
 
 		# requires: gzip
 		*.gz | *.Z | *.z)	archive_label gzip-compressed file
-			gzip -vl "$f"
+			gzip -vl -- "$f"
 			;;
 
 		# See https://www.7-zip.org/sdk.html
 		# requires: lzma or python >= 3
 		*.lzma)	archive_label LZMA compressed file
 		    if which lzmainfo  >/dev/null 2>&1 ; then
-		    	lzmainfo "$f"
+				lzmainfo -- "$f"
 		    else
 				python3 - "$f" <<EOF
 import struct, sys, os, math
@@ -667,12 +667,12 @@ EOF
 
 		# requires: xz
 		*.xz)	archive_label xz-compressed file
-			xz -vl "$f"
+			xz -vl -- "$f"
 			;;
 
 		# requires: zstd
 		*.zst) archive_label zstd-compressed file
-			zstd -l "$f"
+			zstd -l -- "$f"
 			;;
 
 		# Unknown format

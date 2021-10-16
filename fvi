@@ -109,7 +109,7 @@ for f in "$@" ; do
 		# See http://p7zip.sourceforge.net/
 		# requires: p7zip
 		*.7z)	filetype_label 7zip archive
-			7za l -slt "$f" | sed '/^----------/,$d'
+			7za l -slt -- "$f" | sed '/^----------/,$d'
 			;;
 
 		# requires Android SDK
@@ -129,12 +129,12 @@ for f in "$@" ; do
 
 		# requires: tar
 		*.depot) filetype_label HP-UX package
-			tar xOf "$f" catalog/INDEX
+			tar xOf - catalog/INDEX < "$f"
 			;;
 
 		# requires: tar gzip
 		*.depot.gz) filetype_label HP-UX package
-			gzip -dc "$f" | tar xOf - catalog/INDEX
+			gzip -dc -- "$f" | tar xOf - catalog/INDEX
 			;;
 
 		# requires: openssl
@@ -144,7 +144,7 @@ for f in "$@" ; do
 
 		# needs Android SDK
 		*.dex)	filetype_label Android Java class file
-			dexlist "$f"
+			dexlist -- "$f"
 			;;
 
 		# (Untested)
@@ -167,12 +167,12 @@ for f in "$@" ; do
 
 		# requires: flac
 		*.flac)	filetype_label FLAC audio
-			metaflac --list "$f"
+			metaflac --list -- "$f"
 			;;
 
 		# requires: libungif-progs
 		*.gif)	filetype_label GIF image
-			giftext "$f"
+			giftext < "$f"
 			;;
 
 		# requires: gpxinfo or PyPi gpxpy
@@ -182,7 +182,7 @@ for f in "$@" ; do
 
 		# requires: libheif
 		*.heic | *.heif)	filetype_label HEIF image
-			heif-info "$f"
+			heif-info -- "$f"
 			;;
 
 		# See http://www.handhelds.org/ (defunct as of 2021)
@@ -194,7 +194,7 @@ for f in "$@" ; do
 			else
 				# Internal file name may or may not be prefixed with ./
 				# which is what the \* catches.
-				gzip -dc "$f" | tar xOf - --wildcards \*control.tar.gz | gzip -dc | tar xOf -
+				gzip -dc -- "$f" | tar xOf - --wildcards \*control.tar.gz | gzip -dc | tar xOf -
 			fi
 			;;
 
@@ -221,7 +221,7 @@ for f in "$@" ; do
 		# requires: gettext
 		# requires: sed
 		*.mo) filetype_label Binary message catalog file
-			msgunfmt "$f" | sed '/^$/,$d'
+			msgunfmt -- "$f" | sed '/^$/,$d'
 			;;
 
 		# requires: mkvtoolnix
@@ -231,7 +231,7 @@ for f in "$@" ; do
 
 		# requires: python-id3 || id3ed || mp3info || id3lib || id3v2 || mpgtx
 		*.mp3)	filetype_label MP3 audio file
-			id3v2 -l "$f" || listid3v2.py "$f" || id3ed -i "$f" || mp3info "$f" || id3info "$f" || tagmp3 show "$f"
+			id3v2 -l "$f" || listid3v2.py "$f" || id3ed -i "$f" || mp3info -- "$f" || id3info -- "$f" || tagmp3 show "$f"
 			;;
 
 		# requires: libquicktime-progs
@@ -241,22 +241,22 @@ for f in "$@" ; do
 
 		# requires: mpgtx
 		*.mpg | *.mpeg | *.mpe | *.m1v | *.m2v)	filetype_label MPEG video
-			mpginfo "$f"
+			mpginfo -- "$f"
 			;;
 
 		# requires: binutils
 		*.o)	filetype_label Object file
-			objdump -afph "$f"
+			objdump -afph -- "$f"
 			;;
 
 		# requires: vorbis-tools
 		*.ogg | *.ogv)	filetype_label OGG audio/video
-			ogginfo "$f"
+			ogginfo -- "$f"
 			;;
 
 		# requires: xpdf
 		*.pdf)	filetype_label Portable Document Format document
-			pdfinfo "$f"
+			pdfinfo -- "$f"
 			;;
 
 		# Also X.509 certificate .crt
@@ -273,18 +273,18 @@ for f in "$@" ; do
 
 		# requires: netpbm
 		*.ppm | *.pbm | *.pgm | *.pam | *.pnm)	filetype_label Portable pixmap image
-			pnmfile "$f"
+			pamfile -- "$f"
 			;;
 
 		# requires: unrar
 		*.rar | *.rsn)	filetype_label RAR compressed archive
-			unrar vta -sl0 -idc "$f"
+			unrar vta -sl0 -idc -- "$f"
 			;;
 
 		# See https://www.rpm.org/
 		# requires: rpm
 		*.rpm | *.spm)	filetype_label Red Hat RPM package
-			rpm -qip "$f"
+			rpm -qip -- "$f"
 			;;
 
 		# requires: fv, python
@@ -294,7 +294,7 @@ for f in "$@" ; do
 
 		# requires: DumpSIS (https://sourceforge.net/projects/sistk/)
 		*.sis)	filetype_label SymbianOS SIS installable package
-			DumpSIS.pl -e "$f" | sed '/^Files$/,$d'
+			DumpSIS.pl -e -- "$f" | sed '/^Files$/,$d'
 			;;
 
 		# requires: squashfs
@@ -312,7 +312,7 @@ for f in "$@" ; do
 		# Also Digital Negative Raw Image .dng
 		# requires: libtiff-progs
 		*.tif | *.tiff | *.dng)	filetype_label Tagged Image File Format image
-			tiffinfo "$f" || tiffdump "$f"
+			tiffinfo -- "$f" || tiffdump -- "$f"
 			;;
 
 		# requires: bittorrent
@@ -321,7 +321,7 @@ for f in "$@" ; do
 			;;
 
 		*.wav)	filetype_label WAV audio file
-			wavplay -i "$f"
+			wavplay -i -- "$f"
 			;;
 
 		# zip archive .zip
@@ -380,7 +380,7 @@ for f in "$@" ; do
 		*.raw | *.pcl | *.xpm | *.jbig | *.jp2 | *.png | *.fpx | *.pcx | \
 		*.xbm | *.webp | *.heic \
 		)	filetype_label Bitmapped image file
-			identify -verbose "$f"
+			identify -verbose -- "$f"
 			;;
 
 		# Also Windows Media compressed skin file .wmz
@@ -389,14 +389,14 @@ for f in "$@" ; do
 		*.ps | *.eps | *.hpgl | *.fig | *.cgm | *.gplt | \
 		*.rle | *.wmf | *.wmz | *.svg \
 		)	filetype_label Vector image file
-			identify -verbose "$f"
+			identify -verbose -- "$f"
 			;;
 
 		# Catch-all font information displayer
 		# requires: imagemagick
 		*.ttf | *.pfa | *.pfb | *.otf \
 		)	filetype_label Font file
-			identify -verbose "$f"
+			identify -verbose -- "$f"
 			;;
 
 		# Catch-all video and audio formats

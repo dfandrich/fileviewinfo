@@ -15,16 +15,16 @@ shquote() {
 # symbolic links matching *.[0-9] at least with GNU tar 1.11.2
 # BUG: tar will extract all files if path ends in a number, e.g. playmidi-2.3/foo
 comment_tgz () {
-	COMMENT=$(tar -xOkzf "$f" --wildcards \*.man \*.\[0-9\] 2> /dev/null | lexgrog - | sed -e 's/^[^"]*"//' -e 's/"$//')
+	COMMENT=$(tar -xOkzf - --wildcards \*.man \*.\[0-9\] 2> /dev/null < "$f" | lexgrog - | sed -e 's/^[^"]*"//' -e 's/"$//')
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(tar -xOkzf "$f" \*.lsm 2> /dev/null | sed -n 's/^Title: *//p')
+		COMMENT=$(tar -xOkzf - \*.lsm 2> /dev/null < "$f" | sed -n 's/^Title: *//p')
 	fi
 }
 
 # Get comment from a .lzh file
 # Comment must be stored as one line in a file called 'desc.sdi'
 comment_lzh () {
-	COMMENT=$(lha pq "$f" desc.sdi | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+	COMMENT=$(lha pq -- "$f" desc.sdi | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 }
 
 # Get comment from a .zip file
@@ -32,8 +32,8 @@ comment_zip () {
 	if [ -n "$(unzip -zq -- "$f" dummy-file-to-eliminate-output)" ]; then
 		COMMENT=$(unzip -zq -- "$f" dummy-file-to-eliminate-output | head -2 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 
-	elif unzip -vqq "$f" desc.sdi > /dev/null ; then
-		COMMENT=$(unzip -caq "$f" desc.sdi | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+	elif unzip -vqq -- "$f" desc.sdi > /dev/null ; then
+		COMMENT=$(unzip -caq -- "$f" desc.sdi | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 	fi
 }
 
@@ -48,45 +48,45 @@ comment_zoo () {
 
 # Get comment from an RPM package
 comment_rpm () {
-	COMMENT=$(rpm -qp --queryformat '%{SUMMARY}' "$f")
+	COMMENT=$(rpm -qp --queryformat '%{SUMMARY}' -- "$f")
 }
 
 # Get comment from a PostScript file
 comment_ps () {
-	COMMENT=$(sed -n 's/^%%Title: *//p' "$f" | head -1)
+	COMMENT=$(sed -n 's/^%%Title: *//p' < "$f" | head -1)
 	if [ -z "$COMMENT" ] ; then
 		# Try for an alternate comment
 		# Look for a comment beginning with one or more % followed by a space
-		COMMENT=$(sed -n 's/^%%*  *//p' "$f" | head -1)
+		COMMENT=$(sed -n 's/^%%*  *//p' < "$f" | head -1)
 	fi
 }
 
 # Get comment from a PostScript font file
 comment_psfont () {
-	COMMENT=$(sed -n 's/^\/FullName[ 	]*(\(.*\)).*$/\1/p' "$f" | head -1)
+	COMMENT=$(sed -n 's/^\/FullName[ 	]*(\(.*\)).*$/\1/p' < "$f" | head -1)
 	if [ -z "$COMMENT" ] ; then
         # Try for an alternate comment
-		COMMENT=$(sed -n 's/^\/FontName[ 	]*\/\([^ 	]*\).*$/\1/p' "$f" | head -1)
+		COMMENT=$(sed -n 's/^\/FontName[ 	]*\/\([^ 	]*\).*$/\1/p' < "$f" | head -1)
 	fi
 }
 
 # Get comment from a news or mail file
 comment_subject () {
-	COMMENT=$(sed -n 's/^Subject: *//ip' "$f" | head -1)
+	COMMENT=$(sed -n 's/^Subject: *//ip' < "$f" | head -1)
 	if [ -z "$COMMENT" ] ; then
         # Try for an alternate comment
-		COMMENT=$(sed -n 's/^Content-Description: *//ip' "$f" | head -1)
+		COMMENT=$(sed -n 's/^Content-Description: *//ip' < "$f" | head -1)
 	fi
 }
 
 # Get comment from a TIFF image
 comment_tiff () {
-	COMMENT=$(tiffinfo "$f" | sed -n -e 's/^ *ImageDescription: //p')
+	COMMENT=$(tiffinfo -- "$f" | sed -n -e 's/^ *ImageDescription: //p')
 	if [ -z "$COMMENT" ] ; then
 	# Try for alternate comments. ImageDescription can't be added as an
 	# alternative here because tags are sorted numerically and it would come
 	# after DocumentName, which is a less desirable tag to use if both exist.
-      COMMENT=$(tiffinfo "$f" | sed -n -e 's/^ *\(DocumentName\|Artist\): //p' | tr '\n' ' ')
+      COMMENT=$(tiffinfo -- "$f" | sed -n -e 's/^ *\(DocumentName\|Artist\): //p' | tr '\n' ' ')
 	fi
 }
 
@@ -99,7 +99,7 @@ comment_c () {
 			s/\*\/ *$//
 			s/[ 	]*$//
 			p 
-			}' "$f" | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+			}' < "$f" | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 }
 
 # Get comment from Pascal source file
@@ -109,17 +109,17 @@ comment_pascal () {
 			s/^[ 	*]*//
 			s/[ 	]*$//
 			p 
-			}' "$f" | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+			}' < "$f" | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 }
 
 # Get comment from an assembly language file
 comment_asm () {
-	COMMENT=$(sed -n -e "/^[ 	]*\(\.\)\?title/{s/^[ 	]*\(\.\)\?title[ 	]*//;s/^['\"]*//;s/['\"]*$//;p}" "$f")
+	COMMENT=$(sed -n -e "/^[ 	]*\(\.\)\?title/{s/^[ 	]*\(\.\)\?title[ 	]*//;s/^['\"]*//;s/['\"]*$//;p}" < "$f")
 }
 
 # Get comment from a GIF image
 comment_gif () {
-	COMMENT=$(gifsicle --info "$f" | sed -n 's/^ *comment //p')
+	COMMENT=$(gifsicle --info -- "$f" | sed -n 's/^ *comment //p')
 }
 
 # Get comment from a JPEG JFIF image
@@ -144,40 +144,40 @@ comment_jpeg () {
 
 # Get comment from the first nonblank line of a text file
 comment_first_line () {
-	COMMENT=$(grep -v '^[[:space:]]*$' "$f" | head -1)
+	COMMENT=$(grep -v '^[[:space:]]*$' < "$f" | head -1)
 }
 
 # Get comment from a shell script file
 comment_sh () {
 	# delete #!/bin/sh line and blank comment lines
 	# comment must be in the first 10 lines of the file
-	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^#* *$/d' -e 's/^# *//p' "$f" | head -1)
+	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^#* *$/d' -e 's/^# *//p' < "$f" | head -1)
 }
 
 # Get comment from a Python source file
 comment_py () {
 	# delete #!/bin/sh line and blank comment lines
 	# comment must be in the first 10 lines of the file
-	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^#* *$/d' -e 's/^# *//p' -e "s/\(.\) *'''$/\1/" -e 's/\(.\) *"""$/\1/' -e "s/^''' *\(.\)/\1/p" -e 's/^""" *\(.\)/\1/p' -e "/^''' *$/{n;p}" -e '/^""" *$/{n;p}' "$f" | head -1)
+	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^#* *$/d' -e 's/^# *//p' -e "s/\(.\) *'''$/\1/" -e 's/\(.\) *"""$/\1/' -e "s/^''' *\(.\)/\1/p" -e 's/^""" *\(.\)/\1/p' -e "/^''' *$/{n;p}" -e '/^""" *$/{n;p}' < "$f" | head -1)
 }
 
 # Get comment from the HTML <title>
 comment_html () {
-	COMMENT=$(sed -n 's,^.*<title>\(.*\)</.*$,\1,ip' "$f")
+	COMMENT=$(sed -n 's,^.*<title>\(.*\)</.*$,\1,ip' < "$f")
 }
 
 # Make comment from an XBM image
 # Currently uses the embedded image name as the comment.
 # Could extract image size here as well
 comment_xbm () {
-	COMMENT=$(sed -n 's/^.* \(.*\)_bits.*$/\1/p' "$f")
+	COMMENT=$(sed -n 's/^.* \(.*\)_bits.*$/\1/p' < "$f")
 }
 
 # Make comment from an XPM image
 # Currently uses the embedded image name as the comment.
 # Could extract image size here as well
 comment_xpm () {
-	COMMENT=$(sed -n 's/^.*\* *\(.*\)_xpm.*$/\1/p' "$f")
+	COMMENT=$(sed -n 's/^.*\* *\(.*\)_xpm.*$/\1/p' < "$f")
 }
 
 # Make comment from a pnm image
@@ -185,7 +185,7 @@ comment_xpm () {
 # embed a comment in the file. Instead, use the file dimensions & colours as
 # the comment.
 comment_pnm () {
-	COMMENT=$(pamfile "$f" | sed -n 's/^.*:	//p')
+	COMMENT=$(pamfile -- "$f" | sed -n 's/^.*:	//p')
 }
 
 
