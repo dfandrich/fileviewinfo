@@ -21,13 +21,12 @@ comment_tgz () {
 	fi
 }
 
-# Get comment from a .lzh file
-# Comment must be stored as one line in a file called 'desc.sdi'
+# Get description from a .lzh-embedded desc.sdi file
 comment_lzh () {
 	COMMENT=$(lha pq -- "$f" desc.sdi | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 }
 
-# Get comment from a .zip file
+# Get comment from a .zip file or embedded desc.sdi file
 comment_zip () {
 	if [ -n "$(unzip -zq -- "$f" dummy-file-to-eliminate-output)" ]; then
 		COMMENT=$(unzip -zq -- "$f" dummy-file-to-eliminate-output | head -2 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
@@ -37,7 +36,7 @@ comment_zip () {
 	fi
 }
 
-# Get comment from a .zoo file
+# Get comment from a .zoo file or embedded desc.sdi file
 comment_zoo () {
 	COMMENT=$(zoo vc "$f" dummy-file-to-eliminate-output | \
 		sed -n -e 's/^>> //p' | tr '\n' ' ')
@@ -46,12 +45,44 @@ comment_zoo () {
 	fi
 }
 
-# Get comment from an RPM package
+# Get summary from an RPM package
 comment_rpm () {
 	COMMENT=$(rpm -qp --queryformat '%{SUMMARY}' -- "$f")
 }
 
-# Get comment from a PostScript file
+# Get title from an MS Word document
+comment_docx () {
+	COMMENT=$(unzip -cq -- "$f" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dc:title)
+}
+
+# Get title from an e-book
+# These are all handled by ebook-meta (part of calibre) so there doesn't seem to be a
+# good reason to separate them into individual handlers.
+comment_ebook() {
+	COMMENT=$(ebook-meta -- "$f" | sed -n -e 's/^Title *: //p')
+	# ebook-meta falls back to the file name (without extension) as the title
+	# if no other title can be found. This isn't very useful here, so blank the
+	# comment if that happens.
+	BASENAME=$(basename "$f" | sed -e 's/\.[^.]*$//')
+	if [ "$COMMENT" = "$BASENAME" ]; then
+		COMMENT=""
+	fi
+}
+
+# Get title from a PDF file
+comment_pdf () {
+	COMMENT=$(pdfinfo -- "$f" | sed -E -n -e 's/^(Title|Subject|Author):[[:space:]]*//p' | head -1)
+}
+
+# Get title from a PNG file
+comment_png () {
+	COMMENT=$(pnginfo "$f" | sed -n -e 's/^[[:space:]]\+Title[^:]*: //p')
+	if [ -z "$COMMENT" ] ; then
+		COMMENT=$(pnginfo "$f" | sed -n -e 's/^[[:space:]]\+Description[^:]*: //p')
+	fi
+}
+
+# Get title from a PostScript file
 comment_ps () {
 	COMMENT=$(sed -n 's/^%%Title: *//p' < "$f" | head -1)
 	if [ -z "$COMMENT" ] ; then
@@ -61,7 +92,7 @@ comment_ps () {
 	fi
 }
 
-# Get comment from a PostScript font file
+# Get name from a PostScript font file
 comment_psfont () {
 	COMMENT=$(sed -n 's/^\/FullName[ 	]*(\(.*\)).*$/\1/p' < "$f" | head -1)
 	if [ -z "$COMMENT" ] ; then
@@ -70,7 +101,7 @@ comment_psfont () {
 	fi
 }
 
-# Get comment from a news or mail file
+# Get subject from a news or mail file
 comment_subject () {
 	COMMENT=$(sed -n 's/^Subject: *//ip' < "$f" | head -1)
 	if [ -z "$COMMENT" ] ; then
@@ -79,7 +110,37 @@ comment_subject () {
 	fi
 }
 
-# Get comment from a TIFF image
+# Get title from an STL file
+comment_stl () {
+	# strings is to strip out any nil bytes
+	if [ "$(dd if="$f" bs=1 count=6 2>/dev/null | strings -1)" = "solid " ]; then
+		# ASCII stl format
+		COMMENT=$(sed -n -E -e '1s/^solid +//p' < "$f")
+	else
+		# Binary stl format
+		COMMENT=$(dd if="$f" bs=1 count=80 2>/dev/null | sed -e 's/\x0.*$//' -e 's/[[:space:]]*$//')
+	fi
+}
+
+# Get title from an SVG file
+comment_svg () {
+	COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']" < "$f")
+	if [ -z "$COMMENT" ] ; then
+		# Try for title in metadata
+		COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='title']" < "$f")
+	fi
+}
+
+# Get title from an SVGZ file
+comment_svgz () {
+	COMMENT=$(gzip -dc < "$f" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']")
+	if [ -z "$COMMENT" ] ; then
+		# Try for title in metadata
+		COMMENT=$(gzip -dc < "$f" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='title']")
+	fi
+}
+
+# Get description from a TIFF image
 comment_tiff () {
 	COMMENT=$(tiffinfo -- "$f" | sed -n -e 's/^ *ImageDescription: //p')
 	if [ -z "$COMMENT" ] ; then
@@ -112,14 +173,66 @@ comment_pascal () {
 			}' < "$f" | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 }
 
+# Get title from a 3mf file
+comment_3mf () {
+	COMMENT=$(unzip -cq -- "$f" 3D/3dmodel.model | xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name='Title']")
+}
+
+# Get title from an amf file
+comment_amf () {
+	if [ "$(dd if="$f" bs=1 count=2 2>/dev/null )" = "PK" ]; then
+		# If the amf file is zip compressed, uncompress it first
+		TMPFILE=$(mktemp)
+		INFILE="${TMPFILE}"
+		funzip "$f" > "$INFILE"
+	else
+		TMPFILE=
+		INFILE="$f"
+	fi
+
+	COMMENT=$(xmlstarlet sel -t -v "/amf/metadata[@type='name']" < "$INFILE")
+	if [ -z "$COMMENT" ] ; then
+		# BUG: There will be no separators between multiple object names
+		COMMENT=$(xmlstarlet sel -t -v "/amf/object/metadata[@type='name']" < "$INFILE")
+	fi
+
+	if [ -n "$TMPFILE" ]; then
+		rm -f "$TMPFILE"
+	fi
+}
+
+# Get comment from an ARJ archive
+comment_arj () {
+	COMMENT=$(arj v "$f" | sed -e '1,/^Archive created:/d' -e '/^Sequence\/Pathname\/Comment\/Chapters/,$d' | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+}
+
 # Get comment from an assembly language file
 comment_asm () {
 	COMMENT=$(sed -n -e "/^[ 	]*\(\.\)\?title/{s/^[ 	]*\(\.\)\?title[ 	]*//;s/^['\"]*//;s/['\"]*$//;p}" < "$f")
 }
 
+# Get name from an AVI file
+comment_avi () {
+	COMMENT=$(avitype -- "$f" | sed -n -e 's/^<AVI reader> *: *InfoChunk Name: *//p')
+	if [ -z "$COMMENT" ] ; then
+		comment_ffmpeg "$@"
+	fi
+}
+
+# Get title from a FLAC audio file
+comment_flac () {
+	COMMENT=$(metaflac --export-tags-to=- -- "$f" | sed -n -E -e 's/^TITLE=//p')
+	if [ -z "$COMMENT" ] ; then
+		comment_ffmpeg "$@"
+	fi
+}
+
 # Get comment from a GIF image
 comment_gif () {
 	COMMENT=$(gifsicle --info -- "$f" | sed -n 's/^ *comment //p')
+	if [ -z "$COMMENT" ] ; then
+		comment_ffmpeg "$@"
+	fi
 }
 
 # Get comment from a JPEG JFIF image
@@ -147,11 +260,74 @@ comment_first_line () {
 	COMMENT=$(grep -v '^[[:space:]]*$' < "$f" | head -1)
 }
 
+# Get title from an HTML file
+comment_html () {
+	COMMENT=$(sed -n 's,^.*<title>\(.*\)</.*$,\1,ip' < "$f")
+}
+
+# Get summary from a man page
+comment_man () {
+	COMMENT=$(lexgrog -- "$f" | sed -e 's/^[^"]*"//' -e 's/"$//')
+}
+
+# Get title from the start of a Markdown text file
+comment_md () {
+	COMMENT=$(head -5 < "$f" | sed -n -e 's/^# //p' | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+}
+
+# Get title from an Matroska video file
+comment_mkv () {
+	COMMENT=$(mkvinfo "$f" | sed -n -e 's/^[|+ ]*Title: //p')
+	if [ -z "$COMMENT" ] ; then
+		comment_ffmpeg "$@"
+	fi
+}
+
+# Get title from an MP3 audio file
+# id3info is the best program of the common ones I've found for this, since it
+# supports both ID3v1 and ID3v2 tags, exports them both in the same format, and
+# uses a format that's easy to parse.
+comment_mp3 () {
+	COMMENT=$(id3info -- "$f" | sort -r | sed -E -n -e 's/^=== (TPE1|TIT2).*\): //p' | sed 2i/ | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+	if [ -z "$COMMENT" ] ; then
+		comment_ffmpeg "$@"
+	fi
+}
+
+# Get title from an MPEG-4 video file
+comment_mp4 () {
+	COMMENT=$(qtdump "$f" | sed -n -e 's/^[[:space:]]*name:[[:space:]]*//p' | head -1)
+	if [ -z "$COMMENT" ] ; then
+		comment_ffmpeg "$@"
+	fi
+}
+
+# Get title from a MOV file
+comment_mov () {
+	comment_mp4 "$@"
+}
+
 # Get comment from a shell script file
 comment_sh () {
 	# delete #!/bin/sh line and blank comment lines
 	# comment must be in the first 10 lines of the file
 	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^#* *$/d' -e 's/^# *//p' < "$f" | head -1)
+}
+
+# Get name from an OTF/TTF font file
+comment_otf () {
+	COMMENT=$(ftdump "$f" | sed -n -E -e 's/^[[:space:]]*(family|style):[[:space:]]*//p' | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+}
+
+# Get title from an ogg media file
+# If artist is found, prepend it to the title like "Artist / Title"
+comment_ogg () {
+	COMMENT=$(ogginfo -- "$f" | sed -n -E -e '/^[[:space:]]*(title|artist)=/p' | sort | sed -E -e 's/^[[:space:]]*[a-z]+=//' | sed 2i/ | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+}
+
+# Get title from an Open Document Text file
+comment_odt () {
+	COMMENT=$(unzip -cq -- "$f" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:title)
 }
 
 # Get comment from a Python source file
@@ -161,29 +337,46 @@ comment_py () {
 	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^#* *$/d' -e 's/^# *//p' -e "s/\(.\) *'''$/\1/" -e 's/\(.\) *"""$/\1/' -e "s/^''' *\(.\)/\1/p" -e 's/^""" *\(.\)/\1/p' -e "/^''' *$/{n;p}" -e '/^""" *$/{n;p}' < "$f" | head -1)
 }
 
-# Get comment from the HTML <title>
-comment_html () {
-	COMMENT=$(sed -n 's,^.*<title>\(.*\)</.*$,\1,ip' < "$f")
+# Make comment from a UUE file name
+comment_uue () {
+	COMMENT=$(sed -E -n 's/^begin [0-9]+ //p' < "$f")
 }
 
-# Make comment from an XBM image
-# Currently uses the embedded image name as the comment.
+# Get title from a number of different A/V formats
+# Using ffmpeg for this is almost the only option for some formats, and is
+# easier than having to install a new special program for each other formats.
+comment_ffmpeg () {
+	COMMENT=$(ffmpeg -loglevel error -i "$f" -f ffmetadata - | sed -n -E -e 's/^(title|com.apple\.quicktime\.title)=//ip' | head -1)
+	if [ -z "$COMMENT" ] ; then
+		COMMENT=$(ffmpeg -loglevel error -i "$f" -f ffmetadata - | sed -n -E -e 's/^comment=//ip' | head -1)
+	fi
+}
+
+# Get title from a WAV file
+comment_wav () {
+	comment_ffmpeg "$@"
+}
+
+# Get title from an AIFF file
+comment_aiff () {
+	comment_ffmpeg "$@"
+}
+
+# Make comment from an XBM image name
 # Could extract image size here as well
 comment_xbm () {
 	COMMENT=$(sed -n 's/^.* \(.*\)_bits.*$/\1/p' < "$f")
 }
 
-# Make comment from an XPM image
-# Currently uses the embedded image name as the comment.
+# Make comment from an XPM image name
 # Could extract image size here as well
 comment_xpm () {
 	COMMENT=$(sed -n 's/^.*\* *\(.*\)_xpm.*$/\1/p' < "$f")
 }
 
 # Make comment from a pnm image
-# The netpbm formats do not allow arbitrary metadata, so it's impossible to
-# embed a comment in the file. Instead, use the file dimensions & colours as
-# the comment.
+# TODO: both pnm and pam formats support comments, which should be extracted
+# here in preference to the image info.
 comment_pnm () {
 	COMMENT=$(pamfile -- "$f" | sed -n 's/^.*:	//p')
 }
@@ -199,23 +392,47 @@ if [ $# -eq 0 ] ; then
 	echo '             e.g. "setfattr -n user.xdg.comment -v"'
 	echo '  -q         quiet output'
 	echo '  -t type  where type is one of the following:'
+	echo '             3mf (3-D Manufacturing format)'
+	echo '             amf (Additive Manufacturing File)'
+	echo '             aiff (Audio Interchange File Format)'
+	echo '             arj (ARJ archive)'
 	echo '             asm (assembly language source)'
+	echo '             avi (Audio Video Interleave file)'
 	echo '             c (C source code)'
 	echo '             first_line (first line of text file)'
+	echo '             docx (MS Word document)'
+	echo '             ebook (E-book formats, epub, azw, fbz, etc.)'
+	echo '             flac (FLAC audio file)'
 	echo '             gif (GIF image)'
 	echo '             html (HTML text)'
 	echo '             jpeg (JPEG JFIF image)'
 	echo '             lzh (lzh/lha archive with desc.sdi comment)'
+	echo '             man (man page)'
+	echo '             md (Markdown text)'
+	echo '             mkv (Matroska video)'
+	echo '             mov (MOV video)'
+	echo '             mp3 (MPEG-1 layer 3 audio)'
+	echo '             mp4 (MPEG-4 video)'
+	echo '             odt (Open Document text)'
+	echo '             ogg (Ogg media file)'
+	echo '             otf (OpenType font)'
 	echo '             pascal (Pascal source code)'
+	echo '             png (PNG image)'
+	echo '             pdf (Portable Document Format)'
 	echo '             ps (PostScript source code)'
 	echo '             py (Python source code)'
 	echo '             psfont (PostScript font)'
 	echo '             pnm (pbm/pgm/ppm/pam Portable Bitmap)'
 	echo '             rpm (rpm package)'
 	echo '             sh (shell script)'
+	echo '             stl (STL model file)'
 	echo '             subject (news article or mail file)'
+	echo '             svg (Scalable Vector Graphics)'
+	echo '             svgz (Compressed Scalable Vector Graphics)'
 	echo '             tgz (compressed tar archive)'
 	echo '             tiff (TIFF image)'
+	echo '             uue (UUencoded file)'
+	echo '             wav (WAV audio)'
 	echo '             xbm (X bitmap)'
 	echo '             xpm (X pixmap)'
 	echo '             zip (zip archive)'
@@ -259,11 +476,29 @@ for f in "$@" ; do
 		TYPE="$SETTYPE"
 	else
 		case "$f" in
-			*.c | *.h)
-				TYPE=c
+			*.3mf)
+				TYPE=3mf
+				;;
+			*.aiff)
+				TYPE=aiff
+				;;
+			*.amf)
+				TYPE=amf
+				;;
+			*.arj)
+				TYPE=arj
 				;;
 			*.asm | *.s)
 				TYPE=asm
+				;;
+			*.avi) TYPE=avi
+				;;
+			*.c | *.h)
+				TYPE=c
+				;;
+			*.docx)	TYPE=docx
+				;;
+			*.flac)	TYPE=flac
 				;;
 			*.gif)	TYPE=gif
 				;;
@@ -276,8 +511,27 @@ for f in "$@" ; do
 			*.lzh | *.lha)
 				TYPE=lzh
 				;;
+			*.1 | *.2 | *.3 | *.4 | *.5 | *.6 | *.7 | *.8 | *.9)	TYPE=man
+				;;
 			*.mbox | *.mbx | *.mbo | *.nws | *.msg)
 				TYPE=subject
+				;;
+			*.md)	TYPE=md
+				;;
+			*.mkv | *.webm)	TYPE=mkv
+				;;
+			*.mov)	TYPE=mov
+				;;
+			*.mp3)	TYPE=mp3
+				;;
+			*.mp4)	TYPE=mp4
+				;;
+			*.odt)
+				TYPE=odt
+				;;
+			*.ogg) TYPE=ogg
+				;;
+			*.otf | *.ttf) TYPE=otf
 				;;
 			*.pas | *.p)
 				TYPE=pascal
@@ -293,9 +547,19 @@ for f in "$@" ; do
 				;;
 			*.sh)	TYPE=sh
 				;;
+			*.pdf)	TYPE=pdf
+				;;
+			*.png)	TYPE=png
+				;;
 			*.ps)	TYPE=ps
 				;;
 			*.py)	TYPE=py
+				;;
+			*.stl)	TYPE=stl
+				;;
+			*.svg)	TYPE=svg
+				;;
+			*.svgz)	TYPE=svgz
 				;;
 			*.tar.gz | *.tar.Z | *.tar.z | *.tgz)
 				TYPE=tgz
@@ -305,6 +569,12 @@ for f in "$@" ; do
 				;;
 			*.txt | *.asc)
 				TYPE=first_line
+				;;
+			*.uue)
+				TYPE=uue
+				;;
+			*.wav)
+				TYPE=wav
 				;;
 			*.xbm)
 				TYPE=xbm
@@ -317,6 +587,14 @@ for f in "$@" ; do
 				;;
 			*.zoo)
 				TYPE=zoo
+				;;
+			# These must come after more specific handlers above. This list comes
+			# directly from the output of "ebook-meta --help"
+			*.azw | *.azw1 | *.azw3 | *.azw4 | *.cbr | *.cbz | *.chm | *.docx | *.epub | \
+			*.fb2 | *.fbz | *.html | *.htmlz | *.imp | *.lit | *.lrf | *.lrx | *.mobi | \
+			*.odt | *.oebzip | *.opf | *.pdb | *.pdf | *.pml | *.pmlz | *.pobi | *.prc | \
+			*.rar | *.rb | *.rtf | *.snb | *.tpz | *.txt | *.txtz | *.updb | *.zip)
+				TYPE=ebook
 				;;
 			*)
 				TYPE=""
