@@ -281,6 +281,11 @@ for f in "$@" ; do
 			lha v -- "$f"
 			;;
 
+		# requires: lzip
+		*.lz)	archive_label LZIP compressed file
+			lzip -lv -- "$f"
+			;;
+
 		# See https://www.lzop.org/
 		# requires: lzop
 		*.lzo)	archive_label LZOP compressed file
@@ -430,7 +435,7 @@ EOF
 		# requires: squashfs
 		# See https://github.com/plougher/squashfs-tools
 		*.sqsh | *.squashfs) archive_label Squashfs filesystem image
-			unsquashfs -l "$f"
+			unsquashfs -ll "$f"
 			;;
 
 		# gzip-compressed tar archive .tar.gz
@@ -589,6 +594,7 @@ EOF
 		# Also Python package .egg
 		# Also Python wheel package .whl
 		# Also Krita image .kra
+		# Also 3-D Manufacturing format .3mf
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
@@ -596,7 +602,7 @@ EOF
 		*.ods | *.odp | *.odg | *.odf | *.fodt | *.fods | *.fodp | *.fodg | \
 		*.otp | *.otg | *.ots | \
 		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
-		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl)
+		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf)
 			archive_label ZIP archive
 			unzip -v -- "$f"
 			;;
@@ -617,6 +623,17 @@ EOF
 		# (Untested)
 		*.zz)	archive_label ZZIP archive
 			zzip l "$f"
+			;;
+
+# General extensions that are used more specifically above
+
+		# See https://liballeg.org/
+		# requires: allegro4
+		*.dat)	archive_label Allegro4 not packed datafile
+			# There is also a packed Allegro4 datafile type with the same
+			# extension, but there seems to be no metadata within the file to
+			# display without uncompressing the file.
+			dat -l -v -- "$f"
 			;;
 
 # Compressed files must come after compressed archives
