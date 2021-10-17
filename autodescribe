@@ -374,11 +374,14 @@ comment_xpm () {
 	COMMENT=$(sed -n 's/^.*\* *\(.*\)_xpm.*$/\1/p' < "$f")
 }
 
-# Make comment from a pnm image
-# TODO: both pnm and pam formats support comments, which should be extracted
-# here in preference to the image info.
+# Make comment from a pam image
+comment_pam () {
+	COMMENT=$(pamfile -comments < "$f" | sed -e '1,/^Comments:$/d' -e 's/^ *# *//' | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+}
+
+# Get comment from a pnm image
 comment_pnm () {
-	COMMENT=$(pamfile -- "$f" | sed -n 's/^.*:	//p')
+	COMMENT=$(head -2 < "$f" | sed -n -e 's/^# *//p')
 }
 
 
@@ -422,7 +425,8 @@ if [ $# -eq 0 ] ; then
 	echo '             ps (PostScript source code)'
 	echo '             py (Python source code)'
 	echo '             psfont (PostScript font)'
-	echo '             pnm (pbm/pgm/ppm/pam Portable Bitmap)'
+	echo '             pam (Portable Arbitrary Map)'
+	echo '             pnm (pbm/pgm/ppm Portable Any Map)'
 	echo '             rpm (rpm package)'
 	echo '             sh (shell script)'
 	echo '             stl (STL model file)'
@@ -533,10 +537,12 @@ for f in "$@" ; do
 				;;
 			*.otf | *.ttf) TYPE=otf
 				;;
+			*.pam) TYPE=pam
+				;;
 			*.pas | *.p)
 				TYPE=pascal
 				;;
-			*.pbm | *.pgm | *.ppm | *.pnm | *.pam)
+			*.pbm | *.pgm | *.ppm | *.pnm)
 				TYPE=pnm
 				;;
 			*.pfa | *.gsf)
