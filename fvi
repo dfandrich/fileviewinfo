@@ -117,6 +117,7 @@ for f in "$@" ; do
 			aapt d badging "$f"
 			;;
 
+		# See https://sourceforge.net/projects/avifile/
 		# requires: avifile-samples
 		*.avi)	filetype_label Microsoft Audio Video Interleaved
 			avitype "$f"
@@ -370,7 +371,7 @@ for f in "$@" ; do
 		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
 		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl)
 			filetype_label ZIP archive
-			zipinfo -h -z "$f" -x '*'
+			zipinfo -h -z "$f" | grep -v "^$"; zipinfo -l "$f" | tail -1
 			;;
 
 # Catch-all handlers
