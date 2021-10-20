@@ -478,10 +478,10 @@ EOF
 			;;
 
 		# Catch-all font information displayer
-		# requires: imagemagick
+		# requires: freetype2-demos
 		*.ttf | *.pfa | *.pfb | *.otf \
 		)	filetype_label Font file
-			identify -verbose -- "$f"
+			ftdump "$f"
 			;;
 
 		# Catch-all video and audio formats
