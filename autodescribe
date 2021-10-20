@@ -165,11 +165,17 @@ comment_c () {
 
 # Get comment from Pascal source file
 comment_pascal () {
-	COMMENT=$(sed -n '/(\*/,/\*)/{
+	COMMENT=$(sed -n -e '/^[[:space:]]*(\*[-\* ]*\*)[[:space:]]*$/d' -e '/^[[:space:]]*\*[[:space:]]*$/d' -e '/(\*/,/\*)/{
 			/(\*/s/^.*(\*//
 			s/^[ 	*]*//
 			s/[ 	]*$//
 			p 
+			}' -e '/{.*}/{
+			s/^.*{//
+			s/} *$//
+			s/^[ 	*]*//
+			s/[ 	]*$//
+			p
 			}' < "$f" | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 }
 
@@ -334,7 +340,7 @@ comment_odt () {
 comment_py () {
 	# delete #!/bin/sh line and blank comment lines
 	# comment must be in the first 10 lines of the file
-	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^#* *$/d' -e 's/^# *//p' -e "s/\(.\) *'''$/\1/" -e 's/\(.\) *"""$/\1/' -e "s/^''' *\(.\)/\1/p" -e 's/^""" *\(.\)/\1/p' -e "/^''' *$/{n;p}" -e '/^""" *$/{n;p}' < "$f" | head -1)
+	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^[[:space:]]*#*[-*#[:space:]]*$/d' -e 's/^[[:space:]]*# *//p' -e "s/\(.\) *'''$/\1/" -e 's/\(.\) *"""$/\1/' -e "s/^''' *\(.\)/\1/p" -e 's/^""" *\(.\)/\1/p' -e "/^''' *$/{n;p}" -e '/^""" *$/{n;p}' < "$f" | head -1)
 }
 
 # Make comment from a UUE file name
