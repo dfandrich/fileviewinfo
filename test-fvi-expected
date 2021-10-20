@@ -1,0 +1,29 @@
+testfiles/type1.3mf:
+Name: 3MF title
+1 object(s)
+1 build item(s)
+0 material(s)
+
+testfiles/type1.amf:
+Name: AMF name
+1 object(s)
+0 material(s)
+
+testfiles/type2.amf:
+Name: AMF name
+1 object(s)
+0 material(s)
+
+testfiles/type3.amf:
+Name: AMF object name
+1 object(s)
+0 material(s)
+
+testfiles/type1.stl:
+STL_name
+8 facets
+
+testfiles/type2.stl:
+STL name
+8 facets
+

@@ -10,7 +10,7 @@ mandir=$(datadir)/man
 VERSION=$(shell ./fv -\? | sed -n '1s/^.*ver. //p')
 SOURCES = fv fvi autodescribe fv.1 fvi.1 autodescribe.1
 DISTFILES = $(SOURCES) Makefile README.md COPYING .gitignore
-CLEAN_FILES = fv.man fv.html fvi.man fvi.html autodescribe.man autodescribe.html test-autodescribe.log test-fv.log test-time.tmp
+CLEAN_FILES = fv.man fv.html fvi.man fvi.html autodescribe.man autodescribe.html test-autodescribe.log test-fv.log test-fvi.log test-time.tmp
 
 all:
 	@echo Use \'make prefix=/usr/local install\' to install fileviewinfo $(VERSION) in the given
@@ -33,7 +33,7 @@ man: fv.man fv.html fvi.man fvi.html autodescribe.man autodescribe.html
 	#txt2html --linkonly < $@ > fv.tmp && mv -f fv.tmp $@ && tidy -m $@
 	#groff -man -Thtml < $^ > $@
 
-check: check-autodescribe check-fv
+check: check-autodescribe check-fv check-fvi
 
 check-autodescribe:
 	./autodescribe testfiles/* >test-autodescribe.log
@@ -57,6 +57,10 @@ check-fv:
 	touch -r test-time.tmp testfiles/type1.bz2
 	rm -f test-time.tmp
 	diff test-fv-expected test-fv.log
+
+check-fvi:
+	./fvi testfiles/*.{3mf,amf,stl} >test-fvi.log
+	diff test-fvi-expected test-fvi.log
 
 install:
 	test -d $(bindir) || install -d $(bindir)

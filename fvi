@@ -367,13 +367,13 @@ for f in "$@" ; do
 				# Binary stl format
 				python3 - "$f" <<EOF
 import struct, sys
-fn=sys.argv[1]
-with open(fn, 'rb') as f:
+with open(sys.argv[1], 'rb') as f:
 	comment = f.read(80)
 	z = comment.find(b'\x00')
 	if z >= 0:
 		comment = comment[0:z]
-	# This character encoding likely isn't standarized
+	comment = comment.strip(b'\n').replace(b'\n', b' ')
+	# This character encoding likely isn't always correct
 	print(comment.decode('iso-8859-1'))
 	length = struct.unpack('<I', f.read(4))[0]
 print('%0d facets' % length)
