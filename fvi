@@ -106,10 +106,51 @@ for f in "$@" ; do
 	echo "$f":
 	case "$filetype" in
 
+		# requires: unzip, xmlstarlet
+		*.3mf)	filetype_label 3MF 3-D Manufacturing file
+			TMPFILE="$(mktemp)"
+			unzip -qc "$f" 3D/3dmodel.model > "${TMPFILE}"
+			# This could probably be combined into a single xmlstarlet invocation for speed
+			printf 'Name: '
+			xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name]" < "${TMPFILE}"
+			printf '\n'
+			xmlstarlet sel -t -v "count(/*[local-name()='model']/*[local-name()='resources']/*[local-name()='object'])" < "${TMPFILE}"
+			printf ' object(s)\n'
+			xmlstarlet sel -t -v "count(/*[local-name()='model']/*[local-name()='build']/*[local-name()='item'])" < "${TMPFILE}"
+			printf ' build item(s)\n'
+			xmlstarlet sel -t -v "count(/*[local-name()='model']/*[local-name()='resources']/*[local-name()='basematerials']/*[local-name()='base'])" < "${TMPFILE}"
+			printf ' material(s)\n'
+			rm -f "${TMPFILE}"
+			;;
+
 		# See http://p7zip.sourceforge.net/
 		# requires: p7zip
 		*.7z)	filetype_label 7zip archive
 			7za l -slt -- "$f" | sed '/^----------/,$d'
+			;;
+
+		# requires: unzip, xmlstarlet
+		*.amf)	filetype_label Additive Manufacturing File
+			if [ "$(dd if="$f" bs=1 count=2 2>/dev/null )" = "PK" ]; then
+				# If the amf file is zip compressed, uncompress it first
+				TMPFILE=$(mktemp)
+				INFILE="${TMPFILE}"
+				funzip "$f" > "$INFILE"
+			else
+				TMPFILE=
+				INFILE="$f"
+			fi
+			# BUG: There will be no separators between names if they come from
+			# multiple objeccts. But, it's often the case that there is only a single
+			# object
+			xmlstarlet sel  -t \
+				-o 'Name: ' -v "/amf/metadata[@type='name'] | /amf/object/metadata[@type='name']" -n  \
+			    -v "count(/amf/object)" -o " object(s)" -n \
+			    -v "count(/amf/material)" -o ' material(s)' -n \
+				< "$INFILE"
+			if [ -n "$TMPFILE" ]; then
+				rm -f "$TMPFILE"
+			fi
 			;;
 
 		# requires Android SDK
@@ -214,6 +255,16 @@ for f in "$@" ; do
 			openssl asn1parse -in "$f"
 			;;
 
+		# requires: fv, lzip
+		*.lz)	filetype_label  lzip-compressed file
+			fv -t lz "$f"
+			;;
+
+		# requires: fv, lzop
+		*.lzo)	filetype_label  LZOP-compressed file
+			fv -t lzo "$f"
+			;;
+
 		# requires: libquicktime-progs
 		*.m4a)	filetype_label Quicktime audio
 			qtinfo "$f"
@@ -304,6 +355,37 @@ for f in "$@" ; do
 			unsquashfs -s "$f"
 			;;
 
+		# requires: python >= 3
+		*.stl)	filetype_label STL model file
+			# strings is to strip out any nil bytes
+			if [ "$(dd if="$f" bs=1 count=6 2>/dev/null | strings -1)" = "solid " ]; then
+				# ASCII stl format
+				sed -n -E -e '1s/^solid +//p' "$f"
+				grep "^[[:space:]]*facet " "$f" | wc -l | tr -d '\n'
+				echo " facets"
+			else
+				# Binary stl format
+				python3 - "$f" <<EOF
+import struct, sys
+fn=sys.argv[1]
+with open(fn, 'rb') as f:
+	comment = f.read(80)
+	z = comment.find(b'\x00')
+	if z >= 0:
+		comment = comment[0:z]
+	# This character encoding likely isn't standarized
+	print(comment.decode('iso-8859-1'))
+	length = struct.unpack('<I', f.read(4))[0]
+print('%0d facets' % length)
+EOF
+			fi
+			;;
+
+		# requires: imagemagick, gzip
+		*.svgz)	filetype_label Compressed Scalable Vector Graphic image file
+			zcat "$f" | identify -verbose -
+			;;
+
 		# See http://www.encode.ru/tc/
 		# requires: python >= 3
 		*.tc)	file_label tc-compressed file
@@ -374,7 +456,9 @@ for f in "$@" ; do
 			zipinfo -h -z "$f" | grep -v "^$"; zipinfo -l "$f" | tail -1
 			;;
 
-# Catch-all handlers
+# Catch-all handlers. These must appear after the rest because they include
+# more general extensions and occasionally duplicate but less-desirable
+# handlers of previous extensions.
 
 		# Catch-all bitmapped image information displayer
 		# requires: imagemagick
