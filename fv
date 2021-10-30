@@ -138,9 +138,9 @@ for f in "$@" ; do
 			nspark -l -v "$f"
 			;;
 
-		# requires: unarj
+		# requires: unarj || arj
 		*.arj)	archive_label ARJ archive
-			unarj l "$f"
+			unarj l "$f" || arj l "$f"
 			;;
 
 		# See http://www.star.le.ac.uk/~tjg/bun/ (defunct as of 2021)
