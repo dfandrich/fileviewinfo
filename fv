@@ -202,7 +202,8 @@ for f in "$@" ; do
 			ar p "$f" data.tar.gz | gzip -dc | tar tvf - || ( ar p "$f" data.tar.xz | xz -dc | tar tvf - )
 			;;
 
-		# requires dmg2img, kpartx, apfs_fuse (https://github.com/sgan81/apfs-fuse)
+		# See https://github.com/sgan81/apfs-fuse
+		# requires dmg2img, kpartx, apfs_fuse
 		*.dmg)	archive_label Apple disk image
 			FVTMPDIR="$(mktemp -d)"
 			dmg2img "$f" "$FVTMPDIR/image.img"
@@ -344,8 +345,8 @@ for f in "$@" ; do
 			sed '//,$d' < "$f"
 			;;
 
-		# requires: gzip, tar, unzip
 		# See https://www.puppylinux.com/
+		# requires: gzip, tar, unzip
 		*.pup)
 			archive_label Puppy Linux package
 			if unzip -l -- "$f" dotpop.tar.gz >/dev/null; then
@@ -390,7 +391,8 @@ print('%2d.%02d %10d %s' % (ver1,ver2, length[1] * 0x100000000 + length[0], base
 EOF
 			;;
 
-		# requires: DumpSIS (https://sourceforge.net/projects/sistk/)
+		# See https://sourceforge.net/projects/sistk/
+		# requires: DumpSIS
 		*.sis)	archive_label SymbianOS SIS installable package
 			DumpSIS.pl -t -- "$f"
 			;;
@@ -415,8 +417,8 @@ EOF
 			sed -n -e '/^#/!d' -e '/^# end of/d' -e 's/^#[ 	]//' -e '/^Contents/,$p' < "$f"
 			;;
 
-		# requires: nulib
 		# See https://nulib.com/
+		# requires: nulib
 		*.shk | *.sh2 | *.sdk | *.bxy)	archive_label Apple II archive
 			nulib tv "$f"
 			;;
@@ -432,8 +434,8 @@ EOF
 			fvcbm "$f"
 			;;
 
-		# requires: squashfs
 		# See https://github.com/plougher/squashfs-tools
+		# requires: squashfs
 		*.sqsh | *.squashfs) archive_label Squashfs filesystem image
 			unsquashfs -ll "$f"
 			;;
@@ -528,7 +530,7 @@ EOF
 			;;
 
 		# See https://www.denx.de/wiki/U-Boot/
-		# requires: coreutils cpio gzip
+		# requires: coreutils, cpio, gzip
 		*.uRamdisk)	archive_label U-boot ramdisk image
 			tail -c +65 < "$f" | gzip -dc | cpio -t -v
 			;;
@@ -664,7 +666,7 @@ EOF
 			;;
 
 		# See https://www.7-zip.org/sdk.html
-		# requires: lzma or python >= 3
+		# requires: lzma || python >= 3
 		*.lzma)	archive_label LZMA compressed file
 		    if which lzmainfo  >/dev/null 2>&1 ; then
 				lzmainfo -- "$f"

@@ -14,6 +14,7 @@ shquote() {
 # BUG: tar will often create empty directories, or directories containing
 # symbolic links matching *.[0-9] at least with GNU tar 1.11.2
 # BUG: tar will extract all files if path ends in a number, e.g. playmidi-2.3/foo
+# requires: tar, gzip, man-db
 comment_tgz () {
 	COMMENT=$(tar -xOkzf - --wildcards \*.man \*.\[0-9\] 2> /dev/null < "$f" | lexgrog - | grep -v '^-: parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
 	if [ -z "$COMMENT" ] ; then
@@ -22,11 +23,13 @@ comment_tgz () {
 }
 
 # Get description from a .lzh-embedded desc.sdi file
+# requires: lha
 comment_lzh () {
 	COMMENT=$(lha pq -- "$f" desc.sdi | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 }
 
 # Get comment from a .zip file or embedded desc.sdi file
+# requires: unzip
 comment_zip () {
 	if [ -n "$(unzip -zq -- "$f" dummy-file-to-eliminate-output)" ]; then
 		COMMENT=$(unzip -zq -- "$f" dummy-file-to-eliminate-output | head -2 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
@@ -37,6 +40,7 @@ comment_zip () {
 }
 
 # Get comment from a .zoo file or embedded desc.sdi file
+# requires: zoo
 comment_zoo () {
 	COMMENT=$(zoo vc "$f" dummy-file-to-eliminate-output | \
 		sed -n -e 's/^>> //p' | tr '\n' ' ')
@@ -46,11 +50,13 @@ comment_zoo () {
 }
 
 # Get summary from an RPM package
+# requires: rpm
 comment_rpm () {
 	COMMENT=$(rpm -qp --queryformat '%{SUMMARY}' -- "$f")
 }
 
 # Get title from an MS Word document
+# requires: unzip, xmlstarlet
 comment_docx () {
 	COMMENT=$(unzip -cq -- "$f" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dc:title)
 }
@@ -58,6 +64,7 @@ comment_docx () {
 # Get title from an e-book
 # These are all handled by ebook-meta (part of calibre) so there doesn't seem to be a
 # good reason to separate them into individual handlers.
+# requires: calibre
 comment_ebook() {
 	COMMENT=$(ebook-meta -- "$f" | sed -n -e 's/^Title *: //p')
 	# ebook-meta falls back to the file name (without extension) as the title
@@ -70,11 +77,13 @@ comment_ebook() {
 }
 
 # Get title from a PDF file
+# requires: poppler
 comment_pdf () {
 	COMMENT=$(pdfinfo -- "$f" | sed -E -n -e 's/^(Title|Subject|Author):[[:space:]]*//p' | head -1)
 }
 
 # Get title from a PNG file
+# requires: poppler
 comment_png () {
 	COMMENT=$(pnginfo "$f" | sed -n -e 's/^[[:space:]]\+Title[^:]*: //p')
 	if [ -z "$COMMENT" ] ; then
@@ -111,6 +120,7 @@ comment_subject () {
 }
 
 # Get title from an STL file
+# requires: binutils
 comment_stl () {
 	# strings is to strip out any nil bytes
 	if [ "$(dd if="$f" bs=1 count=6 2>/dev/null | strings -1)" = "solid " ]; then
@@ -123,6 +133,7 @@ comment_stl () {
 }
 
 # Get title from an SVG file
+# requires: xmlstarlet
 comment_svg () {
 	COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']" < "$f")
 	if [ -z "$COMMENT" ] ; then
@@ -132,6 +143,7 @@ comment_svg () {
 }
 
 # Get title from an SVGZ file
+# requires: gzip, xmlstarlet
 comment_svgz () {
 	COMMENT=$(gzip -dc < "$f" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']")
 	if [ -z "$COMMENT" ] ; then
@@ -141,6 +153,7 @@ comment_svgz () {
 }
 
 # Get description from a TIFF image
+# requires: libtiff-progs
 comment_tiff () {
 	COMMENT=$(tiffinfo -- "$f" | sed -n -e 's/^ *ImageDescription: //p')
 	if [ -z "$COMMENT" ] ; then
@@ -180,11 +193,13 @@ comment_pascal () {
 }
 
 # Get title from a 3mf file
+# requires: unzip, xmlstarlet
 comment_3mf () {
 	COMMENT=$(unzip -cq -- "$f" 3D/3dmodel.model | xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name='Title']")
 }
 
 # Get title from an amf file
+# requires: unzip, xmlstarlet
 comment_amf () {
 	if [ "$(dd if="$f" bs=1 count=2 2>/dev/null )" = "PK" ]; then
 		# If the amf file is zip compressed, uncompress it first
@@ -208,6 +223,7 @@ comment_amf () {
 }
 
 # Get comment from an ARJ archive
+# requires: arj
 comment_arj () {
 	COMMENT=$(arj v "$f" | sed -e '1,/^Archive created:/d' -e '/^Sequence\/Pathname\/Comment\/Chapters/,$d' | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 }
@@ -218,6 +234,8 @@ comment_asm () {
 }
 
 # Get name from an AVI file
+# See https://sourceforge.net/projects/avifile/
+# requires: avifile-samples
 comment_avi () {
 	COMMENT=$(avitype -- "$f" | sed -n -e 's/^<AVI reader> *: *InfoChunk Name: *//p')
 	if [ -z "$COMMENT" ] ; then
@@ -226,6 +244,7 @@ comment_avi () {
 }
 
 # Get title from a FLAC audio file
+# requires: flac
 comment_flac () {
 	COMMENT=$(metaflac --export-tags-to=- -- "$f" | sed -n -E -e 's/^TITLE=//p')
 	if [ -z "$COMMENT" ] ; then
@@ -234,6 +253,7 @@ comment_flac () {
 }
 
 # Get comment from a GIF image
+# requires: gifsicle
 comment_gif () {
 	COMMENT=$(gifsicle --info -- "$f" | sed -n 's/^ *comment //p')
 	if [ -z "$COMMENT" ] ; then
@@ -242,6 +262,7 @@ comment_gif () {
 }
 
 # Get comment from a JPEG JFIF image
+# requires: jpeg-progs, exif
 comment_jpeg () {
 	COMMENT=$(rdjpgcom < "$f")
 	if [ -z "$COMMENT" ] ; then
@@ -272,6 +293,7 @@ comment_html () {
 }
 
 # Get summary from a man page
+# requires: man-db
 comment_man () {
 	COMMENT=$(lexgrog -- "$f" | grep -v '^-: parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
 }
@@ -282,6 +304,7 @@ comment_md () {
 }
 
 # Get title from an Matroska video file
+# requires: mkvtoolnix
 comment_mkv () {
 	COMMENT=$(mkvinfo "$f" | sed -n -e 's/^[|+ ]*Title: //p')
 	if [ -z "$COMMENT" ] ; then
@@ -293,6 +316,7 @@ comment_mkv () {
 # id3info is the best program of the common ones I've found for this, since it
 # supports both ID3v1 and ID3v2 tags, exports them both in the same format, and
 # uses a format that's easy to parse.
+# requires: id3lib || ffmpeg
 comment_mp3 () {
 	COMMENT=$(id3info -- "$f" | sort -r | sed -E -n -e 's/^=== (TPE1|TIT2).*\): //p' | sed 2i/ | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 	if [ -z "$COMMENT" ] ; then
@@ -301,6 +325,7 @@ comment_mp3 () {
 }
 
 # Get title from an MPEG-4 video file
+# requires: libquicktime-progs || ffmpeg
 comment_mp4 () {
 	COMMENT=$(qtdump "$f" | sed -n -e 's/^[[:space:]]*name:[[:space:]]*//p' | head -1)
 	if [ -z "$COMMENT" ] ; then
@@ -309,6 +334,7 @@ comment_mp4 () {
 }
 
 # Get title from a MOV file
+# requires: libquicktime-progs || ffmpeg
 comment_mov () {
 	comment_mp4 "$@"
 }
@@ -321,17 +347,20 @@ comment_sh () {
 }
 
 # Get name from an OTF/TTF font file
+# requires: freetype2-demos
 comment_otf () {
 	COMMENT=$(ftdump "$f" | sed -n -E -e 's/^[[:space:]]*(family|style):[[:space:]]*//p' | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 }
 
 # Get title from an ogg media file
 # If artist is found, prepend it to the title like "Artist / Title"
+# requires: vorbis-tools
 comment_ogg () {
 	COMMENT=$(ogginfo -- "$f" | sed -n -E -e '/^[[:space:]]*(title|artist)=/p' | sort | sed -E -e 's/^[[:space:]]*[a-z]+=//' | sed 2i/ | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 }
 
 # Get title from an Open Document Text file
+# requires: unzip, xmlstarlet
 comment_odt () {
 	COMMENT=$(unzip -cq -- "$f" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:title)
 }
@@ -351,6 +380,7 @@ comment_uue () {
 # Get title from a number of different A/V formats
 # Using ffmpeg for this is almost the only option for some formats, and is
 # easier than having to install a new special program for each other formats.
+# requires: ffmpeg
 comment_ffmpeg () {
 	COMMENT=$(ffmpeg -loglevel error -i "$f" -f ffmetadata - | sed -n -E -e 's/^(title|com.apple\.quicktime\.title)=//ip' | head -1)
 	if [ -z "$COMMENT" ] ; then
@@ -359,11 +389,13 @@ comment_ffmpeg () {
 }
 
 # Get title from a WAV file
+# requires: ffmpeg
 comment_wav () {
 	comment_ffmpeg "$@"
 }
 
 # Get title from an AIFF file
+# requires: ffmpeg
 comment_aiff () {
 	comment_ffmpeg "$@"
 }
@@ -381,6 +413,7 @@ comment_xpm () {
 }
 
 # Make comment from a pam image
+# requires: netpbm
 comment_pam () {
 	COMMENT=$(pamfile -comments < "$f" | sed -e '1,/^Comments:$/d' -e 's/^ *# *//' | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
 }

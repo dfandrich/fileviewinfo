@@ -174,7 +174,7 @@ for f in "$@" ; do
 			tar xOf - catalog/INDEX < "$f"
 			;;
 
-		# requires: tar gzip
+		# requires: tar, gzip
 		*.depot.gz) filetype_label HP-UX package
 			gzip -dc -- "$f" | tar xOf - catalog/INDEX
 			;;
@@ -217,7 +217,8 @@ for f in "$@" ; do
 			giftext < "$f"
 			;;
 
-		# requires: gpxinfo or PyPi gpxpy
+		# See https://pypi.org/project/gpxpy/
+		# requires: gpxinfo || gpxpy
 		*.gpx)	filetype_label GPS exchange format file
 			gpxinfo "$f"
 			;;
@@ -344,13 +345,14 @@ for f in "$@" ; do
 			fv -t rz "$f"
 			;;
 
-		# requires: DumpSIS (https://sourceforge.net/projects/sistk/)
+		# See https://sourceforge.net/projects/sistk/
+		# requires: DumpSIS
 		*.sis)	filetype_label SymbianOS SIS installable package
 			DumpSIS.pl -e -- "$f" | sed '/^Files$/,$d'
 			;;
 
-		# requires: squashfs
 		# See https://github.com/plougher/squashfs-tools
+		# requires: squashfs
 		*.sqsh | *.squashfs) filetype_label Squashfs filesystem image
 			unsquashfs -s "$f"
 			;;
