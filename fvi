@@ -257,12 +257,12 @@ for f in "$@" ; do
 			;;
 
 		# requires: fv, lzip
-		*.lz)	filetype_label  lzip-compressed file
+		*.lz)	filetype_label lzip-compressed file
 			fv -t lz "$f"
 			;;
 
 		# requires: fv, lzop
-		*.lzo)	filetype_label  LZOP-compressed file
+		*.lzo)	filetype_label LZOP-compressed file
 			fv -t lzo "$f"
 			;;
 

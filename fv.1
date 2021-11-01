@@ -53,19 +53,19 @@ with the \-l option.
 This version supports the following file extensions:
 .LP
 .\" This section comes from: ./fv -l | sed -e /^Supported/,1d -e 's/^/.SM /'
-.SM .7z .a .ace .alz .apk .application .arc .arj .bun .bxy .bz2 .cab .cbmarc
-.SM .ccs .cf .cgz .chm .chrt .cpio .cpio.bz2 .cpio.gz .cpio.Z .cpio.z .d64
-.SM .dar .deb .depot .depot.gz .dmg .docm .docx .egg .epk .epub .f3d .flw
-.SM .fodg .fodp .fods .fodt .fpm .gem .gz .ha .hp .hqx .ipg .ipk .iso .jar
-.SM .jffs2 .kfo .kgb .kil .kmz .kpr .kra .ksp .kwd .lbr .lha .lnx .lpkg
-.SM .lzh .lzma .lzo .mac .mar .n64 .nif .nth .odf .odg .odp .ods .odt .opk
-.SM .otg .otp .ots .par .par2 .pbi .pet .pisi .pk3 .pkg .pq6 .pup .qpk .qpr
-.SM .rar .resource .rpm .rpp .rsn .rub .rz .sa .sda .sdk .sfx .sh .sh2 .shar
-.SM .shk .sis .sit .slp .spark .spm .sqsh .squashfs .sto .sxd .sxi .sxw .t64
-.SM .tar .tar.bz2 .tar.gz .tar.lz .tar.lzma .tar.xz .tar.Z .tar.z .tar.zst
-.SM .tardist .taz .tbz .tbz2 .tc .tgz .tlz .txz .uRamdisk .uu .uua .uue .wad
-.SM .wal .war .whl .wsz .x64 .xar .xpi .xps .xz .Z .z .zip .zoo .zpaq .zst
-.SM .zz .[psrud]00 winmail.dat
+.SM .3mf .7z .a .ace .alz .apk .application .arc .arj .bun .bxy .bz2 .cab
+.SM .cbmarc .ccs .cf .cgz .chm .chrt .cpio .cpio.bz2 .cpio.gz .cpio.Z .cpio.z
+.SM .d64 .dar .dat .deb .depot .depot.gz .dmg .docm .docx .egg .epk .epub
+.SM .f3d .flw .fodg .fodp .fods .fodt .fpm .gem .gz .ha .hp .hqx .ipg .ipk
+.SM .iso .jar .jffs2 .kfo .kgb .kil .kmz .kpr .kra .ksp .kwd .lbr .lha .lnx
+.SM .lpkg .lz .lzh .lzma .lzo .mac .mar .n64 .nif .nth .odf .odg .odp .ods
+.SM .odt .opk .otg .otp .ots .par .par2 .pbi .pet .pisi .pk3 .pkg .pq6 .pup
+.SM .qpk .qpr .rar .resource .rpm .rpp .rsn .rub .rz .sa .sda .sdk .sfx .sh
+.SM .sh2 .shar .shk .sis .sit .slp .spark .spm .sqsh .squashfs .sto .sxd
+.SM .sxi .sxw .t64 .tar .tar.bz2 .tar.gz .tar.lz .tar.lzma .tar.xz .tar.Z
+.SM .tar.z .tar.zst .tardist .taz .tbz .tbz2 .tc .tgz .tlz .txz .uRamdisk
+.SM .uu .uua .uue .wad .wal .war .whl .wsz .x64 .xar .xpi .xps .xz .Z .z
+.SM .zip .zoo .zpaq .zst .zz .[psrud]00 winmail.dat
 .LP
 Not all files supported are strictly archive types; several structured
 documents formats are also supported.  Most of these are build on
@@ -79,12 +79,15 @@ These are the file types supported:
 .LP
 .RS
 .\" This section comes from: ./fv -v -l | sed a.LP
-
 (unknown 3D package)
+.LP
+3-D Manufacturing format
 .LP
 7zip archive
 .LP
 ACE archive
+.LP
+Allegro4 not packed datafile
 .LP
 ALZ archive
 .LP
@@ -148,7 +151,7 @@ iPod Game
 .LP
 ISO9660 filesystem image file
 .LP
-Itsy Package
+Itsy package
 .LP
 Java jar file
 .LP
@@ -176,7 +179,9 @@ KWord Document
 .LP
 LHARC archive
 .LP
-Lua Package
+Lua package
+.LP
+LZIP compressed file
 .LP
 lzip-compressed tar archive
 .LP
@@ -266,8 +271,6 @@ Red Hat RPP package
 .LP
 Rubix package
 .LP
-Ruby Package
-.LP
 Ruby package
 .LP
 rzip archive
@@ -284,9 +287,9 @@ Stampede Linux package
 .LP
 stopmotion movie
 .LP
-Syllable Application Package
+Syllable application package
 .LP
-Syllable Resource Package
+Syllable resource package
 .LP
 SymbianOS SIS installable package
 .LP

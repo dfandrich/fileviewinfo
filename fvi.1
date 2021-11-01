@@ -46,22 +46,23 @@ with the \-l option.
 This version supports the following file extensions:
 .LP
 .\" This section comes from: ./fvi -l | sed -e /^Supported/,1d -e 's/^/.SM /'
-.SM .3g2 .3gp .4xm .7z .aac .ac3 .adts .aiff .alaw .amr .amv .apc .ape .apk
-.SM .application .asf .asf_stream .au .avi .avs .bethsoftvid .bz2 .c93 .cacrt
-.SM .cgm .cgz .chrt .crc .crl .crt .daud .depot .depot.gz .der .dex .dirac
-.SM .dmg .dng .docm .docx .dsicin .dts .dv .dv1394 .dvd .dxa .ea .egg .epk
-.SM .eps .epub .exe .f3d .ffm .fig .film_cpk .flac .flic .flv .flw .fodg .fodp
-.SM .fods .fodt .fpm .fpx .framecrc .gif .gplt .gpx .gxf .gz .h261 .h263 .h264
-.SM .heic .heic .heif .hpgl .idcin .image2 .image2pipe .ingenient .ipg .ipk
-.SM .ipmovie .iso .jar .jbig .jfif .jp2 .jpeg .jpg .key .kfo .kil .kmz .kpr
-.SM .kra .ksp .kwd .libnut .lzma .m4a .m4v .matroska .mj2 .mjpeg .mkv .mm
-.SM .mmf .mo .mov .mp2 .mp3 .mp4 .mpc .mpeg .mpeg1video .mpeg2video .mpegts
-.SM .mpegtsraw .mpegvideo .mpg4 .mpjpeg .mts .MTV .mulaw .mxf .nif .nsv .nth
-.SM .null .nut .nuv .o .odf .odg .odp .ods .odt .ogg .ogv .oss .otf .otg .otp
-.SM .ots .pam .par .pbm .pcl .pcx .pdf .pem .pet .pfa .pfb .pgm .pk3 .png
-.SM .pnm .ppm .ps .psp .psxstr .qpk .qpr .qt .ram .rar .raw .rawvideo .redir
-.SM .resource .rle .rm .RoQ .rpm .rsn .rtp .rtsp .rub .rz .s16be .s16le .s8
-.SM .sdp .shn .siff .sis .slp .smk .sol .spm .sqsh .squashfs .svcd .svg .swf
+.SM .3g2 .3gp .3mf .4xm .7z .aac .ac3 .adts .aiff .alaw .amf .amr .amv .apc
+.SM .ape .apk .application .asf .asf_stream .au .avi .avs .bethsoftvid .bz2
+.SM .c93 .cacrt .cgm .cgz .chrt .crc .crl .crt .daud .depot .depot.gz .der
+.SM .dex .dirac .dmg .dng .docm .docx .dsicin .dts .dv .dv1394 .dvd .dxa
+.SM .ea .egg .epk .eps .epub .exe .f3d .ffm .fig .film_cpk .flac .flic .flv
+.SM .flw .fodg .fodp .fods .fodt .fpm .fpx .framecrc .gif .gplt .gpx .gxf
+.SM .gz .h261 .h263 .h264 .heic .heic .heif .hpgl .idcin .image2 .image2pipe
+.SM .ingenient .ipg .ipk .ipmovie .iso .jar .jbig .jfif .jp2 .jpeg .jpg .key
+.SM .kfo .kil .kmz .kpr .kra .ksp .kwd .libnut .lz .lzma .lzo .m1v .m2v .m4a
+.SM .m4v .matroska .mj2 .mjpeg .mkv .mm .mmf .mo .mov .mp2 .mp3 .mp4 .mpc
+.SM .mpe .mpeg .mpeg1video .mpeg2video .mpegts .mpegtsraw .mpegvideo .mpg
+.SM .mpg4 .mpjpeg .mts .MTV .mulaw .mxf .nif .nsv .nth .null .nut .nuv .o
+.SM .odf .odg .odp .ods .odt .ogg .ogv .oss .otf .otg .otp .ots .pam .par
+.SM .pbm .pcl .pcx .pdf .pem .pet .pfa .pfb .pgm .pk3 .png .pnm .ppm .ps
+.SM .psp .psxstr .qpk .qpr .qt .ram .rar .raw .rawvideo .redir .resource
+.SM .rle .rm .RoQ .rpm .rsn .rtp .rtsp .rub .rz .s16be .s16le .s8 .sdp .shn
+.SM .siff .sis .slp .smk .sol .spm .sqsh .squashfs .stl .svcd .svg .svgz .swf
 .SM .sxd .sxi .sxw .taz .tbz .tbz2 .tc .tgz .thp .tiertexseq .tif .tiff .tlz
 .SM .torrent .tta .ttf .txd .txz .u16be .u16le .u8 .vc1 .vcd .video4linux
 .SM .video4linux2 .vmd .vob .voc .wal .war .wav .wc3movie .webm .webp .whl
@@ -78,7 +79,11 @@ These are the file types supported:
 .\" This section comes from: ./fvi -v -l | sed a.LP
 (unknown 3D package)
 .LP
+3MF 3-D Manufacturing file
+.LP
 7zip archive
+.LP
+Additive Manufacturing File
 .LP
 Android Java class file
 .LP
@@ -93,6 +98,8 @@ BitTorrent torrent file
 bzip2-compressed file
 .LP
 bzip2-compressed tar archive .tbz,
+.LP
+Compressed Scalable Vector Graphic image file
 .LP
 DER certificate
 .LP
@@ -120,7 +127,7 @@ iPod Game
 .LP
 ISO9660 filesystem image file
 .LP
-Itsy Package
+Itsy package
 .LP
 Java jar file
 .LP
@@ -130,7 +137,11 @@ JPEG image
 .LP
 Krita image
 .LP
+lzip-compressed file
+.LP
 LZMA compressed file
+.LP
+LZOP-compressed file
 .LP
 Mac OS X Disk Image
 .LP
@@ -145,6 +156,8 @@ Microsoft Office Open XML with Macros
 Mozilla Java Cross Platform Installer
 .LP
 MP3 audio file
+.LP
+MPEG video
 .LP
 Nokia mobile phone theme
 .LP
@@ -206,9 +219,11 @@ Squashfs filesystem image
 .LP
 Stampede Linux package
 .LP
-Syllable Application Package
+STL model file
 .LP
-Syllable Resource Package
+Syllable application package
+.LP
+Syllable resource package
 .LP
 SymbianOS SIS installable package
 .LP
