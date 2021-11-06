@@ -8,6 +8,11 @@ shquote() {
 	echo "$1" | awk -v q="'" '{gsub(q, q "\\" q q, $0); printf "%s", q $0 q;}'
 }
 
+# Filter to trim leading and trailing whitespace and concatenate lines
+trimspace() {
+	tr '\n' ' ' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+}
+
 # Get comment from a compressed tar file
 # Comment is taken from a man page file with name *.[0-9]
 # or from a Linux Software Map entry
@@ -25,17 +30,17 @@ comment_tgz () {
 # Get description from a .lzh-embedded desc.sdi file
 # requires: lha
 comment_lzh () {
-	COMMENT=$(lha pq -- "$f" desc.sdi | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+	COMMENT=$(lha pq -- "$f" desc.sdi | head -3 | trimspace)
 }
 
 # Get comment from a .zip file or embedded desc.sdi file
 # requires: unzip
 comment_zip () {
 	if [ -n "$(unzip -zq -- "$f" dummy-file-to-eliminate-output)" ]; then
-		COMMENT=$(unzip -zq -- "$f" dummy-file-to-eliminate-output | head -2 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+		COMMENT=$(unzip -zq -- "$f" dummy-file-to-eliminate-output | head -2 | trimspace)
 
 	elif unzip -vqq -- "$f" desc.sdi > /dev/null ; then
-		COMMENT=$(unzip -caq -- "$f" desc.sdi | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+		COMMENT=$(unzip -caq -- "$f" desc.sdi | head -3 | trimspace)
 	fi
 }
 
@@ -43,9 +48,9 @@ comment_zip () {
 # requires: zoo
 comment_zoo () {
 	COMMENT=$(zoo vc "$f" dummy-file-to-eliminate-output | \
-		sed -n -e 's/^>> //p' | tr '\n' ' ')
+		sed -n -e 's/^>> //p' | trimspace)
 	if [ -z "$COMMENT" ] && zoo vq "$f" desc.sdi > /dev/null ; then
-		COMMENT=$(zoo xpq "$f" desc.sdi | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+		COMMENT=$(zoo xpq "$f" desc.sdi | head -3 | trimspace)
 	fi
 }
 
@@ -171,7 +176,7 @@ comment_c () {
 			s/\*\/ *$//
 			s/[ 	]*$//
 			p 
-			}' < "$f" | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+			}' < "$f" | head -3 | trimspace)
 }
 
 # Get comment from Pascal source file
@@ -187,7 +192,7 @@ comment_pascal () {
 			s/^[ 	*]*//
 			s/[ 	]*$//
 			p
-			}' < "$f" | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+			}' < "$f" | head -3 | trimspace)
 }
 
 # Get title from a 3mf file
@@ -223,7 +228,7 @@ comment_amf () {
 # Get comment from an ARJ archive
 # requires: arj
 comment_arj () {
-	COMMENT=$(arj v "$f" | sed -e '1,/^Archive created:/d' -e '/^Sequence\/Pathname\/Comment\/Chapters/,$d' | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+	COMMENT=$(arj v "$f" | sed -e '1,/^Archive created:/d' -e '/^Sequence\/Pathname\/Comment\/Chapters/,$d' | head -3 | trimspace)
 }
 
 # Get comment from an assembly language file
@@ -298,7 +303,7 @@ comment_man () {
 
 # Get title from the start of a Markdown text file
 comment_md () {
-	COMMENT=$(head -5 < "$f" | sed -n -e 's/^# //p' | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+	COMMENT=$(head -5 < "$f" | sed -n -e 's/^# //p' | trimspace)
 }
 
 # Get title from an Matroska video file
@@ -316,7 +321,7 @@ comment_mkv () {
 # uses a format that's easy to parse.
 # requires: id3lib || ffmpeg
 comment_mp3 () {
-	COMMENT=$(id3info -- "$f" | sort -r | sed -E -n -e 's/^=== (TPE1|TIT2).*\): //p' | sed 2i/ | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+	COMMENT=$(id3info -- "$f" | sort -r | sed -E -n -e 's/^=== (TPE1|TIT2).*\): //p' | sed 2i/ | trimspace)
 	if [ -z "$COMMENT" ] ; then
 		comment_ffmpeg "$@"
 	fi
@@ -347,14 +352,14 @@ comment_sh () {
 # Get name from an OTF/TTF font file
 # requires: freetype2-demos
 comment_otf () {
-	COMMENT=$(ftdump "$f" | sed -n -E -e 's/^[[:space:]]*(family|style):[[:space:]]*//p' | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+	COMMENT=$(ftdump "$f" | sed -n -E -e 's/^[[:space:]]*(family|style):[[:space:]]*//p' | trimspace)
 }
 
 # Get title from an ogg media file
 # If artist is found, prepend it to the title like "Artist / Title"
 # requires: vorbis-tools
 comment_ogg () {
-	COMMENT=$(ogginfo -- "$f" | sed -n -E -e '/^[[:space:]]*(title|artist)=/p' | sort | sed -E -e 's/^[[:space:]]*[a-z]+=//' | sed 2i/ | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+	COMMENT=$(ogginfo -- "$f" | sed -n -E -e '/^[[:space:]]*(title|artist)=/p' | sort | sed -E -e 's/^[[:space:]]*[a-z]+=//' | sed 2i/ | trimspace)
 }
 
 # Get title from an Open Document Text file
@@ -413,7 +418,7 @@ comment_xpm () {
 # Make comment from a pam image
 # requires: netpbm
 comment_pam () {
-	COMMENT=$(pamfile -comments < "$f" | sed -e '1,/^Comments:$/d' -e 's/^ *# *//' | head -3 | tr '\n' ' ' | sed -e 's/^[ 	]*//' -e 's/[ 	]*$//')
+	COMMENT=$(pamfile -comments < "$f" | sed -e '1,/^Comments:$/d' -e 's/^ *# *//' | head -3 | trimspace)
 }
 
 # Get comment from a pnm image
