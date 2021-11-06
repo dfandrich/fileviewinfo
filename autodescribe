@@ -124,6 +124,12 @@ comment_subject () {
 	fi
 }
 
+# Get title from a Scribus document
+# requires: xmlstarlet
+comment_sla () {
+	COMMENT=$(xmlstarlet sel -t -v 'SCRIBUSUTF8NEW/DOCUMENT/@TITLE' < "$f")
+}
+
 # Get title from an STL file
 comment_stl () {
 	if dd if="$f" bs=1 count=80 2>/dev/null | sed -n -e N -e '/^solid .*\n/p' | grep -q .; then
@@ -471,6 +477,7 @@ if [ $# -eq 0 ] ; then
 	echo '             py (Python source code)'
 	echo '             rpm (rpm package)'
 	echo '             sh (shell script)'
+	echo '             sla (Scribus document)'
 	echo '             stl (STL model file)'
 	echo '             subject (news article or mail file)'
 	echo '             svg (Scalable Vector Graphics)'
@@ -602,6 +609,8 @@ for f in "$@" ; do
 			*.ps)	TYPE=ps
 				;;
 			*.py)	TYPE=py
+				;;
+			*.sla)	TYPE=sla
 				;;
 			*.stl)	TYPE=stl
 				;;

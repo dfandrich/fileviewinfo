@@ -29,6 +29,7 @@
 'testfiles/type1.py' 'Hash style Python comment'
 'testfiles/type1.rpm' 'RPM Summary'
 'testfiles/type1.s' 'Assembly title'
+'testfiles/type1.sla' 'Scribus Title'
 'testfiles/type1.stl' 'STL_name'
 'testfiles/type1.svg' 'SVG root title'
 'testfiles/type1.svgz' 'SVG root title'
