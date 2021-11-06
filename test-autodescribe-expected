@@ -58,3 +58,4 @@
 'testfiles/type3.amf' 'AMF object name'
 'testfiles/type3.pas' 'Another commenting style using Borland comments'
 'testfiles/type3.py' 'Docstring style comment, double quotes, comment on next line.'
+'testfiles/type3.stl' 'solid description that looks like an ASCII file but is actually binary'

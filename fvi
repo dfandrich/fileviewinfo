@@ -359,10 +359,9 @@ for f in "$@" ; do
 
 		# requires: python >= 3
 		*.stl)	filetype_label STL model file
-			# strings is to strip out any nil bytes
-			if [ "$(dd if="$f" bs=1 count=6 2>/dev/null | strings -1)" = "solid " ]; then
+			if dd if="$f" bs=1 count=80 2>/dev/null | sed -n -e N -e '/^solid .*\n/p' | grep -q .; then
 				# ASCII stl format
-				sed -n -E -e '1s/^solid +//p' "$f"
+				sed -n -E -e '1s/^solid +//p' "$f" | iconv -f windows-1252
 				grep "^[[:space:]]*facet " "$f" | wc -l | tr -d '\n'
 				echo " facets"
 			else
@@ -374,9 +373,9 @@ with open(sys.argv[1], 'rb') as f:
 	z = comment.find(b'\x00')
 	if z >= 0:
 		comment = comment[0:z]
-	comment = comment.strip(b'\n').replace(b'\n', b' ')
+	comment = comment.strip(b'\n').strip(b'\r').replace(b'\n', b' ').replace(b'\r', b' ').strip(b' ')
 	# This character encoding likely isn't always correct
-	print(comment.decode('iso-8859-1'))
+	print(comment.decode('windows-1252'))
 	length = struct.unpack('<I', f.read(4))[0]
 print('%0d facets' % length)
 EOF

@@ -120,15 +120,13 @@ comment_subject () {
 }
 
 # Get title from an STL file
-# requires: binutils
 comment_stl () {
-	# strings is to strip out any nil bytes
-	if [ "$(dd if="$f" bs=1 count=6 2>/dev/null | strings -1)" = "solid " ]; then
+	if dd if="$f" bs=1 count=80 2>/dev/null | sed -n -e N -e '/^solid .*\n/p' | grep -q .; then
 		# ASCII stl format
-		COMMENT=$(sed -n -E -e '1s/^solid +//p' < "$f")
+		COMMENT=$(sed -n -E -e 's/[[:space:]]*$//' -e '1s/^solid +//p' < "$f")
 	else
 		# Binary stl format
-		COMMENT=$(dd if="$f" bs=1 count=80 2>/dev/null | sed -e 's/\x0.*$//' -e 's/[[:space:]]*$//')
+		COMMENT=$(dd if="$f" bs=1 count=80 2>/dev/null | sed -e 's/\x0.*$//' -e 's/[[:space:]]*$//' | iconv -f windows-1252)
 	fi
 }
 

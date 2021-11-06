@@ -27,3 +27,7 @@ testfiles/type2.stl:
 STL name
 8 facets
 
+testfiles/type3.stl:
+solid description that looks like an ASCII file but is actually binary
+8 facets
+
