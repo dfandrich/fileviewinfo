@@ -16,6 +16,7 @@
 'testfiles/type1.mp3' 'MP3 Artist / MP3 Song'
 'testfiles/type1.mp4' 'MPEG-4 title'
 'testfiles/type1.msg' 'E-mail subject'
+'testfiles/type1.ods' 'OpenDocument Spreadsheet Title'
 'testfiles/type1.odt' 'Open Document title'
 'testfiles/type1.ogg' 'OGG artist / OGG title'
 'testfiles/type1.pam' 'PAM comment'

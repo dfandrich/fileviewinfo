@@ -368,9 +368,9 @@ comment_ogg () {
 	COMMENT=$(ogginfo -- "$f" | sed -n -E -e '/^[[:space:]]*(title|artist)=/p' | sort | sed -E -e 's/^[[:space:]]*[a-z]+=//' | sed 2i/ | trimspace)
 }
 
-# Get title from an Open Document Text file
+# Get title from an Open Document Format file
 # requires: unzip, xmlstarlet
-comment_odt () {
+comment_odf () {
 	COMMENT=$(unzip -cq -- "$f" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:title)
 }
 
@@ -464,7 +464,7 @@ if [ $# -eq 0 ] ; then
 	echo '             mov (MOV video)'
 	echo '             mp3 (MPEG-1 layer 3 audio)'
 	echo '             mp4 (MPEG-4 video)'
-	echo '             odt (Open Document text)'
+	echo '             odf (Open Document Format)'
 	echo '             ogg (Ogg media file)'
 	echo '             otf (OpenType font)'
 	echo '             pam (Portable Arbitrary Map)'
@@ -579,8 +579,9 @@ for f in "$@" ; do
 				;;
 			*.mp4)	TYPE=mp4
 				;;
-			*.odt)
-				TYPE=odt
+			*.odt | *.otm | *.ott | *.odh | *.odc | *.otc | *.odg | *.otg | *.odi | *.oti | *.odp | *.otp | *.ods | *.ots)
+			# *.otf is left off because it's much more commonly a font file
+				TYPE=odf
 				;;
 			*.ogg) TYPE=ogg
 				;;
