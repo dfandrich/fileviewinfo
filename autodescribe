@@ -275,19 +275,19 @@ comment_gif () {
 comment_jpeg () {
 	COMMENT=$(rdjpgcom < "$f")
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=0 --tag=ImageDescription -m -- "$f")
+		COMMENT=$(exif --ifd=0 --tag=ImageDescription -m -- "$f" 2>/dev/null)
 	fi
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=0 --tag=Artist -m -- "$f")
+		COMMENT=$(exif --ifd=0 --tag=Artist -m -- "$f" 2>/dev/null)
 	fi
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=0 --tag=XP_Author -m -- "$f")
+		COMMENT=$(exif --ifd=0 --tag=XP_Author -m -- "$f" 2>/dev/null)
 	fi
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=0 --tag=Copyright -m -- "$f")
+		COMMENT=$(exif --ifd=0 --tag=Copyright -m -- "$f" 2>/dev/null)
 	fi
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=EXIF --tag=UserComment -m -- "$f")
+		COMMENT=$(exif --ifd=EXIF --tag=UserComment -m -- "$f" 2>/dev/null)
 	fi
 }
 
