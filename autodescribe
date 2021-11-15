@@ -161,6 +161,14 @@ comment_svgz () {
 	fi
 }
 
+# Get description from a Tellico database file
+# requires: unzip, xmlstarlet
+comment_tellico () {
+	# stderr always contains a warning about the DTD; send that (and every
+	# other warning as a side effect) to /dev/null
+	COMMENT=$(funzip < "$f" | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" 2> /dev/null)
+}
+
 # Get description from a TIFF image
 # requires: libtiff-progs
 comment_tiff () {
@@ -214,7 +222,7 @@ comment_amf () {
 		# If the amf file is zip compressed, uncompress it first
 		TMPFILE=$(mktemp)
 		INFILE="${TMPFILE}"
-		funzip "$f" > "$INFILE"
+		funzip < "$f" > "$INFILE"
 	else
 		TMPFILE=
 		INFILE="$f"
@@ -482,6 +490,7 @@ if [ $# -eq 0 ] ; then
 	echo '             subject (news article or mail file)'
 	echo '             svg (Scalable Vector Graphics)'
 	echo '             svgz (Compressed Scalable Vector Graphics)'
+	echo '             tellico (Tellico database file)'
 	echo '             tgz (compressed tar archive)'
 	echo '             tiff (TIFF image)'
 	echo '             uue (UUencoded file)'
@@ -621,6 +630,9 @@ for f in "$@" ; do
 				;;
 			*.tar.gz | *.tar.Z | *.tar.z | *.tgz)
 				TYPE=tgz
+				;;
+			*.tc)
+				TYPE=tellico
 				;;
 			*.tif | *.tiff)
 				TYPE=tiff
