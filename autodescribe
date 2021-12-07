@@ -88,7 +88,7 @@ comment_pdf () {
 }
 
 # Get title from a PNG file
-# requires: poppler
+# requires: pngtools
 comment_png () {
 	COMMENT=$(pnginfo "$f" | sed -n -e 's/^[[:space:]]\+Title[^:]*: //p')
 	if [ -z "$COMMENT" ] ; then
