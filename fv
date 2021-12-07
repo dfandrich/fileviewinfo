@@ -320,6 +320,12 @@ for f in "$@" ; do
 			par2ls "$f"
 			;;
 
+		# requires: poppler
+		*.pdf) archive_label Portable Document Format document
+			pdfimages -list -- "$f"
+			pdfdetach -list -- "$f"
+			;;
+
 		# See http://www.pcbsd.org/ (defunct as of 2021)
 		# requires: tar, sed, bzip2
 		*.pbi) archive_label PC-BSD package
