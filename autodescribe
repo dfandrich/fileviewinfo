@@ -309,6 +309,12 @@ comment_html () {
 	COMMENT=$(sed -n 's,^.*<title>\(.*\)</.*$,\1,ip' < "$f")
 }
 
+# Get title from a Kdenlive file
+# requires: xmlstarlet
+comment_kdenlive () {
+	COMMENT=$(xmlstarlet sel -t -v '/mlt/playlist[@id="main_bin"]/property[@name="kdenlive:docmetadata.meta.attr.title.markup"]' < "$f")
+}
+
 # Get summary from a man page
 # requires: man-db
 comment_man () {
@@ -465,6 +471,7 @@ if [ $# -eq 0 ] ; then
 	echo '             gif (GIF image)'
 	echo '             html (HTML text)'
 	echo '             jpeg (JPEG JFIF image)'
+	echo '             kdenlive (Kdenlive file)'
 	echo '             lzh (lzh/lha archive with desc.sdi comment)'
 	echo '             man (man page)'
 	echo '             md (Markdown text)'
@@ -566,6 +573,9 @@ for f in "$@" ; do
 				;;
 			*.html | *.htm)
 				TYPE=html
+				;;
+			*.kdenlive)
+				TYPE=kdenlive
 				;;
 			*.jpeg | *.jpg)
 				TYPE=jpeg
