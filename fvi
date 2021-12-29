@@ -445,6 +445,8 @@ EOF
 		# Also Python package .egg
 		# Also Python wheel package .whl
 		# Also Krita image .kra
+		# Also Scratch Project .sb2
+		# Also Scratch Project .sb3
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
@@ -452,7 +454,8 @@ EOF
 		*.ods | *.odp | *.odg | *.odf | *.fodt | *.fods | *.fodp | *.fodg | \
 		*.otp | *.otg | *.ots | \
 		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
-		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl)
+		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | \
+		*.sb2 | *.sb3)
 			filetype_label ZIP archive
 			zipinfo -h -z "$f" | grep -v "^$"; zipinfo -l "$f" | tail -1
 			;;

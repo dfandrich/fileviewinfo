@@ -603,6 +603,8 @@ EOF
 		# Also Python wheel package .whl
 		# Also Krita image .kra
 		# Also 3-D Manufacturing format .3mf
+		# Also Scratch Project .sb2
+		# Also Scratch Project .sb3
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
@@ -610,7 +612,8 @@ EOF
 		*.ods | *.odp | *.odg | *.odf | *.fodt | *.fods | *.fodp | *.fodg | \
 		*.otp | *.otg | *.ots | \
 		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
-		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf)
+		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf | \
+		*.sb2 | *.sb3)
 			archive_label ZIP archive
 			unzip -v -- "$f"
 			;;
