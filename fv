@@ -127,6 +127,12 @@ for f in "$@" ; do
 			unalz -l "$f"
 			;;
 
+		# See https://github.com/AppImage/AppImageKit
+		# requires: appimagetool
+		*.AppImage)	archive_label AppImage package
+			appimagetool --list "$f"
+			;;
+
 		# requires: arc
 		*.arc)	archive_label SEA ARC archive
 			arc v "$f"

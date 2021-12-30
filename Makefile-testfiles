@@ -178,3 +178,12 @@ type2.dat: foo
 
 type1.squashfs: foo
 	mksquashfs foo "$@" -nopad -all-root -no-exports
+
+# This file is pretty huge compared to others so isn't included in the repository
+type1.AppImage:
+	mkdir directory.tmp
+	printf '#!/bin/sh\necho AppImage\n' > directory.tmp/AppRun
+	chmod 755 directory.tmp/AppRun
+	ppmmake black 16 16 | pnmtopng > directory.tmp/icon.png
+	printf '[Desktop Entry]\nType=Application\nVersion=1.0\nName=AppImage test\nExec=AppRun\nTerminal=true\nCategories=Development;\nIcon=icon\n' > directory.tmp/AppImage.desktop
+	ARCH=x86_64 appimagetool directory.tmp type1.AppImage
