@@ -171,7 +171,7 @@ comment_svgz () {
 comment_tellico () {
 	# stderr always contains a warning about the DTD; send that (and every
 	# other warning as a side effect) to /dev/null
-	COMMENT=$(funzip < "$f" | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" 2> /dev/null)
+	COMMENT=$(unzip -qc -- "$f" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" 2> /dev/null)
 }
 
 # Get description from a TIFF image
