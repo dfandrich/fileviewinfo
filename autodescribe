@@ -60,6 +60,11 @@ comment_rpm () {
 	COMMENT=$(rpm -qp --queryformat '%{SUMMARY}' -- "$f")
 }
 
+# Get title from cue file
+comment_cue () {
+	COMMENT=$(sed -n -E -e '/^TITLE/s/^TITLE *"([^"]*)" *$/\1/p' < "$f" | head -1)
+}
+
 # Get title from an MS Word document
 # requires: unzip, xmlstarlet
 comment_docx () {
@@ -464,6 +469,7 @@ if [ $# -eq 0 ] ; then
 	echo '             asm (assembly language source)'
 	echo '             avi (Audio Video Interleave file)'
 	echo '             c (C source code)'
+	echo '             cue (CD cue index file)'
 	echo '             docx (MS Word document)'
 	echo '             ebook (E-book formats, epub, azw, fbz, etc.)'
 	echo '             first_line (first line of text file)'
@@ -564,6 +570,8 @@ for f in "$@" ; do
 				;;
 			*.c | *.h)
 				TYPE=c
+				;;
+			*.cue)	TYPE=cue
 				;;
 			*.docx)	TYPE=docx
 				;;

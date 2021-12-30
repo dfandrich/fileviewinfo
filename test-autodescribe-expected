@@ -5,6 +5,7 @@
 'testfiles/type1.arj' 'ARJ archive comment'
 'testfiles/type1.avi' 'AVI title'
 'testfiles/type1.c' 'Typical C-style comment'
+'testfiles/type1.cue' 'CUE title'
 'testfiles/type1.docx' 'MS Word title'
 'testfiles/type1.epub' 'EPUB title'
 'testfiles/type1.flac' 'FLAC title'
