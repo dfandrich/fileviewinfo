@@ -86,6 +86,12 @@ comment_ebook() {
 	fi
 }
 
+# Get title from a Krita image
+# requires: unzip, xmlstarlet
+comment_kra () {
+	COMMENT=$(unzip -cq -- "$f" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:title 2>/dev/null )
+}
+
 # Get title from a PDF file
 # requires: poppler
 comment_pdf () {
@@ -478,6 +484,7 @@ if [ $# -eq 0 ] ; then
 	echo '             html (HTML text)'
 	echo '             jpeg (JPEG JFIF image)'
 	echo '             kdenlive (Kdenlive file)'
+	echo '             kra (Krita image)'
 	echo '             lzh (lzh/lha archive with desc.sdi comment)'
 	echo '             man (man page)'
 	echo '             md (Markdown text)'
@@ -587,6 +594,9 @@ for f in "$@" ; do
 				;;
 			*.jpeg | *.jpg)
 				TYPE=jpeg
+				;;
+			*.kra)
+				TYPE=kra
 				;;
 			*.lzh | *.lha)
 				TYPE=lzh

@@ -13,6 +13,7 @@
 'testfiles/type1.html' 'HTML title is description'
 'testfiles/type1.jpg' 'JPEG comment'
 'testfiles/type1.kdenlive' 'Project Title'
+'testfiles/type1.kra' 'Krita name'
 'testfiles/type1.lzh' 'LZH comment in desc.sdi file'
 'testfiles/type1.md' 'Markdown title'
 'testfiles/type1.mp3' 'MP3 Artist / MP3 Song'
