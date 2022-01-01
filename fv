@@ -611,6 +611,7 @@ EOF
 		# Also 3-D Manufacturing format .3mf
 		# Also Scratch Project .sb2
 		# Also Scratch Project .sb3
+		# Also OpenRaster image .ora
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
@@ -619,7 +620,7 @@ EOF
 		*.otp | *.otg | *.ots | \
 		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
 		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf | \
-		*.sb2 | *.sb3)
+		*.sb2 | *.sb3 | *.ora)
 			archive_label ZIP archive
 			unzip -v -- "$f"
 			;;
