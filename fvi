@@ -217,6 +217,11 @@ for f in "$@" ; do
 			giftext < "$f"
 			;;
 
+		# requires: gnupg2
+		*.gpg | *.pgp)	filetype_label Gnu Privacy Guard/Pretty Good Privacy file
+			gpg --list-packets --list-only --no-autostart -- "$f"
+			;;
+
 		# See https://pypi.org/project/gpxpy/
 		# requires: gpxinfo || gpxpy
 		*.gpx)	filetype_label GPS exchange format file
