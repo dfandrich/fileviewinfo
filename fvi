@@ -164,6 +164,12 @@ for f in "$@" ; do
 			avitype "$f"
 			;;
 
+
+		# requires: Java jdk
+		*.class) filetype_label Java compiled class file
+			javap "$f" | grep -E '(^C)|({$)'
+			;;
+
 		# requires: openssl
 		*.crl) filetype_label X509 CRL
 			openssl crl -text -in "$f"
@@ -303,7 +309,7 @@ for f in "$@" ; do
 			;;
 
 		# requires: binutils
-		*.o)	filetype_label Object file
+		*.o | *.a | *.so | *.so.? | *.so.?? | *.so.???)	filetype_label Object file/archive
 			objdump -afph -- "$f"
 			;;
 
@@ -332,6 +338,11 @@ for f in "$@" ; do
 		# requires: netpbm
 		*.ppm | *.pbm | *.pgm | *.pam | *.pnm)	filetype_label Portable pixmap image
 			pamfile -- "$f"
+			;;
+
+		# requires: uncompyle6
+		*.pyc | *.pyd | *.pyo)	filetype_label Python compiled file
+			uncompyle6 --  "$f" | grep '^#'
 			;;
 
 		# requires: unrar
