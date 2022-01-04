@@ -280,6 +280,12 @@ comment_flac () {
 	fi
 }
 
+# Get title from an Open Document Format flat file
+# requires: xmlstarlet
+comment_fodf () {
+	COMMENT=$(xmlstarlet sel -t -v /office:document/office:meta/dc:title < "$f")
+}
+
 # Get comment from a GIF image
 # requires: gifsicle
 comment_gif () {
@@ -480,6 +486,7 @@ if [ $# -eq 0 ] ; then
 	echo '             ebook (E-book formats, epub, azw, fbz, etc.)'
 	echo '             first_line (first line of text file)'
 	echo '             flac (FLAC audio file)'
+	echo '             fodf (Open Document Format flat file)'
 	echo '             gif (GIF image)'
 	echo '             html (HTML text)'
 	echo '             jpeg (JPEG JFIF image)'
@@ -584,6 +591,9 @@ for f in "$@" ; do
 				;;
 			*.flac)	TYPE=flac
 				;;
+			*.fodt | *.fods | *.fodp | *.fodg)
+				TYPE=fodf
+				;;
 			*.gif)	TYPE=gif
 				;;
 			*.html | *.htm)
@@ -616,7 +626,7 @@ for f in "$@" ; do
 				;;
 			*.mp4)	TYPE=mp4
 				;;
-			*.odt | *.otm | *.ott | *.odh | *.odc | *.otc | *.odg | *.otg | *.odi | *.oti | *.odp | *.otp | *.ods | *.ots)
+			*.odt | *.otm | *.ott | *.odh | *.odc | *.otc | *.odg | *.otg | *.odi | *.oti | *.odp | *.otp | *.ods | *.ots | *.odf)
 			# *.otf is left off because it's much more commonly a font file
 				TYPE=odf
 				;;

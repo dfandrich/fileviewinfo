@@ -9,6 +9,8 @@
 'testfiles/type1.docx' 'MS Word title'
 'testfiles/type1.epub' 'EPUB title'
 'testfiles/type1.flac' 'FLAC title'
+'testfiles/type1.fods' 'OpenDocument Spreadsheet Title'
+'testfiles/type1.fodt' 'Open Document title'
 'testfiles/type1.gif' 'GIF comment'
 'testfiles/type1.html' 'HTML title is description'
 'testfiles/type1.jpg' 'JPEG comment'
