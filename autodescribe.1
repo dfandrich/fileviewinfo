@@ -5,6 +5,9 @@ autodescribe \- automatically extract descriptions from files
 .SH SYNOPSIS
 .B autodescribe
 [
+.B \-l
+]
+[
 .B \-e
 program ]
 [
@@ -39,8 +42,7 @@ is displayed.
 It currently supports the following file types:
 .LP
 .RS
-.\" This section comes from: ./autodescribe | sed -e '1,/type is one of/d' -e 's/^[[:space:]]*//' -e a.LP
-
+.\" This section comes from: ./autodescribe -l | sed -e a.LP
 3mf (3-D Manufacturing format)
 .LP
 aiff (Audio Interchange File Format)
@@ -150,14 +152,16 @@ once for each file. It is given two arguments; the file comment and the file
 name. The program argument is subject to shell quoting so it can contain
 multiple words.
 .TP
+.B \-l
+List the types of files supported. The first word of each line is the type to
+give the \-t option.
+.TP
 .BI \-t \ type
 Use
 .I type
 as the file type instead of determining it from the file name. The value of
 .I type
-must come from the list shown if
-.B autodescribe
-is run with no arguments.
+must come from the list shown with \-l.
 .TP
 .B \-q
 Set quiet mode. Don't display anything except in case of error.
