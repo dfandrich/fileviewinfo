@@ -654,7 +654,7 @@ EOF
 
 # Compressed files must come after compressed archives
 
-		# requires: fileutils, textutils, sh-utils, awk
+		# requires: fileutils, textutils, sh-utils, awk, util-linux
 		*.bz2)	archive_label bzip2-compressed file
 		    if [ -e "$f" ] ; then
 				echo "method  crc      date           compressed uncompressed_name"

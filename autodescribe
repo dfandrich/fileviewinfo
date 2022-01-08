@@ -19,7 +19,7 @@ trimspace() {
 # BUG: tar will often create empty directories, or directories containing
 # symbolic links matching *.[0-9] at least with GNU tar 1.11.2
 # BUG: tar will extract all files if path ends in a number, e.g. playmidi-2.3/foo
-# requires: tar, gzip, man-db
+# requires: tar (GNU version), gzip, man-db
 comment_tgz () {
 	COMMENT=$(tar -xOkzf - --wildcards \*.man \*.\[0-9\] 2> /dev/null < "$f" | lexgrog - | grep -v '^-: parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
 	if [ -z "$COMMENT" ] ; then
@@ -34,7 +34,7 @@ comment_lzh () {
 }
 
 # Get comment from a .zip file or embedded desc.sdi file
-# requires: unzip
+# requires: unzip (Info-ZIP version)
 comment_zip () {
 	if [ -n "$(unzip -zq -- "$f" dummy-file-to-eliminate-output)" ]; then
 		COMMENT=$(unzip -zq -- "$f" dummy-file-to-eliminate-output | head -2 | trimspace)
@@ -258,7 +258,7 @@ comment_arj () {
 
 # Get comment from an assembly language file
 comment_asm () {
-	COMMENT=$(sed -n -e "/^[ 	]*\(\.\)\?title/{s/^[ 	]*\(\.\)\?title[ 	]*//;s/^['\"]*//;s/['\"]*$//;p}" < "$f")
+	COMMENT=$(sed -n -E -e "/^[[:space:]]*(\.)?title/{s/^[[:space:]]*(\.)?title[[:space:]]*//;s/^['\"]*//;s/['\"]*$//;p;}" < "$f")
 }
 
 # Get name from an AVI file
@@ -323,7 +323,7 @@ comment_first_line () {
 
 # Get title from an HTML file
 comment_html () {
-	COMMENT=$(sed -n 's,^.*<title>\(.*\)</.*$,\1,ip' < "$f")
+	COMMENT=$(sed -n 's,^.*<[tT][iI][tT][lL][eE]>\(.*\)</.*$,\1,p' < "$f")
 }
 
 # Get title from a Kdenlive file
@@ -358,7 +358,9 @@ comment_mkv () {
 # uses a format that's easy to parse.
 # requires: id3lib || ffmpeg
 comment_mp3 () {
-	COMMENT=$(id3info -- "$f" | sort -r | sed -E -n -e 's/^=== (TPE1|TIT2).*\): //p' | sed 2i/ | trimspace)
+	COMMENT=$(id3info -- "$f" | sort -r | sed -E -n -e 's/^=== (TPE1|TIT2).*\): //p' | sed '2i\
+/
+' | trimspace)
 	if [ -z "$COMMENT" ] ; then
 		comment_ffmpeg "$@"
 	fi
@@ -396,7 +398,9 @@ comment_otf () {
 # If artist is found, prepend it to the title like "Artist / Title"
 # requires: vorbis-tools
 comment_ogg () {
-	COMMENT=$(ogginfo -- "$f" | sed -n -E -e '/^[[:space:]]*(title|artist)=/p' | sort | sed -E -e 's/^[[:space:]]*[a-z]+=//' | sed 2i/ | trimspace)
+	COMMENT=$(ogginfo -- "$f" | sed -n -E -e '/^[[:space:]]*(title|artist)=/p' | sort | sed -E -e 's/^[[:space:]]*[a-z]+=//' | sed '2i\
+/
+' | trimspace)
 }
 
 # Get title from an Open Document Format file
@@ -409,7 +413,7 @@ comment_odf () {
 comment_py () {
 	# delete #!/bin/sh line and blank comment lines
 	# comment must be in the first 10 lines of the file
-	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^[[:space:]]*#*[-*#[:space:]]*$/d' -e 's/^[[:space:]]*# *//p' -e "s/\(.\) *'''$/\1/" -e 's/\(.\) *"""$/\1/' -e "s/^''' *\(.\)/\1/p" -e 's/^""" *\(.\)/\1/p' -e "/^''' *$/{n;p}" -e '/^""" *$/{n;p}' < "$f" | head -1)
+	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^[[:space:]]*#*[-*#[:space:]]*$/d' -e 's/^[[:space:]]*# *//p' -e "s/\(.\) *'''$/\1/" -e 's/\(.\) *"""$/\1/' -e "s/^''' *\(.\)/\1/p" -e 's/^""" *\(.\)/\1/p' -e "/^''' *$/{n;p;}" -e '/^""" *$/{n;p;}' < "$f" | head -1)
 }
 
 # Make comment from a UUE file name

@@ -378,7 +378,7 @@ for f in "$@" ; do
 			if dd if="$f" bs=1 count=80 2>/dev/null | sed -n -e N -e '/^solid .*\n/p' | grep -q .; then
 				# ASCII stl format
 				sed -n -E -e '1s/^solid +//p' "$f" | iconv -f windows-1252
-				grep "^[[:space:]]*facet " "$f" | wc -l | tr -d '\n'
+				grep "^[[:space:]]*facet " "$f" | wc -l | tr -d ' \n'
 				echo " facets"
 			else
 				# Binary stl format
