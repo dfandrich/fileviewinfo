@@ -573,6 +573,7 @@ EOF
 
 		# zip archive .zip
 		# Also Android package .apk
+		# Also Apkmirror Android package .apkm
 		# Also Java jar file .jar
 		# Also Mozilla Java Cross Platform Installer .xpi
 		# Also Perl package .par
@@ -616,7 +617,7 @@ EOF
 		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | *.odt | \
 		*.ods | *.odp | *.odg | *.odf | \
 		*.otp | *.otg | *.ots | *.odb | *.odc | \
-		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
+		*.docx | *.epub | *.apk | *.apkm | *.war | *.xps | *.resource | \
 		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf | \
 		*.sb2 | *.sb3 | *.ora)
 			archive_label ZIP archive

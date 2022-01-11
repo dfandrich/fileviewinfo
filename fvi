@@ -155,7 +155,7 @@ for f in "$@" ; do
 
 		# requires Android SDK
 		*.apk)	filetype_label Android package
-			aapt d badging "$f"
+			aapt d --include-meta-data badging "$f"
 			;;
 
 		# See https://sourceforge.net/projects/avifile/
@@ -426,6 +426,7 @@ EOF
 
 		# zip archive .zip
 		# Also Android package .apk
+		# Also Apkmirror Android package .apkm
 		# Also Java jar file .jar
 		# Also Mozilla Java Cross Platform Installer .xpi
 		# Also Perl package .par
@@ -471,7 +472,7 @@ EOF
 		*.otp | *.otg | *.ots | \
 		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
 		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | \
-		*.sb2 | *.sb3)
+		*.sb2 | *.sb3 | *.apkm)
 			filetype_label ZIP archive
 			zipinfo -h -z "$f" | grep -v "^$"; zipinfo -l "$f" | tail -1
 			;;
