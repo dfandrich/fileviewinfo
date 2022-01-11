@@ -13,7 +13,20 @@ trimspace() {
 	tr '\n' ' ' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 }
 
-# Get comment from a compressed tar file
+# Return the full language locale with dashes instead of underscores
+# THis might return a locale with or without a specific country.
+get_lang_full() {
+	locale | sed -n -E -e 's/_/-/g' -e '/^LANG=/s/^.*=([^.]*)\.?.*$/\1/p'
+}
+
+# Language locale with country-specific portion removed
+get_lang_generic() {
+	get_lang_full | sed 's/-.*$//'
+}
+
+# Following are functions to extract descriptions for specific file types
+
+# File type: tgz (compressed tar archive)
 # Comment is taken from a man page file with name *.[0-9]
 # or from a Linux Software Map entry
 # BUG: tar will often create empty directories, or directories containing
@@ -247,6 +260,28 @@ comment_amf () {
 
 	if [ -n "$TMPFILE" ]; then
 		rm -f "$TMPFILE"
+	fi
+}
+
+# Get title from an apk file
+# requires: Android SDK
+comment_apk () {
+	# Get current locale language
+	L="$(get_lang_full)"
+	if [ -z "$L" ]; then
+		L=en  # English by default
+	fi
+	COMMENT=$(aapt  d badging "$f" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
+	if [ -z "$COMMENT" ]; then
+		# Try again with generic locale
+		L="$(get_lang_generic)"
+		COMMENT=$(aapt  d badging "$f" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
+
+		if [ -z "$COMMENT" ]; then
+			# Try again with English
+			L=en
+			COMMENT=$(aapt  d badging "$f" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
+		fi
 	fi
 }
 
@@ -486,6 +521,7 @@ if [ "$1" = "-l" ]; then
 	echo '3mf (3-D Manufacturing format)'
 	echo 'aiff (Audio Interchange File Format)'
 	echo 'amf (Additive Manufacturing File)'
+	echo 'apk (Android Package Kit)'
 	echo 'arj (ARJ archive)'
 	echo 'asm (assembly language source)'
 	echo 'avi (Audio Video Interleave file)'
@@ -582,6 +618,9 @@ for f in "$@" ; do
 				;;
 			*.amf)
 				TYPE=amf
+				;;
+			*.apk)
+				TYPE=apk
 				;;
 			*.arj)
 				TYPE=arj
