@@ -393,6 +393,12 @@ comment_mkv () {
 	fi
 }
 
+# Get title from a MLT file as created by Kdenlive
+# requires: xmlstarlet
+comment_mlt () {
+	COMMENT=$(xmlstarlet sel -t -v '/mlt/@title' < "$f")
+}
+
 # Get title from an MP3 audio file
 # id3info is the best program of the common ones I've found for this, since it
 # supports both ID3v1 and ID3v2 tags, exports them both in the same format, and
@@ -548,6 +554,7 @@ if [ "$1" = "-l" ]; then
 	echo 'man (man page)'
 	echo 'md (Markdown text)'
 	echo 'mkv (Matroska video)'
+	echo 'mlt (mlt video file)'
 	echo 'mov (MOV video)'
 	echo 'mp3 (MPEG-1 layer 3 audio)'
 	echo 'mp4 (MPEG-4 video)'
@@ -676,6 +683,9 @@ for f in "$@" ; do
 			*.md)	TYPE=md
 				;;
 			*.mkv | *.webm)	TYPE=mkv
+				;;
+			*.mlt)
+				TYPE=mlt
 				;;
 			*.mov)	TYPE=mov
 				;;

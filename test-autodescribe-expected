@@ -19,6 +19,7 @@
 'testfiles/type1.kra' 'Krita name'
 'testfiles/type1.lzh' 'LZH comment in desc.sdi file'
 'testfiles/type1.md' 'Markdown title'
+'testfiles/type1.mlt' 'video.mp4'
 'testfiles/type1.mp3' 'MP3 Artist / MP3 Song'
 'testfiles/type1.mp4' 'MPEG-4 title'
 'testfiles/type1.msg' 'E-mail subject'
