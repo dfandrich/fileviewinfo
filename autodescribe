@@ -296,6 +296,12 @@ comment_asm () {
 	COMMENT=$(sed -n -E -e "/^[[:space:]]*(\.)?title/{s/^[[:space:]]*(\.)?title[[:space:]]*//;s/^['\"]*//;s/['\"]*$//;p;}" < "$f")
 }
 
+# Get title from an Audacity project file
+# requires: xmlstarlet
+comment_aup () {
+	COMMENT=$(xmlstarlet sel -N a=http://audacity.sourceforge.net/xml/ -t -v '/a:project/a:tags/a:tag[@name="TITLE"]/@value' < "$f" 2>/dev/null)
+}
+
 # Get name from an AVI file
 # See https://sourceforge.net/projects/avifile/
 # requires: avifile-samples
@@ -524,6 +530,7 @@ if [ "$1" = "-l" ]; then
 	echo 'apk (Android Package Kit)'
 	echo 'arj (ARJ archive)'
 	echo 'asm (assembly language source)'
+	echo 'aup (Audacity Project file)'
 	echo 'avi (Audio Video Interleave file)'
 	echo 'c (C source code)'
 	echo 'cue (CD cue index file)'
@@ -627,6 +634,8 @@ for f in "$@" ; do
 				;;
 			*.asm | *.s)
 				TYPE=asm
+				;;
+			*.aup) TYPE=aup
 				;;
 			*.avi) TYPE=avi
 				;;

@@ -3,6 +3,7 @@
 'testfiles/type1.aiff' 'AIFF title'
 'testfiles/type1.amf' 'AMF name'
 'testfiles/type1.arj' 'ARJ archive comment'
+'testfiles/type1.aup' 'Track title'
 'testfiles/type1.avi' 'AVI title'
 'testfiles/type1.c' 'Typical C-style comment'
 'testfiles/type1.cue' 'CUE title'
