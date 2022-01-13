@@ -40,13 +40,13 @@ comment_tgz () {
 	fi
 }
 
-# Get description from a .lzh-embedded desc.sdi file
+# File type: lzh (lzh/lha archive with desc.sdi comment)
 # requires: lha
 comment_lzh () {
 	COMMENT=$(lha pq -- "$f" desc.sdi | head -3 | trimspace)
 }
 
-# Get comment from a .zip file or embedded desc.sdi file
+# File type: zip (zip archive)
 # requires: unzip (Info-ZIP version)
 comment_zip () {
 	if [ -n "$(unzip -zq -- "$f" dummy-file-to-eliminate-output)" ]; then
@@ -57,7 +57,7 @@ comment_zip () {
 	fi
 }
 
-# Get comment from a .zoo file or embedded desc.sdi file
+# File type: zoo (zoo archive)
 # requires: zoo
 comment_zoo () {
 	COMMENT=$(zoo vc "$f" dummy-file-to-eliminate-output | \
@@ -67,24 +67,24 @@ comment_zoo () {
 	fi
 }
 
-# Get summary from an RPM package
+# File type: rpm (rpm package)
 # requires: rpm
 comment_rpm () {
 	COMMENT=$(rpm -qp --queryformat '%{SUMMARY}' -- "$f")
 }
 
-# Get title from cue file
+# File type: cue (CD cue index file)
 comment_cue () {
 	COMMENT=$(sed -n -E -e '/^TITLE/s/^TITLE *"([^"]*)" *$/\1/p' < "$f" | head -1)
 }
 
-# Get title from an MS Word document
+# File type: docx (MS Word document)
 # requires: unzip, xmlstarlet
 comment_docx () {
 	COMMENT=$(unzip -cq -- "$f" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dc:title)
 }
 
-# Get title from an e-book
+# File type: ebook (E-book formats, epub, azw, fbz, etc.)
 # These are all handled by ebook-meta (part of calibre) so there doesn't seem to be a
 # good reason to separate them into individual handlers.
 # requires: calibre
@@ -99,19 +99,19 @@ comment_ebook() {
 	fi
 }
 
-# Get title from a Krita image
+# File type: kra (Krita image)
 # requires: unzip, xmlstarlet
 comment_kra () {
 	COMMENT=$(unzip -cq -- "$f" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:title 2>/dev/null )
 }
 
-# Get title from a PDF file
+# File type: pdf (Portable Document Format)
 # requires: poppler
 comment_pdf () {
 	COMMENT=$(pdfinfo -- "$f" | sed -E -n -e 's/^(Title|Subject|Author):[[:space:]]*//p' | head -1)
 }
 
-# Get title from a PNG file
+# File type: png (PNG image)
 # requires: pngtools
 comment_png () {
 	COMMENT=$(pnginfo "$f" | sed -n -e 's/^[[:space:]]\+Title[^:]*: //p')
@@ -120,7 +120,7 @@ comment_png () {
 	fi
 }
 
-# Get title from a PostScript file
+# File type: ps (PostScript source code)
 comment_ps () {
 	COMMENT=$(sed -n 's/^%%Title: *//p' < "$f" | head -1)
 	if [ -z "$COMMENT" ] ; then
@@ -130,7 +130,7 @@ comment_ps () {
 	fi
 }
 
-# Get name from a PostScript font file
+# File type: psfont (PostScript font)
 comment_psfont () {
 	COMMENT=$(sed -n 's/^\/FullName[ 	]*(\(.*\)).*$/\1/p' < "$f" | head -1)
 	if [ -z "$COMMENT" ] ; then
@@ -139,7 +139,7 @@ comment_psfont () {
 	fi
 }
 
-# Get subject from a news or mail file
+# File type: subject (news article or mail file)
 comment_subject () {
 	COMMENT=$(sed -n 's/^Subject: *//ip' < "$f" | head -1)
 	if [ -z "$COMMENT" ] ; then
@@ -148,13 +148,13 @@ comment_subject () {
 	fi
 }
 
-# Get title from a Scribus document
+# File type: sla (Scribus document)
 # requires: xmlstarlet
 comment_sla () {
 	COMMENT=$(xmlstarlet sel -t -v 'SCRIBUSUTF8NEW/DOCUMENT/@TITLE' < "$f")
 }
 
-# Get title from an STL file
+# File type: stl (STL model file)
 comment_stl () {
 	if dd if="$f" bs=1 count=80 2>/dev/null | sed -n -e N -e '/^solid .*\n/p' | grep -q .; then
 		# ASCII stl format
@@ -165,7 +165,7 @@ comment_stl () {
 	fi
 }
 
-# Get title from an SVG file
+# File type: svg (Scalable Vector Graphics image)
 # requires: xmlstarlet
 comment_svg () {
 	COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']" < "$f")
@@ -175,7 +175,7 @@ comment_svg () {
 	fi
 }
 
-# Get title from an SVGZ file
+# File type: svgz (Compressed Scalable Vector Graphics image)
 # requires: gzip, xmlstarlet
 comment_svgz () {
 	COMMENT=$(gzip -dc < "$f" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']")
@@ -185,7 +185,7 @@ comment_svgz () {
 	fi
 }
 
-# Get description from a Tellico database file
+# File type: tellico (Tellico database file)
 # requires: unzip, xmlstarlet
 comment_tellico () {
 	# stderr always contains a warning about the DTD; send that (and every
@@ -193,7 +193,7 @@ comment_tellico () {
 	COMMENT=$(unzip -qc -- "$f" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" 2> /dev/null)
 }
 
-# Get description from a TIFF image
+# File type: tiff (TIFF image)
 # requires: libtiff-progs
 comment_tiff () {
 	COMMENT=$(tiffinfo -- "$f" | sed -n -e 's/^ *ImageDescription: //p')
@@ -205,7 +205,7 @@ comment_tiff () {
 	fi
 }
 
-# Get comment from C source file
+# File type: c (C source code)
 comment_c () {
 	COMMENT=$(sed -n '/\/\*/,/\*\//{
 			/\/\*/s/^.*\/\*[ 	]*//
@@ -217,7 +217,7 @@ comment_c () {
 			}' < "$f" | head -3 | trimspace)
 }
 
-# Get comment from Pascal source file
+# File type: pascal (Pascal source code)
 comment_pascal () {
 	COMMENT=$(sed -n -e '/^[[:space:]]*(\*[-\* ]*\*)[[:space:]]*$/d' -e '/^[[:space:]]*\*[[:space:]]*$/d' -e '/(\*/,/\*)/{
 			/(\*/s/^.*(\*//
@@ -233,13 +233,13 @@ comment_pascal () {
 			}' < "$f" | head -3 | trimspace)
 }
 
-# Get title from a 3mf file
+# File type: 3mf (3-D Manufacturing format)
 # requires: unzip, xmlstarlet
 comment_3mf () {
 	COMMENT=$(unzip -cq -- "$f" 3D/3dmodel.model | xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name='Title']")
 }
 
-# Get title from an amf file
+# File type: amf (Additive Manufacturing File)
 # requires: unzip, xmlstarlet
 comment_amf () {
 	if [ "$(dd if="$f" bs=1 count=2 2>/dev/null )" = "PK" ]; then
@@ -263,7 +263,7 @@ comment_amf () {
 	fi
 }
 
-# Get title from an apk file
+# File type: apk (Android Package Kit)
 # requires: Android SDK
 comment_apk () {
 	# Get current locale language
@@ -285,24 +285,24 @@ comment_apk () {
 	fi
 }
 
-# Get comment from an ARJ archive
+# File type: arj (ARJ archive)
 # requires: arj
 comment_arj () {
 	COMMENT=$(arj v "$f" | sed -e '1,/^Archive created:/d' -e '/^Sequence\/Pathname\/Comment\/Chapters/,$d' | head -3 | trimspace)
 }
 
-# Get comment from an assembly language file
+# File type: asm (assembly language source)
 comment_asm () {
 	COMMENT=$(sed -n -E -e "/^[[:space:]]*(\.)?title/{s/^[[:space:]]*(\.)?title[[:space:]]*//;s/^['\"]*//;s/['\"]*$//;p;}" < "$f")
 }
 
-# Get title from an Audacity project file
+# File type: aup (Audacity Project file)
 # requires: xmlstarlet
 comment_aup () {
 	COMMENT=$(xmlstarlet sel -N a=http://audacity.sourceforge.net/xml/ -t -v '/a:project/a:tags/a:tag[@name="TITLE"]/@value' < "$f" 2>/dev/null)
 }
 
-# Get name from an AVI file
+# File type: avi (Audio Video Interleave file)
 # See https://sourceforge.net/projects/avifile/
 # requires: avifile-samples
 comment_avi () {
@@ -312,7 +312,7 @@ comment_avi () {
 	fi
 }
 
-# Get title from a FLAC audio file
+# File type: flac (FLAC audio file)
 # requires: flac
 comment_flac () {
 	COMMENT=$(metaflac --export-tags-to=- -- "$f" | sed -n -E -e 's/^TITLE=//p')
@@ -321,13 +321,13 @@ comment_flac () {
 	fi
 }
 
-# Get title from an Open Document Format flat file
+# File type: fodf (Open Document Format flat file)
 # requires: xmlstarlet
 comment_fodf () {
 	COMMENT=$(xmlstarlet sel -t -v /office:document/office:meta/dc:title < "$f")
 }
 
-# Get comment from a GIF image
+# File type: gif (GIF image)
 # requires: gifsicle
 comment_gif () {
 	COMMENT=$(gifsicle --info -- "$f" | sed -n 's/^ *comment //p')
@@ -336,7 +336,7 @@ comment_gif () {
 	fi
 }
 
-# Get comment from a JPEG JFIF image
+# File type: jpeg (JPEG JFIF image)
 # requires: jpeg-progs, exif
 comment_jpeg () {
 	COMMENT=$(rdjpgcom < "$f")
@@ -357,34 +357,34 @@ comment_jpeg () {
 	fi
 }
 
-# Get comment from the first nonblank line of a text file
+# File type: first_line (first line of text file)
 comment_first_line () {
 	COMMENT=$(grep -v '^[[:space:]]*$' < "$f" | head -1)
 }
 
-# Get title from an HTML file
+# File type: html (HTML text)
 comment_html () {
 	COMMENT=$(sed -n 's,^.*<[tT][iI][tT][lL][eE]>\(.*\)</.*$,\1,p' < "$f")
 }
 
-# Get title from a Kdenlive file
+# File type: kdenlive (Kdenlive file)
 # requires: xmlstarlet
 comment_kdenlive () {
 	COMMENT=$(xmlstarlet sel -t -v '/mlt/playlist[@id="main_bin"]/property[@name="kdenlive:docmetadata.meta.attr.title.markup"]' < "$f")
 }
 
-# Get summary from a man page
+# File type: man (man page)
 # requires: man-db
 comment_man () {
 	COMMENT=$(lexgrog -- "$f" | grep -v ': parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
 }
 
-# Get title from the start of a Markdown text file
+# File type: md (Markdown text)
 comment_md () {
 	COMMENT=$(head -5 < "$f" | sed -n -e 's/^# //p' | trimspace)
 }
 
-# Get title from an Matroska video file
+# File type: mkv (Matroska video)
 # requires: mkvtoolnix
 comment_mkv () {
 	COMMENT=$(mkvinfo "$f" | sed -n -e 's/^[|+ ]*Title: //p')
@@ -393,13 +393,14 @@ comment_mkv () {
 	fi
 }
 
-# Get title from a MLT file as created by Kdenlive
+# File type: mlt (mlt video file)
+# These are created by Kdenlive
 # requires: xmlstarlet
 comment_mlt () {
 	COMMENT=$(xmlstarlet sel -t -v '/mlt/@title' < "$f")
 }
 
-# Get title from an MP3 audio file
+# File type: mp3 (MPEG-1 layer 3 audio)
 # id3info is the best program of the common ones I've found for this, since it
 # supports both ID3v1 and ID3v2 tags, exports them both in the same format, and
 # uses a format that's easy to parse.
@@ -413,7 +414,7 @@ comment_mp3 () {
 	fi
 }
 
-# Get title from an MPEG-4 video file
+# File type: mp4 (MPEG-4 video)
 # requires: libquicktime-progs || ffmpeg
 comment_mp4 () {
 	COMMENT=$(qtdump "$f" | sed -n -e 's/^[[:space:]]*name:[[:space:]]*//p' | head -1)
@@ -422,26 +423,26 @@ comment_mp4 () {
 	fi
 }
 
-# Get title from a MOV file
+# File type: mov (MOV video)
 # requires: libquicktime-progs || ffmpeg
 comment_mov () {
 	comment_mp4 "$@"
 }
 
-# Get comment from a shell script file
+# File type: sh (shell script)
 comment_sh () {
 	# delete #!/bin/sh line and blank comment lines
 	# comment must be in the first 10 lines of the file
 	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^#* *$/d' -e 's/^# *//p' < "$f" | head -1)
 }
 
-# Get name from an OTF/TTF font file
+# File type: otf (OpenType font/TrueType font)
 # requires: freetype2-demos
 comment_otf () {
 	COMMENT=$(ftdump "$f" | sed -n -E -e 's/^[[:space:]]*(family|style):[[:space:]]*//p' | trimspace)
 }
 
-# Get title from an ogg media file
+# File type: ogg (Ogg media file)
 # If artist is found, prepend it to the title like "Artist / Title"
 # requires: vorbis-tools
 comment_ogg () {
@@ -450,20 +451,20 @@ comment_ogg () {
 ' | trimspace)
 }
 
-# Get title from an Open Document Format file
+# File type: odf (Open Document Format)
 # requires: unzip, xmlstarlet
 comment_odf () {
 	COMMENT=$(unzip -cq -- "$f" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:title)
 }
 
-# Get comment from a Python source file
+# File type: py (Python source code)
 comment_py () {
 	# delete #!/bin/sh line and blank comment lines
 	# comment must be in the first 10 lines of the file
 	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^[[:space:]]*#*[-*#[:space:]]*$/d' -e 's/^[[:space:]]*# *//p' -e "s/\(.\) *'''$/\1/" -e 's/\(.\) *"""$/\1/' -e "s/^''' *\(.\)/\1/p" -e 's/^""" *\(.\)/\1/p' -e "/^''' *$/{n;p;}" -e '/^""" *$/{n;p;}' < "$f" | head -1)
 }
 
-# Make comment from a UUE file name
+# File type: uue (UUencoded file)
 comment_uue () {
 	COMMENT=$(sed -E -n 's/^begin [0-9]+ //p' < "$f")
 }
@@ -479,37 +480,37 @@ comment_ffmpeg () {
 	fi
 }
 
-# Get title from a WAV file
+# File type: wav (WAV audio)
 # requires: ffmpeg
 comment_wav () {
 	comment_ffmpeg "$@"
 }
 
-# Get title from an AIFF file
+# File type: aiff (Audio Interchange File Format)
 # requires: ffmpeg
 comment_aiff () {
 	comment_ffmpeg "$@"
 }
 
-# Make comment from an XBM image name
+# File type: xbm (X bitmap image)
 # Could extract image size here as well
 comment_xbm () {
 	COMMENT=$(sed -n 's/^.* \(.*\)_bits.*$/\1/p' < "$f")
 }
 
-# Make comment from an XPM image name
+# File type: xpm (X pixmap image)
 # Could extract image size here as well
 comment_xpm () {
 	COMMENT=$(sed -n 's/^.*\* *\(.*\)_xpm.*$/\1/p' < "$f")
 }
 
-# Make comment from a pam image
+# File type: pam (Portable Arbitrary Map image)
 # requires: netpbm
 comment_pam () {
 	COMMENT=$(pamfile -comments < "$f" | sed -e '1,/^Comments:$/d' -e 's/^ *# *//' | head -3 | trimspace)
 }
 
-# Get comment from a pnm image
+# File type: pnm (pbm/pgm/ppm Portable Any Map image)
 comment_pnm () {
 	COMMENT=$(head -2 < "$f" | sed -n -e 's/^# *//p')
 }
@@ -530,61 +531,7 @@ if [ $# -eq 0 ] ; then
 fi
 
 if [ "$1" = "-l" ]; then
-	echo '3mf (3-D Manufacturing format)'
-	echo 'aiff (Audio Interchange File Format)'
-	echo 'amf (Additive Manufacturing File)'
-	echo 'apk (Android Package Kit)'
-	echo 'arj (ARJ archive)'
-	echo 'asm (assembly language source)'
-	echo 'aup (Audacity Project file)'
-	echo 'avi (Audio Video Interleave file)'
-	echo 'c (C source code)'
-	echo 'cue (CD cue index file)'
-	echo 'docx (MS Word document)'
-	echo 'ebook (E-book formats, epub, azw, fbz, etc.)'
-	echo 'first_line (first line of text file)'
-	echo 'flac (FLAC audio file)'
-	echo 'fodf (Open Document Format flat file)'
-	echo 'gif (GIF image)'
-	echo 'html (HTML text)'
-	echo 'jpeg (JPEG JFIF image)'
-	echo 'kdenlive (Kdenlive file)'
-	echo 'kra (Krita image)'
-	echo 'lzh (lzh/lha archive with desc.sdi comment)'
-	echo 'man (man page)'
-	echo 'md (Markdown text)'
-	echo 'mkv (Matroska video)'
-	echo 'mlt (mlt video file)'
-	echo 'mov (MOV video)'
-	echo 'mp3 (MPEG-1 layer 3 audio)'
-	echo 'mp4 (MPEG-4 video)'
-	echo 'odf (Open Document Format)'
-	echo 'ogg (Ogg media file)'
-	echo 'otf (OpenType font)'
-	echo 'pam (Portable Arbitrary Map)'
-	echo 'pascal (Pascal source code)'
-	echo 'pdf (Portable Document Format)'
-	echo 'png (PNG image)'
-	echo 'pnm (pbm/pgm/ppm Portable Any Map)'
-	echo 'psfont (PostScript font)'
-	echo 'ps (PostScript source code)'
-	echo 'py (Python source code)'
-	echo 'rpm (rpm package)'
-	echo 'sh (shell script)'
-	echo 'sla (Scribus document)'
-	echo 'stl (STL model file)'
-	echo 'subject (news article or mail file)'
-	echo 'svg (Scalable Vector Graphics)'
-	echo 'svgz (Compressed Scalable Vector Graphics)'
-	echo 'tellico (Tellico database file)'
-	echo 'tgz (compressed tar archive)'
-	echo 'tiff (TIFF image)'
-	echo 'uue (UUencoded file)'
-	echo 'wav (WAV audio)'
-	echo 'xbm (X bitmap)'
-	echo 'xpm (X pixmap)'
-	echo 'zip (zip archive)'
-	echo 'zoo (zoo archive)'
+	sed -n -e 's/^# File type: //p' "$0" | sort -u
 	exit 0
 fi
 
