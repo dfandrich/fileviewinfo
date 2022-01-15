@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>com.example.metainfo</id>
+    <name>Nonlocalized name</name>
+    <name xml:lang="x-test">Localized name for de</name>
+    <summary>Nonlocalized summary</summary>
+    <summary xml:lang="x-test">Localized summary</summary>
+    <url type="homepage">https://example.com/#homepage</url>
+	<url type="donation">https://example.com/#donation</url>
+    <developer_name>Nobody &lt;nobody@example.com&gt;</developer_name>
+    <project_license>CC0-1.0</project_license>
+    <metadata_license>CC0-1.0</metadata_license>
+</component>

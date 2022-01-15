@@ -285,6 +285,26 @@ comment_apk () {
 	fi
 }
 
+# File type: appdata (Appdata metainfo file)
+# requires: xmlstarlet
+comment_appdata () {
+	# Get current locale language
+	L="$(get_lang_full)"
+	if [ -z "$L" ]; then
+		L=en  # English by default
+	fi
+	COMMENT=$(xmlstarlet sel  -t -v 'component/name[@xml:lang="'"$L"'"]' <"$f")
+	if [ -z "$COMMENT" ]; then
+		# Try again with generic locale
+		L="$(get_lang_generic)"
+	    COMMENT=$(xmlstarlet sel  -t -v 'component/name[@xml:lang="'"$L"'"]' <"$f")
+		if [ -z "$COMMENT" ]; then
+			# Try again with the default name
+			COMMENT=$(xmlstarlet sel  -t -v 'component/name[not(@xml:lang)]' <"$f" | head -1)
+		fi
+	fi
+}
+
 # File type: arj (ARJ archive)
 # requires: arj
 comment_arj () {
@@ -582,6 +602,9 @@ for f in "$@" ; do
 				;;
 			*.apk)
 				TYPE=apk
+				;;
+			*.appdata.xml | *.metainfo.xml)
+				TYPE=appdata
 				;;
 			*.arj)
 				TYPE=arj
