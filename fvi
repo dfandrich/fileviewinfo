@@ -405,7 +405,7 @@ EOF
 
 		# See http://www.encode.ru/tc/
 		# requires: python >= 3
-		*.tc)	file_label tc-compressed file
+		*.tc)	filetype_label tc-compressed file
 			fv -t tc "$f"
 			;;
 
