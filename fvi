@@ -175,6 +175,13 @@ for f in "$@" ; do
 			openssl crl -text -in "$f"
 			;;
 
+		# requires: db53-utils
+		# This extension is rather generic and often contains a gdbm, sqlite3
+		# or some other file.
+		*.db) filetype_label Berkeley Database
+			db53_stat -d "$f"
+			;;
+
 		# requires: tar
 		*.depot) filetype_label HP-UX package
 			tar xOf - catalog/INDEX < "$f"
@@ -216,6 +223,12 @@ for f in "$@" ; do
 		# requires: flac
 		*.flac)	filetype_label FLAC audio
 			metaflac --list -- "$f"
+			;;
+
+		# requires: gdbm
+		# These databases are often given a .db extension instead
+		*.gdbm)	filetype_label GDBM database
+			echo 'set open=readonly;version;header;count;' | gdbmtool "$f"
 			;;
 
 		# requires: libungif-progs
@@ -367,6 +380,11 @@ for f in "$@" ; do
 			DumpSIS.pl -e -- "$f" | sed '/^Files$/,$d'
 			;;
 
+		# requires: sqlite3-tools
+		*.sqlite | *.sqlite3) filetype_label Sqlite database file
+			sqlite3 "$f" .dbinfo "select 'Available Tables:';" .tables
+			;;
+
 		# See https://github.com/plougher/squashfs-tools
 		# requires: squashfs
 		*.sqsh | *.squashfs) filetype_label Squashfs filesystem image
@@ -407,6 +425,13 @@ EOF
 		# requires: python >= 3
 		*.tc)	filetype_label tc-compressed file
 			fv -t tc "$f"
+			;;
+
+		# requires: samba-client
+		# Note: running as non-root usually results in "ERROR: could not init messaging context"
+		*.tdb)	filetype_label TDB database file
+			echo -n 'Number of keys in database: '
+			dbwrap_tool --persistent -- "$f" listkeys | wc -l
 			;;
 
 		# Also Digital Negative Raw Image .dng
