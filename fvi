@@ -380,6 +380,12 @@ for f in "$@" ; do
 			DumpSIS.pl -e -- "$f" | sed '/^Files$/,$d'
 			;;
 
+		# See https://github.com/itkach/slob/
+		# requires: slob
+		*.slob)	filetype_label Sorted List of Blobs dictionary
+			slob info -- "$f"
+			;;
+
 		# requires: sqlite3-tools
 		*.sqlite | *.sqlite3) filetype_label Sqlite database file
 			sqlite3 "$f" .dbinfo "select 'Available Tables:';" .tables
