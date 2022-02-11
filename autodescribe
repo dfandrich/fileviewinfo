@@ -356,6 +356,12 @@ comment_gif () {
 	fi
 }
 
+# File type: iso (ISO-9660 CD-ROm image)
+# requires: cdrkit-isotools
+comment_iso () {
+	COMMENT=$(isoinfo -d -i "$f" | sed -E -n -e 's/^Volume (set )?id: (.)/\2/p' | head -1)
+}
+
 # File type: jpeg (JPEG JFIF image)
 # requires: jpeg-progs, exif
 comment_jpeg () {
@@ -632,6 +638,8 @@ for f in "$@" ; do
 				;;
 			*.html | *.htm)
 				TYPE=html
+				;;
+			*.iso)	TYPE=iso
 				;;
 			*.kdenlive)
 				TYPE=kdenlive
