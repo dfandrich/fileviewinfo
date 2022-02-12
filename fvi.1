@@ -283,6 +283,23 @@ also given, display a description of each file type supported instead of
 the file extensions.  If two \-v options are given, the file info display
 command is displayed as it is executed.
 .\" ---------------------------------------------------------------------------
+.SH EXAMPLES
+View information about a ZIP archive:
+.EX
+fvi file.zip
+.EE
+.LP
+View information about a Gnu DBM file that shares an extension with a Berkeley
+database file:
+.EX
+fvi -t gdbm index.db
+.EE
+.LP
+Use an alternate program to view information about an MPEG-4 video:
+.EX
+fvi -t ffm file.mp4
+.EE
+.\" ---------------------------------------------------------------------------
 .SH "EXIT STATUS"
 .B fvi
 returns the the exit code of the file info display program, which may be zero

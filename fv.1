@@ -355,6 +355,28 @@ also given, display a description of each archive type supported instead of
 the file extensions.  If two \-v options are given, the archive command
 is displayed as it is executed.
 .\" ---------------------------------------------------------------------------
+.SH EXAMPLES
+View the list of files contained in a ZIP archive:
+.EX
+fv file.zip
+.EE
+.LP
+View the list of files embedded in a PDF file and see what commands are
+executed to do so:
+.EX
+fv -v -v complicated.pdf
+.EE
+.LP
+View the contents of a CD-ROM using its device name:
+.EX
+fv \-t iso /dev/cdrom
+.EE
+.LP
+View a spark file that shares the same extension as a SEA ARC file:
+.EX
+fv \-t spark file.arc
+.EE
+.\" ---------------------------------------------------------------------------
 .SH "EXIT STATUS"
 .B fv
 returns the the exit code of the archive listing program, which may be zero

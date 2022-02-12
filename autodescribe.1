@@ -166,33 +166,53 @@ must come from the list shown with \-l.
 Set quiet mode. Don't display anything except in case of error.
 .\" ---------------------------------------------------------------------------
 .SH EXAMPLES
+To see the title of the PDF file
+.IR foo.pdf ,
+run:
+.EX
+autodescribe foo.pdf
+.EE
+.LP
+To see only the files with titles that can be extracted, run:
+.EX
+autodescribe * 2>/dev/null
+.EE
+.LP
+If the file
+.IR foo.otf
+is actually an OpenText file (and not an OpenType font file) run:
+.EX
+autodescribe -t odf foo.otf
+.EE
+.LP
 If the file
 .I foo.png
 contains a description
 .I Foo is gud
 then this command would add that to an extended file attribute on the file if
 run on a Linux system:
-.LP
-.B autodescribe
-\-e 'setfattr \-n user.xdg.comment \-v' foo.png
-.LP
+.EX
+autodescribe -e 'setfattr -n user.xdg.comment -v' foo.png
+.EE
 This would end up running the command
-.I setfattr \-n user.xdg.comment \-v 'Foo is gud' foo.png
+.EX
+setfattr -n user.xdg.comment -v 'Foo is gud' foo.png
+.EE
 .LP
 This command would rename all the PDF files to their titles with a
 .I .pdf
 extension:
-.LP
-.B autodescribe
-\-e 'renuniq \-t %{DESC}%{EXT} \-d' *.pdf
-.LP
+.EX
+autodescribe -e 'renuniq -t %{DESC}%{EXT} -d' *.pdf
+.EE
 This relies on the
 .I renuniq
 program from https://github.com/dfandrich/renuniq/
 .\" ---------------------------------------------------------------------------
 .SH "EXIT STATUS"
 .B autodescribe
-always returns 0 unless no arguments were given when it returns 1.
+always returns 0 unless no arguments were given when it returns 1. This is
+subject to change in a future release.
 .\" ---------------------------------------------------------------------------
 .SH BUGS
 .BR autodescribe 's
