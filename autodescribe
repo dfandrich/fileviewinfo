@@ -193,6 +193,18 @@ comment_tellico () {
 	COMMENT=$(unzip -qc -- "$f" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" 2> /dev/null)
 }
 
+# File type: tex (TeX document)
+comment_tex () {
+	# This parsing is probably too simplistic, but it works much of the time
+	COMMENT=$(sed -n -E -e 's/^[[:space:]]*\\title\{([^}]+)\}.*/\1/p' < "$f" | trimspace)
+}
+
+# File type: texi (Texinfo document)
+comment_texi () {
+	# This parsing is probably too simplistic, but it works most of the time
+	COMMENT=$(sed -n -e 's/^[[:space:]]*@settitle //p' < "$f" | trimspace)
+}
+
 # File type: tiff (TIFF image)
 # requires: libtiff-progs
 comment_tiff () {
@@ -716,6 +728,12 @@ for f in "$@" ; do
 				;;
 			*.tc)
 				TYPE=tellico
+				;;
+			*.tex)
+				TYPE=tex
+				;;
+			*.texi)
+				TYPE=texi
 				;;
 			*.tif | *.tiff)
 				TYPE=tiff

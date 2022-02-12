@@ -1,0 +1,8 @@
+\input texinfo
+@setfilename example.info
+@settitle texi title
+
+@node Top
+@top example
+
+@bye

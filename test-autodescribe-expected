@@ -45,6 +45,8 @@
 'testfiles/type1.svg' 'SVG root title'
 'testfiles/type1.svgz' 'SVG root title'
 'testfiles/type1.tc' 'Tellico Collection Name'
+'testfiles/type1.tex' 'TeX title'
+'testfiles/type1.texi' 'texi title'
 'testfiles/type1.tgz' 'fileviewinfotest - embedded tgz man page name'
 'testfiles/type1.tiff' 'TIFF comment'
 'testfiles/type1.ttf' 'TTF Familyname Regular'
