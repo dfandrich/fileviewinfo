@@ -14,9 +14,14 @@ trimspace() {
 }
 
 # Return the full language locale with dashes instead of underscores
-# THis might return a locale with or without a specific country.
+# This might return a locale with or without a specific country.
 get_lang_full() {
 	locale | sed -n -E -e 's/_/-/g' -e '/^LANG=/s/^.*=([^.]*)\.?.*$/\1/p'
+}
+
+# Same as get_lang_full but with underscores instead of dashes
+get_lang_full_under() {
+	get_lang_full | tr '-' '_'
 }
 
 # Language locale with country-specific portion removed
@@ -76,6 +81,32 @@ comment_rpm () {
 # File type: cue (CD cue index file)
 comment_cue () {
 	COMMENT=$(sed -n -E -e '/^TITLE/s/^TITLE *"([^"]*)" *$/\1/p' < "$f" | head -1)
+}
+
+# File type: desktop (XDG desktop entry file)
+comment_desktop () {
+	# Get current locale language
+	L="$(get_lang_full_under)"
+	if [ -z "$L" ]; then
+		L=en  # English by default
+	fi
+	COMMENT=$(sed -n -e "s/^Name\[$L\]=//p" < "$f" | head -1)
+	if [ -z "$COMMENT" ]; then
+		# Try again with generic language locale
+		L="$(get_lang_generic)"
+	    COMMENT=$(sed -n -e "s/^Name\[$L\]=//p" < "$f" | head -1)
+
+		if [ -z "$COMMENT" ]; then
+			# Try again with English
+			L=en
+			COMMENT=$(sed -n -e "s/^Name\[$L\]=//p" < "$f" | head -1)
+
+		    if [ -z "$COMMENT" ]; then
+				# Finally, try the non-locale-dependent entry
+			    COMMENT=$(sed -n -e "s/^Name=//p" < "$f" | head -1)
+		    fi
+		fi
+	fi
 }
 
 # File type: docx (MS Word document)
@@ -638,6 +669,8 @@ for f in "$@" ; do
 				TYPE=c
 				;;
 			*.cue)	TYPE=cue
+				;;
+			*.desktop)	TYPE=desktop
 				;;
 			*.docx)	TYPE=docx
 				;;

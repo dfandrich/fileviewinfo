@@ -1,0 +1,9 @@
+[Desktop Entry]
+Icon=example
+Name=Desktop file name
+Name[de]=Desktop-Name (de)
+Comment=Desktop comment
+Comment[de]=Desktop-Kommentar (de)
+Type=Link
+URL[$e]=file:type1.html
+X-KDE-LastOpenedWith=firefox
