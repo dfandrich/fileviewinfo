@@ -793,7 +793,8 @@ for f in "$@" ; do
 				TYPE=zoo
 				;;
 			# These must come after more specific handlers above. This list comes
-			# directly from the output of "ebook-meta --help"
+			# directly from the output of "ebook-meta --help", plus *.xhtml
+			*.xhtml | \
 			*.azw | *.azw1 | *.azw3 | *.azw4 | *.cbr | *.cbz | *.chm | *.docx | *.epub | \
 			*.fb2 | *.fbz | *.html | *.htmlz | *.imp | *.lit | *.lrf | *.lrx | *.mobi | \
 			*.odt | *.oebzip | *.opf | *.pdb | *.pdf | *.pml | *.pmlz | *.pobi | *.prc | \

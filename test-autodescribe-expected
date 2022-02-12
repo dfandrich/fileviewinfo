@@ -56,6 +56,7 @@
 'testfiles/type1.wav' 'WAV title'
 'testfiles/type1.webm' 'WEBM title'
 'testfiles/type1.xbm' 'black'
+'testfiles/type1.xhtml' 'XHTML title'
 'testfiles/type1.xpm' 'black'
 'testfiles/type1.zip' 'Zip comment spanning two lines'
 'testfiles/type2.amf' 'AMF name'
