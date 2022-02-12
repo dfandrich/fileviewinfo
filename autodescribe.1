@@ -26,7 +26,8 @@ attempts to extracts a meaningful title from a given file that describes it.
 When supported by the file type, it generally uses a formal title or
 description metadata attribute. If not, it tries to synthesize a description
 from a comment or other text within the file. When relying on the latter
-heuristic, the result is not always perfect.
+heuristic, the result is not always perfect. When titles are available in
+multiple languages, the one matching the current locale is generally returned.
 .LP
 The file names and descriptions are output on stdout by default, using
 shell-compatible quoting for each. Using the \-e option, they can also be used

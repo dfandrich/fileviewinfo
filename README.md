@@ -45,7 +45,9 @@ You can execute a simple regression test suite with:
     make check
 
 Any differences between the expected and generated output will be displayed.
-If a needed external program is missing, the test will fail.
+If a needed external program is missing, the test will fail. The test suite is
+sensitive to the locale and will not pass in some non-English locales due to
+some language-specific output.
 
 ## Author
 
