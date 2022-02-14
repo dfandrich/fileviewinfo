@@ -399,6 +399,15 @@ comment_gif () {
 	fi
 }
 
+# File type: gpx (GPX GPS track)
+# requires: xmlstarlet
+comment_gpx () {
+	COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='gpx']/*[local-name()='metadata']/*[local-name()='name']" < "$f" | trimspace)
+	if [ -z "$COMMENT" ] ; then
+		COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='gpx']/*[local-name()='trk'][1]/*[local-name()='name']" < "$f" | trimspace)
+	fi
+}
+
 # File type: iso (ISO-9660 CD-ROm image)
 # requires: cdrkit-isotools
 comment_iso () {
@@ -680,6 +689,8 @@ for f in "$@" ; do
 				TYPE=fodf
 				;;
 			*.gif)	TYPE=gif
+				;;
+			*.gpx)	TYPE=gpx
 				;;
 			*.html | *.htm)
 				TYPE=html

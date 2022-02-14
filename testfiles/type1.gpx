@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" creator="human" version="1.1">
+  <metadata>
+    <name>GPX metadata name</name>
+    <desc>GPX metadata description</desc>
+  </metadata>
+  <trk>
+    <name>GPX track name</name>
+    <desc>GPX track description</desc>
+    <type>GPX track type</type>
+    <trkseg>
+      <trkpt lat="47.57050" lon="-52.68105">
+        <ele>130.0</ele>
+        <time>2012-11-22T10:34:00Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
