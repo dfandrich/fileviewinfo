@@ -248,6 +248,11 @@ comment_tiff () {
 	fi
 }
 
+# File type: ac (autoconf source code)
+comment_ac () {
+	COMMENT=$(sed -E -n 's/^[[:space:]]*AC_INIT\([[:space:]]*\[?([^],]+).*/\1/p' < "$f")
+}
+
 # File type: c (C source code)
 comment_c () {
 	COMMENT=$(sed -n '/\/\*/,/\*\//{
@@ -651,6 +656,9 @@ for f in "$@" ; do
 		case "$f" in
 			*.3mf)
 				TYPE=3mf
+				;;
+			*.ac)
+				TYPE=ac
 				;;
 			*.aiff)
 				TYPE=aiff
