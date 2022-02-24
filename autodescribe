@@ -581,6 +581,14 @@ comment_xbm () {
 	COMMENT=$(sed -n 's/^.* \(.*\)_bits.*$/\1/p' < "$f")
 }
 
+# File type: xcf (Gimp image)
+comment_xcf () {
+	# gimp's Scheme interpreter displays some logging info before and after the
+	# desired output, so use sed to delete it to leave only XML.
+	METADATA=$(echo '((display "\nMETADATA-START\n") (let ((img (car (gimp-file-load 1 "'"$f"'" "file")))) (display (car (gimp-image-get-metadata img))) (gimp-image-delete img)) (gimp-quit TRUE))' | gimp -n -i -d -f -s -g /dev/null --stack-trace-mode=never -b -  2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
+	COMMENT=$(echo "$METADATA" | xmlstarlet sel -t -v  '/metadata/tag[@name="Xmp.dc.title"]' | sed 's/lang="x-default" *//')
+}
+
 # File type: xpm (X pixmap image)
 # Could extract image size here as well
 comment_xpm () {
@@ -801,6 +809,9 @@ for f in "$@" ; do
 				;;
 			*.xbm)
 				TYPE=xbm
+				;;
+			*.xcf)
+				TYPE=xcf
 				;;
 			*.xpm)
 				TYPE=xpm
