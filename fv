@@ -288,11 +288,6 @@ for f in "$@" ; do
 			lha v -- "$f"
 			;;
 
-		# requires: lzip
-		*.lz)	archive_label LZIP compressed file
-			lzip -lv -- "$f"
-			;;
-
 		# See https://www.lzop.org/
 		# requires: lzop
 		*.lzo)	archive_label LZOP compressed file
@@ -611,6 +606,7 @@ EOF
 		# Also Scratch Project .sb2
 		# Also Scratch Project .sb3
 		# Also OpenRaster image .ora
+		# Also Wondershare Filmora Project .wfp
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
@@ -619,7 +615,7 @@ EOF
 		*.otp | *.otg | *.ots | *.odb | *.odc | \
 		*.docx | *.epub | *.apk | *.apkm | *.war | *.xps | *.resource | \
 		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf | \
-		*.sb2 | *.sb3 | *.ora)
+		*.sb2 | *.sb3 | *.ora | *.wfp)
 			archive_label ZIP archive
 			unzip -v -- "$f"
 			;;
@@ -678,6 +674,11 @@ EOF
 		# requires: gzip
 		*.gz | *.Z | *.z)	archive_label gzip-compressed file
 			gzip -vl -- "$f"
+			;;
+
+		# requires: lzip
+		*.lz)	archive_label LZIP compressed file
+			lzip -lv -- "$f"
 			;;
 
 		# See https://www.7-zip.org/sdk.html
