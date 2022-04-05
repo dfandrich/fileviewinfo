@@ -1,0 +1,24 @@
+<?xml version="1.0" standalone="yes"?>
+<gpx
+  xmlns="http://www.topografix.com/GPX/1/0"
+  version="1.0" creator="TopoFusion 1.50"
+  xmlns:TopoFusion="http://www.TopoFusion.com"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd http://www.TopoFusion.com http://www.TopoFusion.com/topofusion.xsd">
+ <url>http://www.topofusion.com</url>
+ <urlname>TopoFusion Home Page</urlname>
+<bounds maxlat="38.745303" minlon="-109.671149" minlat="38.517165" maxlon="-109.496377"/>
+<trk>
+ <url>http://www.topofusion.com</url>
+ <urlname>TopoFusion Home Page</urlname>
+ <name>GPX 1.0 track name</name>
+  <trkseg>
+    <trkpt lat="38.697946" lon="-109.664519">
+      <ele>1309.453125</ele>
+      <time>2003-11-28T20:21:23Z</time>
+    </trkpt>
+  </trkseg>
+</trk>
+<TopoFusion:color>ff0000</TopoFusion:color>
+<TopoFusion:graph>0</TopoFusion:graph>
+</gpx>
