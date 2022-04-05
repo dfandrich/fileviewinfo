@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<homebank v="1.3" d="050201">
+<properties title="root" curr="1" auto_smode="1" auto_weekday="1"/>
+<cur key="1" flags="0" iso="GBP" name="Pound Sterling" symb="£" syprf="1" dchar="." gchar="," frac="2" rate="0" mdate="0"/>
+<account key="1" pos="1" type="1" curr="1" name="HomeBank Name" initial="0" minimum="0"/>
+<cat key="1" name="Alimony"/>
+<cat key="2" name="Automobile"/>
+<cat key="5" parent="2" flags="1" name="Maintenance"/>
+<cat key="4" parent="2" flags="1" name="Gasoline"/>
+<cat key="3" parent="2" flags="1" name="Car Payment"/>
+<cat key="6" name="Bank Charges"/>
+<cat key="8" parent="6" flags="1" name="Service charge"/>
+<cat key="7" parent="6" flags="1" name="Interest Paid"/>
+<cat key="9" name="Bills"/>
+<cat key="22" parent="9" flags="1" name="Other Loan Payment"/>
+<cat key="21" parent="9" flags="1" name="On-line/Internet Service"/>
+<cat key="20" parent="9" flags="1" name="Newspaper"/>
+<cat key="19" parent="9" flags="1" name="Natural Gas/Oil"/>
+<cat key="18" parent="9" flags="1" name="Mortgage Payment"/>
+<cat key="17" parent="9" flags="1" name="Membership Fees"/>
+<cat key="16" parent="9" flags="1" name="Home-owner&apos;s Dues"/>
+<cat key="15" parent="9" flags="1" name="Health Club"/>
+<cat key="14" parent="9" flags="1" name="Garbage &amp; Recycle"/>
+<cat key="13" parent="9" flags="1" name="Electricity"/>
+<cat key="12" parent="9" flags="1" name="Cellular"/>
+<cat key="11" parent="9" flags="1" name="Cell Phone"/>
+<cat key="10" parent="9" flags="1" name="Cable/Satellite Television"/>
+<cat key="26" parent="9" flags="1" name="Water &amp; Sewer"/>
+<cat key="25" parent="9" flags="1" name="Telephone"/>
+<cat key="24" parent="9" flags="1" name="Student Loan Payment"/>
+<cat key="23" parent="9" flags="1" name="Rent"/>
+<cat key="27" name="Cash Withdrawal"/>
+<cat key="28" name="Charitable Donations"/>
+<cat key="29" name="Childcare"/>
+<cat key="30" name="Children/Toys"/>
+<cat key="32" parent="30" flags="1" name="Daycare"/>
+<cat key="31" parent="30" flags="1" name="Child Support"/>
+<cat key="33" name="Clothing"/>
+<cat key="34" name="Credit Card Payments/Transfers"/>
+<cat key="35" name="Dining Out"/>
+<cat key="36" name="Education"/>
+<cat key="39" parent="36" flags="1" name="Tuition"/>
+<cat key="38" parent="36" flags="1" name="Fees"/>
+<cat key="37" parent="36" flags="1" name="Books"/>
+<cat key="40" name="Entertainment"/>
+<cat key="41" name="Fees"/>
+<cat key="42" name="Food"/>
+<cat key="43" name="Gifts"/>
+<cat key="44" name="Groceries"/>
+<cat key="45" name="Health-care"/>
+<cat key="50" parent="45" flags="1" name="Prescriptions"/>
+<cat key="49" parent="45" flags="1" name="Physician"/>
+<cat key="48" parent="45" flags="1" name="Hospital"/>
+<cat key="47" parent="45" flags="1" name="Eye-care"/>
+<cat key="46" parent="45" flags="1" name="Dental"/>
+<cat key="51" name="Hobbies/Leisure"/>
+<cat key="59" parent="51" flags="1" name="Toys &amp; Games"/>
+<cat key="58" parent="51" flags="1" name="Tapes &amp; CDs"/>
+<cat key="57" parent="51" flags="1" name="Sporting Goods"/>
+<cat key="56" parent="51" flags="1" name="Sporting Events"/>
+<cat key="55" parent="51" flags="1" name="Movies &amp; Video Rentals"/>
+<cat key="54" parent="51" flags="1" name="Entertaining"/>
+<cat key="53" parent="51" flags="1" name="Cultural Events"/>
+<cat key="52" parent="51" flags="1" name="Books &amp; Magazines"/>
+<cat key="60" name="Home Improvement"/>
+<cat key="61" name="Household"/>
+<cat key="64" parent="61" flags="1" name="Yard Service"/>
+<cat key="63" parent="61" flags="1" name="House Cleaning"/>
+<cat key="62" parent="61" flags="1" name="Furnishing"/>
+<cat key="65" name="Insurance"/>
+<cat key="68" parent="65" flags="1" name="Home-owner&apos;s/Renter&apos;s"/>
+<cat key="67" parent="65" flags="1" name="Health"/>
+<cat key="66" parent="65" flags="1" name="Automobile"/>
+<cat key="69" parent="65" flags="1" name="Life"/>
+<cat key="70" name="Job Expense"/>
+<cat key="72" parent="70" flags="1" name="Reimbursed"/>
+<cat key="71" parent="70" flags="1" name="Non-Reimbursed"/>
+<cat key="73" name="Loan"/>
+<cat key="76" parent="73" flags="1" name="Student Loan Interest"/>
+<cat key="75" parent="73" flags="1" name="Mortgage Interest"/>
+<cat key="74" parent="73" flags="1" name="Loan Interest"/>
+<cat key="77" name="Miscellaneous"/>
+<cat key="78" name="Mortgage/Rent"/>
+<cat key="79" name="Personal Care"/>
+<cat key="80" name="Pet Care"/>
+<cat key="83" parent="80" flags="1" name="Veterinarian"/>
+<cat key="82" parent="80" flags="1" name="Supplies"/>
+<cat key="81" parent="80" flags="1" name="Food"/>
+<cat key="84" name="Phone/Wireless"/>
+<cat key="85" name="Services/Memberships"/>
+<cat key="86" name="Taxes"/>
+<cat key="91" parent="86" flags="1" name="Other Taxes"/>
+<cat key="90" parent="86" flags="1" name="Medicare tax"/>
+<cat key="89" parent="86" flags="1" name="Local Income Tax"/>
+<cat key="88" parent="86" flags="1" name="Federal Income Tax-Previous Year"/>
+<cat key="87" parent="86" flags="1" name="Federal Income Tax"/>
+<cat key="96" parent="86" flags="1" name="State/Provincial"/>
+<cat key="95" parent="86" flags="1" name="State Income Tax"/>
+<cat key="94" parent="86" flags="1" name="Social Security Tax"/>
+<cat key="93" parent="86" flags="1" name="Sales Tax"/>
+<cat key="92" parent="86" flags="1" name="Real Estate Taxes"/>
+<cat key="97" name="Travel/Vacation"/>
+<cat key="99" parent="97" flags="1" name="Travel"/>
+<cat key="98" parent="97" flags="1" name="Lodging"/>
+<cat key="100" name="Utilities"/>
+<cat key="101" flags="2" name="Income/Interest"/>
+<cat key="102" flags="2" name="Investment Income"/>
+<cat key="106" parent="102" flags="3" name="Tax-Exempt Interest"/>
+<cat key="105" parent="102" flags="3" name="Interest"/>
+<cat key="104" parent="102" flags="3" name="Dividends"/>
+<cat key="103" parent="102" flags="3" name="Capital Gains"/>
+<cat key="107" flags="2" name="Not an Expense"/>
+<cat key="108" flags="2" name="Other Income"/>
+<cat key="114" parent="108" flags="3" name="State &amp; Local Tax Refund"/>
+<cat key="113" parent="108" flags="3" name="Lotteries"/>
+<cat key="112" parent="108" flags="3" name="Loan Principal Received"/>
+<cat key="111" parent="108" flags="3" name="Gifts Received"/>
+<cat key="110" parent="108" flags="3" name="Employee Stock Option"/>
+<cat key="109" parent="108" flags="3" name="Child Support Received"/>
+<cat key="115" parent="108" flags="3" name="Unemployment Compensation"/>
+<cat key="116" flags="2" name="Retirement Income"/>
+<cat key="119" parent="116" flags="3" name="Social Security Benefits"/>
+<cat key="118" parent="116" flags="3" name="Pensions &amp; Annuities"/>
+<cat key="117" parent="116" flags="3" name="IRA Distribution"/>
+<cat key="120" flags="2" name="Wage &amp; Salary"/>
+<cat key="126" parent="120" flags="3" name="Overtime"/>
+<cat key="125" parent="120" flags="3" name="Net Pay"/>
+<cat key="124" parent="120" flags="3" name="Gross Pay"/>
+<cat key="123" parent="120" flags="3" name="Employer Matching"/>
+<cat key="122" parent="120" flags="3" name="Commission"/>
+<cat key="121" parent="120" flags="3" name="Bonus"/>
+</homebank>

@@ -248,6 +248,12 @@ comment_tiff () {
 	fi
 }
 
+# File type: xhb (Homebank file)
+# requires: xmlstarlet
+comment_xhb () {
+	COMMENT=$(xmlstarlet sel -t -v '/homebank/account/@name' < "$f")
+}
+
 # File type: ac (autoconf source code)
 comment_ac () {
 	COMMENT=$(sed -E -n 's/^[[:space:]]*AC_INIT\([[:space:]]*\[?([^],]+).*/\1/p' < "$f")
@@ -830,6 +836,9 @@ for f in "$@" ; do
 				;;
 			*.xcf)
 				TYPE=xcf
+				;;
+			*.xhb)
+				TYPE=xhb
 				;;
 			*.xpm)
 				TYPE=xpm
