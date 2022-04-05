@@ -287,6 +287,12 @@ comment_3mf () {
 	COMMENT=$(unzip -cq -- "$f" 3D/3dmodel.model | xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name='Title']")
 }
 
+# File type: abw (AbiWord document)
+# requires: xmlstarlet
+comment_abw () {
+	COMMENT=$(xmlstarlet sel -N a=http://www.abisource.com/awml.dtd -t -v "/a:abiword/a:metadata/a:m[@key='dc.title']" < "$f" 2>/dev/null)
+}
+
 # File type: amf (Additive Manufacturing File)
 # requires: unzip, xmlstarlet
 comment_amf () {
@@ -664,6 +670,10 @@ for f in "$@" ; do
 		case "$f" in
 			*.3mf)
 				TYPE=3mf
+				;;
+			*.abw)
+				# TODO: this file type can be compressed as .zabw or .abw.gz
+				TYPE=abw
 				;;
 			*.ac)
 				TYPE=ac
