@@ -182,7 +182,7 @@ comment_subject () {
 # File type: sla (Scribus document)
 # requires: xmlstarlet
 comment_sla () {
-	COMMENT=$(xmlstarlet sel -t -v 'SCRIBUSUTF8NEW/DOCUMENT/@TITLE' < "$f")
+	COMMENT=$(xmlstarlet sel -t -v '/SCRIBUSUTF8NEW/DOCUMENT/@TITLE' < "$f")
 }
 
 # File type: stl (STL model file)
