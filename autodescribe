@@ -410,6 +410,12 @@ comment_gif () {
 	fi
 }
 
+# File type: gnumeric (Gnumeric spreadsheet)
+# requires: xmlstarlet
+comment_gnumeric () {
+	COMMENT=$(xmlstarlet sel -N gnm=http://www.gnumeric.org/v10.dtd -N office=urn:oasis:names:tc:opendocument:xmlns:office:1.0 -N dc=http://purl.org/dc/elements/1.1/ -t -v '/gnm:Workbook/office:document-meta/office:meta/dc:title' < "$f")
+}
+
 # File type: gpx (GPX GPS track)
 # requires: xmlstarlet
 comment_gpx () {
@@ -715,6 +721,8 @@ for f in "$@" ; do
 				TYPE=fodf
 				;;
 			*.gif)	TYPE=gif
+				;;
+			*.gnumeric)	TYPE=gnumeric
 				;;
 			*.gpx)	TYPE=gpx
 				;;

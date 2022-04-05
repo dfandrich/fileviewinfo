@@ -16,6 +16,7 @@
 'testfiles/type1.fods' 'OpenDocument Spreadsheet Title'
 'testfiles/type1.fodt' 'Open Document title'
 'testfiles/type1.gif' 'GIF comment'
+'testfiles/type1.gnumeric' 'Gnumeric Title'
 'testfiles/type1.gpx' 'GPX metadata name'
 'testfiles/type1.html' 'HTML title is description'
 'testfiles/type1.iso' 'volume_id'
