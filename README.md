@@ -35,14 +35,15 @@ that file type.
 ## Installation
 
 The programs are written in portable Bourne shell and do not require
-compilation (the makefile relies on some GNUisms, however).  Install them by
-running this command as root:
+compilation (the makefile relies on some GNUisms, however, and requires the use
+of GNU make, often known as "gmake").  Install them by running this command as
+root:
 
     make install
 
 You can execute a simple regression test suite with:
 
-    make check
+    env LC_ALL=C make check -k
 
 Any differences between the expected and generated output will be displayed.
 If a needed external program is missing, the test will fail. The test suite is
