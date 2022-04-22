@@ -1,0 +1,29 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//be.digitalia.fosdem//NONSGML 1.5.0//EN
+BEGIN:VEVENT
+UID:12345@2018@example.com
+DTSTAMP:20180213T070722Z
+DTSTART:20180203T100000Z
+DTEND:20180203T105000Z
+SUMMARY:vCalendar summary
+DESCRIPTION:vCalendar description
+ Second line of description.
+X-ALT-DESC:<p>Alternative description</p>
+CLASS:PUBLIC
+CATEGORIES:Tests
+URL:https://example.com/testfile/fosdem.org/2018/schedule/event/python3/
+LOCATION:A.place (A Place to Meet)
+ATTENDEE;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL;CN="Joe Blo":https://example.com/2018/schedule/speaker/joe_blo/
+END:VEVENT
+BEGIN:VEVENT
+UID:12345@2022@example.com
+DTSTAMP:20220205T202532Z
+DTSTART:20220206T163000Z
+DTEND:20220206T170000Z
+SUMMARY:Another ignored entry
+DESCRIPTION:An ignored description
+CLASS:PUBLIC
+CATEGORIES:Tests
+END:VEVENT
+END:VCALENDAR

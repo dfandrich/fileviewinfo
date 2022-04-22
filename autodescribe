@@ -431,6 +431,13 @@ comment_gpx () {
 	fi
 }
 
+# File type: ics (vCalendar entry)
+# requires: python3, python3-vobject
+comment_vcalendar () {
+	# Only looks at the first entry if more than one
+	COMMENT=$(python3 -c "import vobject, sys; print(vobject.readOne(sys.stdin).contents['vevent'][0].summary.value)" < "$f")
+}
+
 # File type: iso (ISO-9660 CD-ROm image)
 # requires: cdrkit-isotools
 comment_iso () {
@@ -734,6 +741,8 @@ for f in "$@" ; do
 				;;
 			*.html | *.htm)
 				TYPE=html
+				;;
+			*.ics)	TYPE=vcalendar
 				;;
 			*.iso)	TYPE=iso
 				;;
