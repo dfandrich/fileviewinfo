@@ -467,7 +467,8 @@ comment_jpeg () {
 
 # File type: first_line (first line of text file)
 comment_first_line () {
-	COMMENT=$(grep -v '^[[:space:]]*$' < "$f" | head -1)
+	# Ignore completely blank lines and formatting lines consisting of all dashes, etc.
+	COMMENT=$(grep -v '^[-_=*:~[:space:]]*$' < "$f" | head -1)
 }
 
 # File type: html (HTML text)
