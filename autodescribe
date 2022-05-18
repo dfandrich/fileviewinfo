@@ -185,6 +185,12 @@ comment_sla () {
 	COMMENT=$(xmlstarlet sel -t -v '/SCRIBUSUTF8NEW/DOCUMENT/@TITLE' < "$f")
 }
 
+# File type: snap (Snap package)
+# requires: squashfs
+comment_snap () {
+	COMMENT=$(unsquashfs -cat "$f" meta/snap.yaml | sed -n 's/^summary: //p')
+}
+
 # File type: stl (STL model file)
 comment_stl () {
 	if dd if="$f" bs=1 count=80 2>/dev/null | sed -n -e N -e '/^solid .*\n/p' | grep -q .; then
@@ -810,6 +816,8 @@ for f in "$@" ; do
 			*.py)	TYPE=py
 				;;
 			*.sla)	TYPE=sla
+				;;
+			*.snap)	TYPE=snap
 				;;
 			*.stl)	TYPE=stl
 				;;

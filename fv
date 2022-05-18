@@ -442,8 +442,9 @@ EOF
 			;;
 
 		# See https://github.com/plougher/squashfs-tools
+		# Also Snap package .snap
 		# requires: squashfs
-		*.sqsh | *.squashfs) archive_label Squashfs filesystem image
+		*.sqsh | *.squashfs | *.snap) archive_label Squashfs filesystem image
 			unsquashfs -ll "$f"
 			;;
 

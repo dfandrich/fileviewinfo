@@ -392,8 +392,9 @@ for f in "$@" ; do
 			;;
 
 		# See https://github.com/plougher/squashfs-tools
+		# Also Snap package .snap
 		# requires: squashfs
-		*.sqsh | *.squashfs) filetype_label Squashfs filesystem image
+		*.sqsh | *.squashfs | *.snap) filetype_label Squashfs filesystem image
 			unsquashfs -s "$f"
 			;;
 
