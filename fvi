@@ -456,6 +456,11 @@ EOF
 			wavplay -i -- "$f"
 			;;
 
+		# requires: unzip, jq
+		*.wacz)	filetype_label Web Archive Collection Zipped
+			unzip -qc "$f" datapackage.json | jq 'del(.resources)'
+			;;
+
 		# zip archive .zip
 		# Also Android package .apk
 		# Also Apkmirror Android package .apkm

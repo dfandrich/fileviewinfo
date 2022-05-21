@@ -607,6 +607,12 @@ comment_aiff () {
 	comment_ffmpeg "$@"
 }
 
+# File type: wacz (Web Archive Collection Zipped)
+# requires: unzip, jq
+comment_wacz () {
+	COMMENT=$(unzip -qc "$f" datapackage.json | jq -r '.title')
+}
+
 # File type: whl (Python wheel package)
 comment_whl () {
 	COMMENT=$(unzip -caq -- "$f" '*/METADATA' | sed -n 's/^Summary: //p')
@@ -850,6 +856,9 @@ for f in "$@" ; do
 				;;
 			*.uue)
 				TYPE=uue
+				;;
+			*.wacz)
+				TYPE=wacz
 				;;
 			*.wav)
 				TYPE=wav

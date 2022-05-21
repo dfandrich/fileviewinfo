@@ -58,6 +58,7 @@
 'testfiles/type1.ttf' 'TTF Familyname Regular'
 'testfiles/type1.txt' 'Title of a plain text file'
 'testfiles/type1.uue' 'original_name'
+'testfiles/type1.wacz' 'WACZ Title'
 'testfiles/type1.wav' 'WAV title'
 'testfiles/type1.webm' 'WEBM title'
 'testfiles/type1.xbm' 'black'

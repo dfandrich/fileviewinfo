@@ -608,6 +608,7 @@ EOF
 		# Also Scratch Project .sb3
 		# Also OpenRaster image .ora
 		# Also Wondershare Filmora Project .wfp
+		# Also Web Archive Collection Zipped .wacz
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
@@ -616,7 +617,7 @@ EOF
 		*.otp | *.otg | *.ots | *.odb | *.odc | \
 		*.docx | *.epub | *.apk | *.apkm | *.war | *.xps | *.resource | \
 		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf | \
-		*.sb2 | *.sb3 | *.ora | *.wfp)
+		*.sb2 | *.sb3 | *.ora | *.wfp | *.wacz)
 			archive_label ZIP archive
 			unzip -v -- "$f"
 			;;
