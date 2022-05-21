@@ -607,6 +607,11 @@ comment_aiff () {
 	comment_ffmpeg "$@"
 }
 
+# File type: whl (Python wheel package)
+comment_whl () {
+	COMMENT=$(unzip -caq -- "$f" '*/METADATA' | sed -n 's/^Summary: //p')
+}
+
 # File type: xbm (X bitmap image)
 # Could extract image size here as well
 comment_xbm () {
@@ -848,6 +853,9 @@ for f in "$@" ; do
 				;;
 			*.wav)
 				TYPE=wav
+				;;
+			*.whl)
+				TYPE=whl
 				;;
 			*.xbm)
 				TYPE=xbm
