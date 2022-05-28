@@ -207,6 +207,11 @@ for f in "$@" ; do
 			hdiutil imageinfo "$f"
 			;;
 
+		# requires: dtc or device-tree-compiler
+		*.dtb)	filetype_label Device Tree Binary file
+			dtc -I dtb -O dts -o - -- "$f"
+			;;
+
 		# Also 
 		# requires: ebook-tools
 		*.epub)	filetype_label EPub Document
