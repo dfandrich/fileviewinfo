@@ -446,6 +446,16 @@ EOF
 			dbwrap_tool --persistent -- "$f" listkeys | wc -l
 			;;
 
+		# See https://simonowen.com/samdisk/
+		# requires: samdisk
+		*.bpb | *.cfi | *.cpm | *.d2m | *.d4m | *.d80 | *.d81 | *.d88 | *.dfi | \
+		*.dmk | *.ds2 | *.dsc | *.dsk | *.dti | *.edsk | *.fdi | *.hfe | *.imd | \
+		*.ipf | *.lif | *.mbd | *.mgt | *.msa | *.opd | *.raw | *.raw | *.s24 | \
+		*.sad | *.sbt | *.scl | *.scp | *.sdf | *.td0 | *.trd | *.udi \
+		)  filetype_label Floppy disk image file
+			samdisk info -- "$f"
+			;;
+
 		# Also Digital Negative Raw Image .dng
 		# requires: libtiff-progs
 		*.tif | *.tiff | *.dng)	filetype_label Tagged Image File Format image
