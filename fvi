@@ -467,6 +467,11 @@ EOF
 			torrentinfo-console "$f"
 			;;
 
+		# requires: gobject-introspection, xmlstarlet
+		*.typelib)	filetype_label G-IR binary database
+			g-ir-generate -- "$f" | xmlstarlet sel -N x=http://www.gtk.org/introspection/core/1.0 -t -o 'Typelib for ' -v '/x:repository/x:namespace/@name' -o ' ' -v '/x:repository/x:namespace/@version' -o ' ' -v '/x:repository/x:namespace/@shared-library' -n  -
+			;;
+
 		*.wav)	filetype_label WAV audio file
 			wavplay -i -- "$f"
 			;;
