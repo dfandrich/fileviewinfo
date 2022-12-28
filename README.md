@@ -46,7 +46,9 @@ You can execute a simple regression test suite with:
     env LC_ALL=C make check -k
 
 Any differences between the expected and generated output will be displayed.
-If a needed external program is missing, the test will fail. The test suite is
+If a needed external program is missing, the test will fail. Some test runs
+show "Not a known file type" or "No comment found" which is normal, since not
+all file types are supported by all programs being tested.  The test suite is
 sensitive to the locale and will not pass in some non-English locales due to
 some language-specific output.
 
