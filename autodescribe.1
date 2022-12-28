@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.TH AUTODESCRIBE 1 "2022-01-31" "autodescribe version 3"
+.TH AUTODESCRIBE 1 "2022-12-28" "autodescribe version 4"
 .SH NAME
 autodescribe \- automatically extract descriptions from files
 .SH SYNOPSIS
@@ -46,17 +46,31 @@ It currently supports the following file types:
 .\" This section comes from: ./autodescribe -l | sed -e a.LP
 3mf (3-D Manufacturing format)
 .LP
+abw (AbiWord document)
+.LP
+ac (autoconf source code)
+.LP
 aiff (Audio Interchange File Format)
 .LP
 amf (Additive Manufacturing File)
+.LP
+apk (Android Package Kit)
+.LP
+appdata (Appdata metainfo file)
 .LP
 arj (ARJ archive)
 .LP
 asm (assembly language source)
 .LP
+aup (Audacity Project file)
+.LP
 avi (Audio Video Interleave file)
 .LP
 c (C source code)
+.LP
+cue (CD cue index file)
+.LP
+desktop (XDG desktop entry file)
 .LP
 docx (MS Word document)
 .LP
@@ -66,13 +80,25 @@ first_line (first line of text file)
 .LP
 flac (FLAC audio file)
 .LP
+fodf (Open Document Format flat file)
+.LP
 gif (GIF image)
 .LP
+gnumeric (Gnumeric spreadsheet)
+.LP
+gpx (GPX GPS track)
+.LP
 html (HTML text)
+.LP
+ics (vCalendar entry)
+.LP
+iso (ISO-9660 CD-ROm image)
 .LP
 jpeg (JPEG JFIF image)
 .LP
 kdenlive (Kdenlive file)
+.LP
+kra (Krita image)
 .LP
 lzh (lzh/lha archive with desc.sdi comment)
 .LP
@@ -81,6 +107,8 @@ man (man page)
 md (Markdown text)
 .LP
 mkv (Matroska video)
+.LP
+mlt (mlt video file)
 .LP
 mov (MOV video)
 .LP
@@ -92,9 +120,9 @@ odf (Open Document Format)
 .LP
 ogg (Ogg media file)
 .LP
-otf (OpenType font)
+otf (OpenType font/TrueType font)
 .LP
-pam (Portable Arbitrary Map)
+pam (Portable Arbitrary Map image)
 .LP
 pascal (Pascal source code)
 .LP
@@ -102,7 +130,7 @@ pdf (Portable Document Format)
 .LP
 png (PNG image)
 .LP
-pnm (pbm/pgm/ppm Portable Any Map)
+pnm (pbm/pgm/ppm Portable Any Map image)
 .LP
 psfont (PostScript font)
 .LP
@@ -116,15 +144,21 @@ sh (shell script)
 .LP
 sla (Scribus document)
 .LP
+snap (Snap package)
+.LP
 stl (STL model file)
 .LP
 subject (news article or mail file)
 .LP
-svg (Scalable Vector Graphics)
+svg (Scalable Vector Graphics image)
 .LP
-svgz (Compressed Scalable Vector Graphics)
+svgz (Compressed Scalable Vector Graphics image)
 .LP
 tellico (Tellico database file)
+.LP
+texi (Texinfo document)
+.LP
+tex (TeX document)
 .LP
 tgz (compressed tar archive)
 .LP
@@ -132,15 +166,25 @@ tiff (TIFF image)
 .LP
 uue (UUencoded file)
 .LP
+wacz (Web Archive Collection Zipped)
+.LP
 wav (WAV audio)
 .LP
-xbm (X bitmap)
+whl (Python wheel package)
 .LP
-xpm (X pixmap)
+xbm (X bitmap image)
+.LP
+xcf (Gimp image)
+.LP
+xhb (Homebank file)
+.LP
+xpm (X pixmap image)
 .LP
 zip (zip archive)
 .LP
 zoo (zoo archive)
+.LP
+.\" End of mechanically-generated section
 .RE
 .\" ---------------------------------------------------------------------------
 .SH OPTIONS

@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.TH FV 1 "2022-01-31" "fv version 3"
+.TH FV 1 "2022-12-28" "fv version 4"
 .SH NAME
 fv \- archive and package directory lister
 .SH SYNOPSIS
@@ -53,19 +53,20 @@ with the \-l option.
 This version supports the following file extensions:
 .LP
 .\" This section comes from: ./fv -l | sed -e /^Supported/,1d -e 's/^/.SM /'
-.SM .3mf .7z .a .ace .alz .apk .application .arc .arj .bun .bxy .bz2 .cab
-.SM .cbmarc .ccs .cf .cgz .chm .chrt .cpio .cpio.bz2 .cpio.gz .cpio.Z .cpio.z
-.SM .d64 .dar .dat .deb .depot .depot.gz .dmg .docm .docx .egg .epk .epub
-.SM .f3d .flw .fodg .fodp .fods .fodt .fpm .gem .gz .ha .hp .hqx .ipg .ipk
-.SM .iso .jar .jffs2 .kfo .kgb .kil .kmz .kpr .kra .ksp .kwd .lbr .lha .lnx
-.SM .lpkg .lz .lzh .lzma .lzo .mac .mar .n64 .nif .nth .odf .odg .odp .ods
-.SM .odt .opk .otg .otp .ots .par .par2 .pbi .pdf .pet .pisi .pk3 .pkg .pq6
-.SM .pup .qpk .qpr .rar .resource .rpm .rpp .rsn .rub .rz .sa .sda .sdk .sfx
-.SM .sh .sh2 .shar .shk .sis .sit .slp .spark .spm .sqsh .squashfs .sto .sxd
-.SM .sxi .sxw .t64 .tar .tar.bz2 .tar.gz .tar.lz .tar.lzma .tar.xz .tar.Z
-.SM .tar.z .tar.zst .tardist .taz .tbz .tbz2 .tc .tgz .tlz .txz .uRamdisk
-.SM .uu .uua .uue .wad .wal .war .whl .wsz .x64 .xar .xpi .xps .xz .Z .z
-.SM .zip .zoo .zpaq .zst .zz .[psrud]00 winmail.dat
+.SM .3mf .7z .a .ace .alz .apk .apkm .AppImage .application .arc .arj .bun
+.SM .bxy .bz2 .cab .cbmarc .ccs .cf .cgz .chm .chrt .cpio .cpio.bz2 .cpio.gz
+.SM .cpio.Z .cpio.z .d64 .dar .dat .deb .depot .depot.gz .dmg .docm .docx
+.SM .egg .epk .epub .f3d .flw .fpm .gem .gz .ha .hp .hqx .ipg .ipk .iso .jar
+.SM .jffs2 .kfo .kgb .kil .kmz .kpr .kra .ksp .kwd .lbr .lha .lnx .lpkg .lz
+.SM .lzh .lzma .lzo .mac .mar .n64 .nif .nth .odb .odc .odf .odg .odp .ods
+.SM .odt .opk .ora .otg .otp .ots .par .par2 .pbi .pdf .pet .pisi .pk3 .pkg
+.SM .pq6 .pup .qpk .qpr .rar .resource .rpm .rpp .rsn .rub .rz .sa .sb2 .sb3
+.SM .sda .sdk .sfx .sh .sh2 .shar .shk .sis .sit .slp .snap .spark .spm .sqsh
+.SM .squashfs .sto .sxd .sxi .sxw .t64 .tar .tar.bz2 .tar.gz .tar.lz .tar.lzma
+.SM .tar.xz .tar.Z .tar.z .tar.zst .tardist .taz .tbz .tbz2 .tc .tgz .tlz
+.SM .txz .uRamdisk .uu .uua .uue .wacz .wad .wal .war .wfp .whl .wsz .x64
+.SM .xar .xpi .xps .xz .Z .z .zip .zoo .zpaq .zst .zz .[psrud]00 winmail.dat
+.\" End of mechanically-generated section
 .LP
 Not all files supported are strictly archive types; several structured
 documents formats are also supported.  Most of these are build on
@@ -92,6 +93,10 @@ Allegro4 not packed datafile
 ALZ archive
 .LP
 Android package
+.LP
+Apkmirror Android package
+.LP
+AppImage package
 .LP
 Apple disk image
 .LP
@@ -215,7 +220,11 @@ Netscape package
 .LP
 Nokia mobile phone theme
 .LP
-OpenDocument
+OpenDocument Chart
+.LP
+OpenDocument Database
+.LP
+OpenDocument Document
 .LP
 OpenDocument Drawing
 .LP
@@ -238,6 +247,8 @@ OpenOffice Drawing
 OpenOffice Impress Presentation
 .LP
 OpenOffice Writer Document
+.LP
+OpenRaster image
 .LP
 PAQ6 compressed archive
 .LP
@@ -277,9 +288,13 @@ Ruby package
 .LP
 rzip archive
 .LP
+Scratch Project
+.LP
 SEA ARC archive
 .LP
 shell archive
+.LP
+Snap package
 .LP
 SNES sound archive
 .LP
@@ -309,7 +324,11 @@ U-boot ramdisk image
 .LP
 uuencoded file
 .LP
+Web Archive Collection Zipped
+.LP
 Winamp compressed skin file
+.LP
+Wondershare Filmora Project
 .LP
 XAR archive
 .LP
@@ -330,6 +349,8 @@ zstd-compressed file
 zstd-compressed tar archive
 .LP
 ZZIP archive
+.LP
+.\" End of mechanically-generated section
 .RE
 .\" ---------------------------------------------------------------------------
 .SH OPTIONS

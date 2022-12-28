@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.TH FVI 1 "2022-01-31" "fvi version 3"
+.TH FVI 1 "2022-12-28" "fvi version 4"
 .SH NAME
 fvi \- File view info metadata displayer
 .SH SYNOPSIS
@@ -46,28 +46,33 @@ with the \-l option.
 This version supports the following file extensions:
 .LP
 .\" This section comes from: ./fvi -l | sed -e /^Supported/,1d -e 's/^/.SM /'
-.SM .3g2 .3gp .3mf .4xm .7z .aac .ac3 .adts .aiff .alaw .amf .amr .amv .apc
-.SM .ape .apk .application .asf .asf_stream .au .avi .avs .bethsoftvid .bz2
-.SM .c93 .cacrt .cgm .cgz .chrt .crc .crl .crt .daud .depot .depot.gz .der
-.SM .dex .dirac .dmg .dng .docm .docx .dsicin .dts .dv .dv1394 .dvd .dxa
-.SM .ea .egg .epk .eps .epub .exe .f3d .ffm .fig .film_cpk .flac .flic .flv
-.SM .flw .fodg .fodp .fods .fodt .fpm .fpx .framecrc .gif .gplt .gpx .gxf
-.SM .gz .h261 .h263 .h264 .heic .heic .heif .hpgl .idcin .image2 .image2pipe
-.SM .ingenient .ipg .ipk .ipmovie .iso .jar .jbig .jfif .jp2 .jpeg .jpg .key
-.SM .kfo .kil .kmz .kpr .kra .ksp .kwd .libnut .lz .lzma .lzo .m1v .m2v .m4a
-.SM .m4v .matroska .mj2 .mjpeg .mkv .mm .mmf .mo .mov .mp2 .mp3 .mp4 .mpc
-.SM .mpe .mpeg .mpeg1video .mpeg2video .mpegts .mpegtsraw .mpegvideo .mpg
-.SM .mpg4 .mpjpeg .mts .MTV .mulaw .mxf .nif .nsv .nth .null .nut .nuv .o
-.SM .odf .odg .odp .ods .odt .ogg .ogv .oss .otf .otg .otp .ots .pam .par
-.SM .pbm .pcl .pcx .pdf .pem .pet .pfa .pfb .pgm .pk3 .png .pnm .ppm .ps
-.SM .psp .psxstr .qpk .qpr .qt .ram .rar .raw .rawvideo .redir .resource
-.SM .rle .rm .RoQ .rpm .rsn .rtp .rtsp .rub .rz .s16be .s16le .s8 .sdp .shn
-.SM .siff .sis .slp .smk .sol .spm .sqsh .squashfs .stl .svcd .svg .svgz .swf
-.SM .sxd .sxi .sxw .taz .tbz .tbz2 .tc .tgz .thp .tiertexseq .tif .tiff .tlz
-.SM .torrent .tta .ttf .txd .txz .u16be .u16le .u8 .vc1 .vcd .video4linux
-.SM .video4linux2 .vmd .vob .voc .wal .war .wav .wc3movie .webm .webp .whl
-.SM .wmf .wmv .wmz .wsaud .wsvqa .wsz .wv .x11grab .xbm .xpi .xpm .xps .xz
-.SM .yuv4mpegpipe .Z .z .zip .zst
+.SM .3g2 .3gp .3mf .4xm .7z .a .aac .ac3 .adts .aiff .alaw .amf .amr
+.SM .amv .apc .ape .apk .apkm .application .asf .asf_stream .au .avi .avs
+.SM .bethsoftvid .bpb .bz2 .c93 .cacrt .cfi .cgm .cgz .chrt .class .cpm .crc
+.SM .crl .crt .d2m .d4m .d80 .d81 .d88 .daud .db .depot .depot.gz .der .dex
+.SM .dfi .dirac .dmg .dmk .dng .docm .docx .ds2 .dsc .dsicin .dsk .dtb .dti
+.SM .dts .dv .dv1394 .dvd .dxa .ea .edsk .egg .epk .eps .epub .exe .f3d .fdi
+.SM .ffm .fig .film_cpk .flac .flic .flv .flw .fodg .fodp .fods .fodt .fpm
+.SM .fpx .framecrc .gdbm .gif .gpg .gplt .gpx .gxf .gz .h261 .h263 .h264
+.SM .heic .heic .heif .hfe .hpgl .idcin .image2 .image2pipe .imd .ingenient
+.SM .ipf .ipg .ipk .ipmovie .iso .jar .jbig .jfif .jp2 .jpeg .jpg .key .kfo
+.SM .kil .kmz .kpr .kra .ksp .kwd .libnut .lif .lz .lzma .lzo .m1v .m2v
+.SM .m4a .m4v .matroska .mbd .mgt .mj2 .mjpeg .mkv .mm .mmf .mo .mov .mp2
+.SM .mp3 .mp4 .mpc .mpe .mpeg .mpeg1video .mpeg2video .mpegts .mpegtsraw
+.SM .mpegvideo .mpg .mpg4 .mpjpeg .msa .mts .MTV .mulaw .mxf .nif .nsv .nth
+.SM .null .nut .nuv .o .odf .odg .odp .ods .odt .ogg .ogv .opd .oss .otf
+.SM .otg .otp .ots .pam .par .pbm .pcl .pcx .pdf .pem .pet .pfa .pfb .pgm
+.SM .pgp .pk3 .png .pnm .ppm .ps .psp .psxstr .pyc .pyd .pyo .qpk .qpr .qt
+.SM .ram .rar .raw .rawvideo .redir .resource .rle .rm .RoQ .rpm .rsn .rtp
+.SM .rtsp .rub .rz .s16be .s16le .s24 .s8 .sad .sb2 .sb3 .sbt .scl .scp .sdf
+.SM .sdp .shn .siff .sis .slob .slp .smk .snap .so .so.?  .so.??  .so.???
+.SM .sol .spm .sqlite .sqlite3 .sqsh .squashfs .stl .svcd .svg .svgz .swf
+.SM .sxd .sxi .sxw .taz .tbz .tbz2 .tc .td0 .tdb .tgz .thp .tiertexseq .tif
+.SM .tiff .tlz .torrent .trd .tta .ttf .txd .txz .typelib .u16be .u16le .u8
+.SM .udi .vc1 .vcd .video4linux .video4linux2 .vmd .vob .voc .wacz .wal .war
+.SM .wav .wc3movie .webm .webp .whl .wmf .wmv .wmz .wsaud .wsvqa .wsz .wv
+.SM .x11grab .xbm .xpi .xpm .xps .xz .yuv4mpegpipe .Z .z .zip .zst
+.\" End of mechanically-generated section
 .LP
 It is trivial to add more file types to
 .BR fvi .
@@ -77,6 +82,7 @@ These are the file types supported:
 .LP
 .RS
 .\" This section comes from: ./fvi -v -l | sed a.LP
+
 (unknown 3D package)
 .LP
 3MF 3-D Manufacturing file
@@ -88,6 +94,10 @@ Additive Manufacturing File
 Android Java class file
 .LP
 Android package
+.LP
+Apkmirror Android package
+.LP
+Berkeley Database
 .LP
 Binary message catalog file
 .LP
@@ -103,15 +113,25 @@ Compressed Scalable Vector Graphic image file
 .LP
 DER certificate
 .LP
+Device Tree Binary file
+.LP
 Digital Negative Raw Image
 .LP
 EPub Document
 .LP
 FLAC audio
 .LP
+Floppy disk image file
+.LP
 Font file
 .LP
+G-IR binary database
+.LP
+GDBM database
+.LP
 GIF image
+.LP
+Gnu Privacy Guard/Pretty Good Privacy file
 .LP
 Google Earth
 .LP
@@ -128,6 +148,8 @@ iPod Game
 ISO9660 filesystem image file
 .LP
 Itsy package
+.LP
+Java compiled class file
 .LP
 Java jar file
 .LP
@@ -161,7 +183,7 @@ MPEG video
 .LP
 Nokia mobile phone theme
 .LP
-Object file
+Object file/archive
 .LP
 OGG audio/video
 .LP
@@ -199,6 +221,8 @@ Portable pixmap image
 .LP
 Private key
 .LP
+Python compiled file
+.LP
 Python package
 .LP
 Python wheel package
@@ -215,6 +239,14 @@ Red Hat RPM package
 .LP
 rzip archive
 .LP
+Scratch Project
+.LP
+Snap package
+.LP
+Sorted List of Blobs dictionary
+.LP
+Sqlite database file
+.LP
 Squashfs filesystem image
 .LP
 Stampede Linux package
@@ -229,6 +261,10 @@ SymbianOS SIS installable package
 .LP
 Tagged Image File Format image
 .LP
+tc-compressed file
+.LP
+TDB database file
+.LP
 Tukaani Linux package
 .LP
 Vector image file
@@ -236,6 +272,8 @@ Vector image file
 Video or audio file
 .LP
 WAV audio file
+.LP
+Web Archive Collection Zipped
 .LP
 Winamp compressed skin file
 .LP
@@ -258,6 +296,8 @@ xz-compressed tar archive
 ZIP archive
 .LP
 zstd-compressed file
+.LP
+.\" End of mechanically-generated section
 .RE
 .\" ---------------------------------------------------------------------------
 .SH OPTIONS
