@@ -433,10 +433,31 @@ EOF
 			zcat "$f" | identify -verbose -
 			;;
 
-		# See http://www.encode.ru/tc/
+		# See http://www.encode.ru/tc/ (obsolete as of 2022)
 		# requires: python >= 3
-		*.tc)	filetype_label tc-compressed file
-			fv -t tc "$f"
+		# Note: the real file extension conflicts with Tellico files, so this
+		# is a made up one
+		*.tc-compressed)	filetype_label tc-compressed file
+			python3 - "$f" <<EOF
+import struct, sys, os
+fn=sys.argv[1]
+with open(fn, 'rb') as f:
+	length = struct.unpack('<I', f.read(4))[0]
+basefn=os.path.basename(fn).rsplit('.')[0]
+print('    length filename')
+print('%10d %s' % (length, basefn))
+EOF
+			;;
+
+		*.tc)	filetype_label Tellico database
+			echo -n 'Database name: '
+			unzip -qc -- "$f" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" -n 2> /dev/null
+			echo -n 'Number of records: '
+			unzip -qc -- "$f" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='entry'])" -n 2>/dev/null
+			echo -n 'Number of images:'
+			unzip -qc -- "$f" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='images']/*[local-name()='image'])" -n 2>/dev/null
+			echo 'Database fields:'
+			unzip -qc -- "$f" tellico.xml | xmlstarlet sel -t -m "/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='fields']/*[local-name()='field']" -o '  ' -v '@name' -n 2>/dev/null
 			;;
 
 		# requires: samba-client

@@ -517,20 +517,6 @@ EOF
 			tar tvf - < "$f"
 			;;
 
-		# See http://www.encode.ru/tc/
-		# requires: python >= 3
-		*.tc)	archive_label tc-compressed file
-			python3 - "$f" <<EOF
-import struct, sys, os
-fn=sys.argv[1]
-with open(fn, 'rb') as f:
-	length = struct.unpack('<I', f.read(4))[0]
-basefn=os.path.basename(fn).rsplit('.')[0]
-print('    length filename')
-print('%10d %s' % (length, basefn))
-EOF
-			;;
-
 		# Also Tukaani Linux package .tlz
 		# requires: lzma, tar
 		*.tlz | *.tar.lzma)	archive_label LZMA compressed tar archive
@@ -607,6 +593,7 @@ EOF
 		# Also Scratch Project .sb2
 		# Also Scratch Project .sb3
 		# Also OpenRaster image .ora
+		# Also Tellico database .tc
 		# Also Wondershare Filmora Project .wfp
 		# Also Web Archive Collection Zipped .wacz
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
@@ -617,7 +604,7 @@ EOF
 		*.otp | *.otg | *.ots | *.odb | *.odc | \
 		*.docx | *.epub | *.apk | *.apkm | *.war | *.xps | *.resource | \
 		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf | \
-		*.sb2 | *.sb3 | *.ora | *.wfp | *.wacz)
+		*.sb2 | *.sb3 | *.ora | *.tc | *.wfp | *.wacz)
 			archive_label ZIP archive
 			unzip -v -- "$f"
 			;;
