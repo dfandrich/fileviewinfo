@@ -36,6 +36,7 @@
 'testfiles/type1.ogg' 'OGG artist / OGG title'
 'testfiles/type1.pam' 'PAM comment'
 'testfiles/type1.pas' 'Pascal typical comment Not Copyright (C) 2021. Typical boilerplate goes here.'
+'testfiles/type1.patch' 'Patch subject'
 'testfiles/type1.pbm' 'PBM comment'
 'testfiles/type1.pdf' 'PDF Title'
 'testfiles/type1.pgm' 'PGM comment'

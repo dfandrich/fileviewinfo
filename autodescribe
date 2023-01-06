@@ -190,6 +190,7 @@ comment_psfont () {
 }
 
 # File type: subject (news article or mail file)
+# File type: .patch git format-patch
 comment_subject () {
 	COMMENT=$(sed -n 's/^Subject: *//ip' < "$f" | head -1)
 	if [ -z "$COMMENT" ] ; then
@@ -800,7 +801,7 @@ for f in "$@" ; do
 				;;
 			*.1 | *.2 | *.3 | *.4 | *.5 | *.6 | *.7 | *.8 | *.9)	TYPE=man
 				;;
-			*.mbox | *.mbx | *.mbo | *.nws | *.msg)
+			*.mbox | *.mbx | *.mbo | *.nws | *.msg | *.patch | *.diff)
 				TYPE=subject
 				;;
 			*.md)	TYPE=md

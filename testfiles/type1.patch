@@ -1,0 +1,15 @@
+From 0000000000000000000000000000000000000001 Mon Sep 17 00:00:00 2001
+From: Joe Luser <luser@example.com>
+Date: Thu, 5 Jan 2023 21:15:02 -0500
+Subject: Patch subject
+
+---
+ tmpfile | 1 +
+ 1 file changed, 1 insertion(+), 0 deletion(-)
+
+diff --git a/tmpfile b/tmpfile
+index 0000002..0000003 100644
+--- /dev/null
++++ b/tmpfile
+@@ -0,0 +1,1 @@
++This space is intentionally blank

@@ -58,6 +58,7 @@ check-fv:
 	rm -f test-time.tmp
 	diff test-fv-expected test-fv.log
 
+# Only check the file types that have significant processing in fvi.
 check-fvi:
 	./fvi testfiles/*.{3mf,amf,stl} >test-fvi.log
 	diff test-fvi-expected test-fvi.log
