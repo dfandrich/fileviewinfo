@@ -212,16 +212,15 @@ for f in "$@" ; do
 			dtc -I dtb -O dts -o - -- "$f"
 			;;
 
-		# Also 
 		# requires: ebook-tools
 		*.epub)	filetype_label EPub Document
 			einfo "$f"
 			;;
 
 
-		# (Untested)
 		# requires: pev
-		*.exe)	filetype_label Windows executable
+		# Also Windows PE Dynamic Link Library .dll
+		*.exe | *.dll)	filetype_label Windows PE executable
 			pescan -v "$f"
 			;;
 

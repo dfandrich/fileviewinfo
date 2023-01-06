@@ -115,6 +115,25 @@ comment_docx () {
 	COMMENT=$(unzip -cq -- "$f" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dc:title)
 }
 
+# File type: exe (Microsoft Windows PE executable)
+# File type: dll (Microsoft Windows PE dynamic link library)
+# requires: python >= 3, pefile (see https://github.com/erocarrera/pefile)
+comment_exe () {
+	COMMENT=$(python3 -c '
+import pefile,sys
+try:
+	pe=pefile.PE(data=sys.stdin.buffer.read())
+	if hasattr(pe, "FileInfo"):
+		print("".join([v.decode("UTF-8")
+			for fi in pe.FileInfo
+				for sfi in fi if hasattr(sfi, "StringTable")
+					for item in sfi.StringTable
+						for k,v in item.entries.items() if k == b"FileDescription" ]))
+except pefile.PEFormatError:
+	pass  # probably an old-style file
+' < "$f")
+}
+
 # File type: ebook (E-book formats, epub, azw, fbz, etc.)
 # These are all handled by ebook-meta (part of calibre) so there doesn't seem to be a
 # good reason to separate them into individual handlers.
@@ -745,6 +764,9 @@ for f in "$@" ; do
 			*.desktop)	TYPE=desktop
 				;;
 			*.docx)	TYPE=docx
+				;;
+			*.exe | *.dll)
+				TYPE=exe
 				;;
 			*.flac)	TYPE=flac
 				;;
