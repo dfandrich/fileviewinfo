@@ -7,6 +7,7 @@
   xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd http://www.TopoFusion.com http://www.TopoFusion.com/topofusion.xsd">
  <url>http://www.topofusion.com</url>
  <urlname>TopoFusion Home Page</urlname>
+ <time>2003-11-29T10:11:22Z</time>
 <bounds maxlat="38.745303" minlon="-109.671149" minlat="38.517165" maxlon="-109.496377"/>
 <trk>
  <url>http://www.topofusion.com</url>

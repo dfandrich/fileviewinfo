@@ -23,6 +23,11 @@ type1.pdf:
 type1.epub:
 	echo This file was manually created in Libreoffice
 
+type1.gcode:
+	@echo This file was created in PrusaSlicer 2.5.0 by slicing a 1×1×0.2mm
+	@echo box without skirt then manually deleting the embedded thumbnails and
+	@echo prusa_config metadata
+
 type1.arj: foo
 	echo ARJ archive comment >cmt
 	arj a type1.arj foo
@@ -147,6 +152,16 @@ type1.rz: foo
 type1.7z: foo
 	7za a "$@" foo
 
+# Deterministic mode, where owners, etc. are zeroed
+type1.a: foo
+	ar rD "$@" foo
+
+# Preserve metadata, although use fixed uid/gid
+type2.a: foo
+	chmod 644 foo
+	chown 1000:1000 foo
+	ar r "$@" foo
+
 type1.amf:
 	openscad --export-format amf -o -  <(echo 'linear_extrude(1) polygon([[0,0], [0,1], [1,0], [0,0]]);') | xmlstarlet edit -a /amf/metadata -t elem -n 'metadata' -v "AMF name"  -a '/amf/metadata[not(@type)]' -t attr -n type -v name > "$@"
 
@@ -192,6 +207,11 @@ type2.iso: foo
 	cp foo directory.tmp
 	mkisofs -o "$@" -v -no-pad -appid application_id -publisher publisher_id -preparer preparer_id -V '' -volset volset_id directory.tmp
 	rm -r directory.tmp
+
+type1.pcapng:
+	randpkt -b 32 -c 2 -t arp "$@".tmp
+	editcap -a '1:Packet comment' --capture-comment 'PCAP capture comment' -t 1639872000 "$@".tmp "$@"
+	-rm "$@".tmp
 
 # This file is pretty huge compared to others so isn't included in the repository
 type1.AppImage:

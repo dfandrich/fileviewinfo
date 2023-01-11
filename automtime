@@ -1,0 +1,1032 @@
+#!/bin/sh
+# automtime - automatically get modification time from internal file metadata
+# Placed into the public domain by Dan Fandrich <dan@coneharvesters.com>
+# See the file COPYING for details of how CC0 applies to this file.
+
+###########################
+
+# Print a shell-quoted version of the first argument
+shquote () {
+	echo "$1" | awk -v q="'" '{gsub(q, q "\\" q q, $0); printf "%s", q $0 q;}'
+}
+
+# Use the time program to normalize an input time without time zone into the
+# canonical form.  This implies that the time is relative to local time and is
+# not absolute. The input form is anything date can handle and the output is
+# like:
+#   2012-01-23 10:09:08.901234
+# Note that not all date programs support all dates that might be passed in.
+# Busybox date, for example, only supports a small number of numeric-only date
+# formats while GNU date supports them all. OS X & BSD date forces the caller
+# to specify the date format being given, and uses different arguments.
+# Solaris date doesn't parse arbitrary dates at all.
+# The Python fallback code is tried if the regular date returns an error, and,
+# while it isn't as powerful as GNU date, it does a decent job (but only if
+# the external dateutil.parser and pytz modules are available).
+normalize_time () {
+	test -z "$1" -o "$1" = "@" -o "$1" = "@0" && return
+	date --date="$1" '+%+4Y-%m-%d %H:%M:%S' 2>/dev/null || {
+		python3 -c '
+import datetime, dateutil.parser, sys
+if sys.argv[1][0] == "@":
+	d = datetime.datetime.fromtimestamp(int(sys.argv[1][1:]))
+else:
+	d = dateutil.parser.parse(sys.argv[1])
+print(d.astimezone().strftime("%Y-%m-%d %H:%M:%S"))
+	' "$1"
+	}
+}
+
+# Use the time program to normalize an input time with time zone (or at least
+# an absolute time) into the canonical form.  The input form is anything date
+# can handle and the output is like:
+#   2012-01-23 10:09:08.901234 +0800
+# The output can't preserve the original time zone because "date" always
+# returns the time offset for the current time zone.  The Python fallback code
+# actually does the right thing here.
+normalize_time_tz () {
+	test -z "$1" -o "$1" = "@" -o "$1" = "@0" && return
+	date --date="$1" '+%+4Y-%m-%d %H:%M:%S %z' || {
+		python3 -c '
+import datetime, dateutil.parser, pytz, sys
+if sys.argv[1][0] == "@":
+	localtz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
+	d = datetime.datetime.fromtimestamp(int(sys.argv[1][1:]), tz=localtz)
+else:
+	d = dateutil.parser.parse(sys.argv[1], tzinfos={
+		x:pytz.timezone(x) for x in pytz.all_timezones})
+print(d.strftime("%Y-%m-%d %H:%M:%S %z").rstrip())
+	' "$1"
+	}
+}
+
+# Use the time program to normalize a ISO 8601 input time into the
+# canonical form, preserving time zones if possible.
+# The input form is like:
+#   2012-01-23
+#   2009-10-11T12:13:14
+#   2012-01-23T13:14:15Z
+#   2012-01-23T13:14:15-0100
+#   2012-01-23T13:14:15+08:00
+normalize_iso_time () {
+	# Delete any CR characters so end-of-line matches work
+	echo "$1" | tr -d '\015' | sed -Ee 's/([0-9])T([0-2])/\1 \2/' -e 's/Z$/+0000/' -e 's/([-+][0-9][0-9])(:)?([0-9][0-9])$/ \1\3/'
+}
+
+###########################
+#
+# mtime extraction functions
+#
+# Each function takes an argument of the file name and results in the TIME
+# variable holding a time in the format:
+#   2012-01-23 10:09:08.901234 -0700
+# if the time contains a known time zone, or:
+#   2012-01-23 10:09:08.901234
+# if it does not (local time). The decimal portion of the seconds is optional.
+#
+# Sometimes the time is shown in the local time zone instead of in the original
+# time zone, but the actual point in time will be accurate (e.g. a time in UTC
+# is sometimes shown as the equivalent time in the local time zone).
+
+# File type: 7zip (7zip archive)
+# requires: p7zip
+mtime_7zip () {
+	# The mtime is considered to be the latest file time in the archive.
+	RAWTIME="$(7za l -slt -- "$1" | sed -E -n -e 's/^Modified = //p' | sort -n | tail -1)"
+	# $RAWTIME is like 2021-10-14 12:48:03
+	TIME="$RAWTIME"
+}
+
+# File type: abw (AbiWord document)
+# requires: xmlstarlet
+mtime_abw () {
+	RAWTIME=$(xmlstarlet sel -N a=http://www.abisource.com/awml.dtd -t -v "/a:abiword/a:metadata/a:m[@key='dc.date']" < "$1" 2>/dev/null)
+	# $RAWTIME is like Mon Apr  4 17:31:07 2022
+	TIME=$(normalize_time "$RAWTIME")
+}
+
+# File type: dat (Allegro4 not packed datafile)
+# See https://liballeg.org/
+# requires: allegro4
+mtime_allegro4 () {
+	# There is also a packed Allegro4 datafile type with the same
+	# extension, but there seems to be no metadata within the file to
+	# display without uncompressing the file.
+	RAWTIME="$(dat -l -v -- "$1" | sed -E -n -e "s/'//g" -e 's/  . DATE //p')"
+	# $RAWTIME is like 10-13-2021, 7:53
+	# The second sed here is to zero-prefix the time, when necessary
+	TIME="$(echo "$RAWTIME" | sed -E -e 's/^([0-9][0-9])-([0-9][0-9])-([0-9][0-9][0-9][0-9]), *([0-9]+:[0-9][0-9]).*$/\3-\1-\2 \4/' | sed -E -e 's/^(.{10}) ([0-9]):/\1 0\2:/')"
+}
+
+# File type: amf (Additive Manufacturing File)
+# requires: file, unzip (Info-ZIP version), findutils
+mtime_amf () {
+	# Not all amf files are zipped but those that aren't  have no other mtime
+	# and must return nothing
+	if file - < "$1" | grep " Zip " >/dev/null; then
+		mtime_zip "$1"
+	fi
+}
+
+# File type: ar (ar archive)
+# requires binutils
+mtime_ar () {
+	# The mtime is considered to be the latest file time in the archive.
+	# The date format can not, unfortunately, be easily sorted as-is, so it
+	# is converted to epoch time, sorted and only the most recent is used.
+	# The real raw time from ar is like: Jan 12 11:56 2023
+	RAWTIME=$(ar tv -- "$1" | awk '{print $4 " " $5 " " $6 " " $7}' | uniq | tr '\n' '\0' | xargs -0 -n1 date +'%s' -d | sort -n | tail -1)
+	# $RAWTIME is like 1234567890
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME=$(normalize_time_tz "@$RAWTIME")
+}
+
+# File type: arj (arj archive)
+# requires: unarj
+mtime_arj () {
+	RAWTIME="$(unarj l "$1" | sed -E -n -e 's/^Archive created:.*modified: //p')"
+	# $RAWTIME is like 2002-03-04 05:06:07
+	# Note that unarj ver. 2.65 has a bug with date handling and dates around
+	# 2022 are wrong by almost a decade.
+	TIME="$RAWTIME"
+}
+
+# File type: cab (Microsoft Cabinet archive)
+# requires: cabextract
+mtime_cab () {
+	# The mtime is considered to be the latest file time in the archive.
+	# The date format can not, unfortunately, be easily sorted as-is, so it
+	# is converted, sorted and only the most recent is used.
+	# The real raw time from cabextract is like: 18.02.2021 17:10:92
+	RAWTIME="$(cabextract -l -- "$1" | sed -e '1,/^-----------/d' -e '/^$/,$d' | awk '{print $3 " " $4}' | sed -E -e 's/^([0-3][0-9])\.([01][0-9])\.([12][0-9][0-9][0-9])/\3-\2-\1/' | sort -n | tail -1)"
+	# $RAWTIME is like 2002-03-04 05:06:07
+	TIME="$RAWTIME"
+}
+
+# File type: docbook (DocBook document)
+# requires: xmlstarlet
+mtime_docbook () {
+	# Docbook document
+	RAWTIME=$(xmlstarlet sel -t -v /book/bookinfo/date < "$1" 2>/dev/null)
+	if [ -z "$RAWTIME" ] ; then
+		# Docbook man page
+		RAWTIME=$(xmlstarlet sel -t -v /refentry/refentryinfo/date < "$1" 2>/dev/null)
+	fi
+	# $RAWTIME is usually human generated so is fairly free form
+	TIME="$(normalize_time "$RAWTIME")"
+}
+
+# File type: docx (Microsoft Office Open XML)
+# requires: unzip, xmlstarlet
+mtime_docx () {
+	RAWTIME=$(unzip -cq -- "$1" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dcterms:modified)
+	# $RAWTIME is like 2012-01-23T13:14:15Z
+	# Some programs incorrectly designate a time as UTC instead of local time,
+	# but there's nothing we can do to know that (in the general case).
+	TIME="$(normalize_iso_time "$RAWTIME")"
+}
+
+# File type: exe (Microsoft Windows PE executable)
+# File type: dll (Microsoft Windows PE dynamic link library)
+# requires: python >= 3, pefile (see https://github.com/erocarrera/pefile)
+mtime_exe () {
+	RAWTIME=$(python3 -c '
+import pefile,sys
+try:
+	pe=pefile.PE(data=sys.stdin.buffer.read())
+	if hasattr(pe, "FILE_HEADER") and hasattr(pe.FILE_HEADER, "TimeDateStamp"):
+		print(pe.FILE_HEADER.TimeDateStamp)
+except pefile.PEFormatError:
+	pass  # probably an old-style file
+' < "$1")
+	# The time is stored absolute
+	TIME=$(normalize_time_tz "@$RAWTIME")
+}
+
+# File type: email (E-mail or similar message)
+mtime_email () {
+	RAWTIME=$(sed -n -e '1,/^$/s/^[Dd][Aa][Tt][Ee]: *//p' < "$1")
+	# $RAWTIME is like Tue, 12 Oct 2021 12:34:56 +0000 or another RFC-2822
+	# style date.
+	# The time is stored absolute
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
+# File type: fodf (Open Document Format flat file)
+# requires: xmlstarlet
+mtime_fodf () {
+	RAWTIME=$(xmlstarlet sel -t -v /office:document/office:meta/dc:date < "$1" 2>/dev/null)
+	# $RAWTIME is like 2009-10-11T12:13:14
+	TIME="$(normalize_iso_time "$RAWTIME")"
+}
+
+# File type: gcode (G-code machine control file)
+# gcode doesn't include a code to embed a date, but some creators include
+# a date in a comment. Many seem to use an ambiguous locale-dependent date
+# format that might be different depending on where the file was written, so
+# those are not parsed here to avoid errors.
+mtime_gcode () {
+	# PrusaSlicer & Slic3r, PyCAM
+	RAWTIME=$(sed -n -E -e '1s/^; generated.* on ([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) +(at)?( [0-9][0-9]:[0-9][0-9]:[0-9][0-9])( +[A-Z0-9]+)?$/\1\3\4/p' -e 's/;PYCAM-META-DATA: Timestamp: //p' < "$1")
+	# $RAWTIME is like 2023-01-15 21:57:53 UTC or 2021-09-11 13:29:21 or 2012-07-06 03:55:01.829000
+	# The time is stored absolute in only some formats.  Don't show the time
+	# zone here since it might actually not be known and that could be
+	# confusing.
+	TIME="$(normalize_time "$RAWTIME")"
+}
+
+# File type: gnumeric (Gnumeric spreadsheet)
+# requires: xmlstarlet
+mtime_gnumeric () {
+	RAWTIME=$(xmlstarlet sel -N gnm=http://www.gnumeric.org/v10.dtd -N office=urn:oasis:names:tc:opendocument:xmlns:office:1.0 -N dc=http://purl.org/dc/elements/1.1/ -t -v '/gnm:Workbook/office:document-meta/office:meta/dc:date' < "$1")
+	# $RAWTIME is like 2022-04-04T17:07:51Z
+	TIME="$(normalize_iso_time "$RAWTIME")"
+}
+
+# File type: gzip (gzip-compressed file)
+# requires: python >= 3
+mtime_gz () {
+	RAWTIME=$(python3 - "$1" <<EOF
+import struct, sys
+with open(sys.argv[1], 'rb') as f:
+    magic, _, epoch = struct.unpack('<HHI', f.read(8))
+if magic!=0x8b1f: print('Not a gzip archive', file=sys.stderr); sys.exit(1);
+if epoch != 0:
+	print(epoch)
+EOF
+)
+	# $RAWTIME is like 1234567890 or empty if the time was 0
+	TIME=$(normalize_time_tz "@$RAWTIME")
+}
+
+# File type: ics (iCalendar file)
+mtime_ics () {
+	# The most recent date stamp or last-modified entry in the file is used
+	RAWTIME=$(sed -E -n -e '/^(LAST-MODIFIED|DTSTAMP):/s/^[^:]+: *//p' < "$1" | sort -n | tail -1)
+	# $RAWTIME is like 20180213T070722Z
+	# Make it look like ISO-8601, then convert
+	RAWTIME=$(echo "$RAWTIME" | sed -E -e 's/([12][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9])T([0-2][0-9])([0-9][0-9])([0-9][0-9])/\1-\2-\3T\4:\5:\6/')
+	TIME=$(normalize_iso_time "$RAWTIME")
+}
+
+# File type: iso (ISO-9660 CD-ROM image)
+# requires: python >= 3
+mtime_iso () {
+	# Obtaining the "Volume Creation Date and Time" the hard way, since isoinfo
+	# doesn't seem to extract it for us.
+	# The raw value is like: 2022021110514800o where o is a signed 8-bit offset
+	# from GMT in 15 minute increments.
+	TIME=$(python3 - "$1" <<EOF
+import os, struct, sys
+with open(sys.argv[1], 'rb') as f:
+	f.seek(33581)
+	y,mo,d,h,m,s,s100, offset15 = struct.unpack('4s2s2s2s2s2s2sb', f.read(17))
+if not y.isdigit() or not mo.isdigit() or not d.isdigit() or not h.isdigit() or not m.isdigit() or not s.isdigit() or not s100.isdigit():
+	os.exit(1)
+offset_h = offset15/4
+offset_m = int(60*(offset_h - int(offset_h)))
+offset_hm = 100*int(offset_h) + offset_m
+print(f'{y.decode()}-{mo.decode()}-{d.decode()} {h.decode()}:{m.decode()}:{s.decode()}.{s100.decode()} {offset_hm:+05d}')
+EOF
+	)
+}
+
+# File type: jpeg (JPEG JFIF image)
+# requires: exif
+# TODO: also look at XMP and IPTC metadata
+mtime_jpeg () {
+	# Look through several possible tags in order of most likely to hold the
+	# most recent modification time.
+	RAWTIME=$(exif --ifd=0 --tag=DateTime -m -- "$1" 2>/dev/null)
+		if [ -n "$RAWTIME" ] ; then
+			RAWSUBSEC=$(exif --ifd=EXIF --tag=SubsecTime -m -- "$1" 2>/dev/null)
+			if [ -n "$RAWSUBSEC" ] ; then
+				RAWTIME="${RAWTIME}.$RAWSUBSEC"
+			fi
+			# TimeZoneOffset is part of TIFF/EP, not EXIF, but you still find
+			# it occasionally in EXIF images
+			TZOFFSET=$(exif --ifd=0 --tag=TimeZoneOffset -m -- "$1" 2>/dev/null | sed -E -n -e 's/^[^,]+, *([0-9]+).*$/\1/p')
+			if [ -n "$TZOFFSET" ] ; then
+				RAWTIME="$(printf '%s %+03d00' "$RAWTIME" "$TZOFFSET")"
+			fi
+		fi
+	if [ -z "$RAWTIME" ] ; then
+		RAWTIME=$(exif --ifd=EXIF --tag=DateTimeDigitized -m -- "$1" 2>/dev/null)
+		if [ -n "$RAWTIME" ] ; then
+			RAWSUBSEC=$(exif --ifd=EXIF --tag=SubSecTimeDigitized -m -- "$1" 2>/dev/null)
+			if [ -n "$RAWSUBSEC" ] ; then
+				RAWTIME="${RAWTIME}.$RAWSUBSEC"
+			fi
+		fi
+	fi
+	if [ -z "$RAWTIME" ] ; then
+		RAWTIME=$(exif --ifd=EXIF --tag=DateTimeOriginal -m -- "$1" 2>/dev/null)
+		if [ -n "$RAWTIME" ] ; then
+			RAWSUBSEC=$(exif --ifd=EXIF --tag=SubSecTimeOriginal -m -- "$1" 2>/dev/null)
+			if [ -n "$RAWSUBSEC" ] ; then
+				RAWTIME="${RAWTIME}.$RAWSUBSEC"
+			fi
+			# TimeZoneOffset is part of TIFF/EP, not EXIF, but you still find
+			# it occasionally in EXIF images
+			TZOFFSET=$(exif --ifd=0 --tag=TimeZoneOffset -m -- "$1" 2>/dev/null | sed -E -n -e 's/^([0-9]+).*$/\1/p')
+			if [ -n "$TZOFFSET" ] ; then
+				RAWTIME="$(printf '%s %+03d00' "$RAWTIME" "$TZOFFSET")"
+			fi
+		fi
+	fi
+	if [ -z "$RAWTIME" ] ; then
+		RAWTIME=$(exif --ifd=GPS --tag=GPSDateStamp -m -- "$1" 2>/dev/null)
+		if [ -n "$RAWTIME" ] ; then
+			RAWDATE="$(echo "$RAWTIME" | sed 's/:/-/g')"
+			RAWTIME=$(exif --ifd=GPS --tag=GPSTimeStamp -m -- "$1" 2>/dev/null)
+			if [ -n "$RAWTIME" ] ; then
+				RAWTIME="$RAWDATE $RAWTIME +0000"
+			else
+				RAWTIME="$RAWDATE +0000"
+			fi
+		fi
+	fi
+	# $RAWTIME is like 2021:10:14 13:02:32 or 2021:10:14 13:02:32.45 +0000
+	TIME=$(echo "$RAWTIME" | sed -E -e 's/^([0-9][0-9][0-9][0-9]):([0-9][0-9]):/\1-\2-/')
+}
+
+# File type: kra (Krita image)
+# requires: unzip, xmlstarlet
+mtime_kra () {
+	RAWTIME=$(unzip -cq -- "$1" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:date 2>/dev/null )
+	# $RAWTIME is like 2022-01-01T13:57:46
+	TIME="$(normalize_iso_time "$RAWTIME")"
+}
+
+# File type: lzh (lzh archive)
+# requires: lha
+mtime_lzh () {
+	# The mtime is considered to be the latest file time in the archive.
+	# File name lines are interleaved with metadata lines, so the complicated
+	# sed expression is needed to find the metadata lines and weed out the file
+	# names.
+	RAWTIME="$(lha v -v -- "$1" | sed -E -n -e 's/^[-rwxs]{10} *[0-9/]+ *[0-9]+ *[0-9]+ *[0-9.%]* *..... *[0-9a-f]{4} ([12][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-2][0-9]:[0-9][0-9]:[0-9][0-9]).*$/\1/p' | sort -n | tail -1)"
+	# $RAWTIME is like 2021-10-14 23:09:47
+	TIME="$RAWTIME"
+}
+
+# File type: lzo (lzo archive)
+# requires lzop
+mtime_lzo () {
+	# The mtime is considered to be the latest file time in the archive.
+	RAWTIME=$(lzop -lvv -- "$1" | awk '{print $2 " " $3}' | sort -n | tail -1)
+	# $RAWTIME is like 2021-10-11 20:50:26
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME="$RAWTIME"
+}
+
+# File type: appdata (Appdata metainfo file)
+# requires: xmlstarlet
+mtime_appdata () {
+	RAWTIME=$(xmlstarlet sel -t -v '/component/releases/release/@date' < "$1" | sort -n | tail -1)
+	# $RAWTIME is like 2021-10-11
+	TIME="$RAWTIME"
+}
+
+# File type: mov (QuickTime video)
+# requires: exiftool
+mtime_mov () {
+	# There are many possible fields that could be used as mtime. If a "modify"
+	# one exists, use that in preference to others by sorting. The odd sed
+	# replacement with AA and sort keys ensures that.
+	RAWTIME=$(LC_ALL=C exiftool -- "$1" | grep -E '^(Date/Time Original)|(Creation Date)|(Track (Create|Modify) Date)|(Media (Create|Modify) Date)' | sed 's@/@AA@' | sort -k1.6 | tail -1 | sed 's/^.*: //' | sed -E 's/((20|19|00)[0-9][0-9]):([01][0-9]):/\1-\2-/')
+	# $RAWTIME is like 2022:03:14 23:52:52
+	TIME="$(echo $RAWTIME | sed -E 's/((20)|(19)[0-9][0-9]):([01][0-9]):/\1-\2-/')"
+	if [ "$TIME" = "0000-00-00 00:00:00" ]; then
+		# Don't return an empty time
+		TIME=""
+	fi
+}
+
+# File type: odf (Open Document Format)
+# requires: unzip, xmlstarlet
+mtime_odf () {
+	RAWTIME=$(unzip -cq -- "$1" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:date 2>/dev/null)
+	# $RAWTIME is like 2009-10-11T12:13:14
+	TIME="$(normalize_iso_time "$RAWTIME")"
+	if [ -n "$RAWTIME" -a "$TIME" = "$RAWTIME" ]; then
+		# Time was not in ISO format. Old Star Office files may do this, so
+		# try a fallback normalization just in case.
+		TIME=$(normalize_time "$RAWTIME")
+	fi
+}
+
+# File type: pcap (Pcap network capture file)
+# requires: wireshark-cli || wireshark-tools
+# Wireshark handles a lot more packet capture file formats that are all handled
+# here.
+mtime_pcap () {
+	RAWTIME=$(capinfos -- "$1" | sed -n -e 's/^Last packet time: *//p')
+	if [ -z "$RAWTIME" ]; then
+		# In case capinfos isn't available, use the slower tshark instead
+		RAWTIME=$(tshark -t ad -r "$1" | awk '{print $2 " " $3}' | uniq | sort -n | tail -1)
+	fi
+	# $RAWTIME is like 2022-07-05 13:41:26.333333
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME="$RAWTIME"
+}
+
+# File type: pdf (Portable Document Format)
+# requires: poppler
+mtime_pdf () {
+	RAWTIME=$(pdfinfo -- "$1" | sed -E -n -e 's/^CreationDate:[[:space:]]*//p' | head -1)
+	# $RAWTIME is like Tue Jan 24 21:22:23 2012 PST
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
+# File type: png (PNG image)
+# requires: pngtools
+mtime_png () {
+	RAWTIME=$(pnginfo "$1" | sed -n -e 's/^ *Creation Time[^:]*: *//p')
+	# $RAWTIME is like Mon, 11 Oct 2021 12:34:56 +0000
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
+# File type: ps (PostScript)
+mtime_ps () {
+	RAWTIME=$(sed -n -e 's/^%%CreationDate: *//p' < "$1" | head -1)
+	# $RAWTIME is like Tue Dec 27 07:23:25 2022
+	TIME=$(normalize_time "$RAWTIME")
+}
+
+# File type: rar (rar archive)
+# requires: unrar
+mtime_rar () {
+	# The mtime is considered to be the latest file time in the archive.
+	# The time is displayed like 08:45:32,000000000 but it's not clear if the
+	# portion after the comma is sub-second time or something completely
+	# different, so it's just ignored
+	RAWTIME="$(unrar lta -idc -- "$1" | sed -E -n -e 's/^ *mtime: *//' -e 's/,.*$//p' | sort -n | tail -1)"
+	# $RAWTIME is like 2021-10-13 08:45:32
+	TIME="$RAWTIME"
+}
+
+# File type: rpm (rpm package)
+# requires: rpm
+mtime_rpm () {
+	RAWTIME=$(rpm -q --queryformat '%{BUILDTIME}' -p -- "$1")
+	# $RAWTIME is like 1234567890
+	TIME=$(normalize_time_tz "@$RAWTIME")
+}
+
+# File type: rtf (Rich Text Format file)
+mtime_rtf () {
+	RAWTIME="$(sed -E -n -e 's/^.*\{\\revtim\\yr([0-9]+)\\mo([0-9]+)\\dy([0-9]+)\\hr([0-9]+)\\min([0-9]+)\\sec([0-9]+)[^}]*\}.*/\1-\2-\3 \4:\5:\6/p' < "$1")"
+	# $RAWTIME is like 2022-3-17 0:18:5
+	if [ -z "$RAWTIME" ]; then
+		# All files I've actually seen are missing the seconds
+		RAWTIME="$(sed -E -n -e 's/^.*\{\\revtim\\yr([0-9]+)\\mo([0-9]+)\\dy([0-9]+)\\hr([0-9]+)\\min([0-9]+)[^}]*\}.*/\1-\2-\3 \4:\5/p' < "$1")"
+	fi
+	# $RAWTIME is like 2022-3-17 0:18
+	if [ -z "$RAWTIME" ]; then
+		# Some files don't have the time, only the date
+		RAWTIME="$(sed -E -n -e 's/^.*\{\\revtim\\yr([0-9]+)\\mo([0-9]+)\\dy([0-9]+)[^}]*\}.*/\1-\2-\3/p' < "$1")"
+		# $RAWTIME is like 2022-3-17
+	fi
+	# Add leading zeros to month, day, hour, minute, seconds and append :00
+	# seconds if seconds aren't given
+	TIME=$(echo "$RAWTIME" | sed -E -e 's/([0-9]+-)([0-9]-)/\10\2/' -e 's/([0-9]+-[0-9][0-9]-)([0-9])\>/\10\2/' -e 's/([^0-9])([0-9]:)/\10\2/' -e 's/([^0-9][0-9][0-9]:)([0-9]\>)/\10\2/' -e 's/:([0-9])$/:0\1/' -e 's/( [0-9][0-9]:[0-9][0-9])$/\1:00/' )
+}
+
+# File type: shar (shell archive)
+mtime_shar () {
+	RAWTIME="$(sed -E -n -e '1,/^$/s/^# Made on ([012][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-9][0-9](:[0-9][0-9])? ?[^ ]*).*/\1/p' < "$1")"
+	# $RAWTIME is like 2021-10-13 01:02 PDT
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
+# File type: sla (Scribus document)
+# requires: xmlstarlet
+mtime_sla () {
+	RAWTIME=$(xmlstarlet sel -t -v '/SCRIBUSUTF8NEW/DOCUMENT/@DOCDATE' < "$1")
+	# $RAWTIME is like 23 October 2010
+	TIME=$(normalize_time "$RAWTIME")
+}
+
+# File type: squashfs (Squashfs filesystem image)
+# requires: squashfs-tools
+mtime_squashfs () {
+	RAWTIME=$(unsquashfs -s "$1" | sed -n -e 's/^Creation or last append time //p')
+	# $RAWTIME is like Sun May 23 06:33:44 2021
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
+# File type: svg (Scalable Vector Graphics image)
+# requires: xmlstarlet
+mtime_svg () {
+	RAWTIME=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='date']" < "$1")
+	# $RAWTIME can be just about anything, but DublinCore recommends ISO 8601-1.
+	# Anything else is too ambiguous, so ignore them.
+	if echo "$RAWTIME" | grep '^[012][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]' >/dev/null; then
+		# $RAWTIME is like 2012-01-23 or 2012-01-23T13:14:15Z or 2012-01-23T13:14:15-0100
+		TIME="$(normalize_iso_time "$RAWTIME")"
+	else
+		# Not ISO 8601, so ignore it since it's too dangerous guessing what it is
+		TIME=''
+	fi
+}
+
+# File type: tar (Tape Archive)
+# requires: tar
+mtime_tar () {
+	# The mtime is considered to be the latest file time in the archive.
+	# GNU tar doesn't include seconds in the time
+	RAWTIME=$(tar tvf - <"$1" | awk '{print $4 " " $5}' | sort -n | tail -1)
+	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME="$RAWTIME"
+}
+
+# File type: tbz (Bzip2-compressed Tape Archive)
+# requires: bzip2, tar
+mtime_tbz () {
+	# The mtime is considered to be the latest file time in the archive.
+	# GNU tar doesn't include seconds in the time
+	RAWTIME=$(bzip2 -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -n | tail -1)
+	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME="$RAWTIME"
+}
+
+# File type: tgz (Gzip-compressed Tape Archive)
+# requires: gzip, tar
+mtime_tgz () {
+	# The mtime is considered to be the latest file time in the archive.
+	# GNU tar doesn't include seconds in the time
+	RAWTIME=$(gzip -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -n | tail -1)
+	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME="$RAWTIME"
+}
+
+# File type: tlz (Lzma-compressed Tape Archive)
+# requires: lzma, tar
+mtime_tlz () {
+	# The mtime is considered to be the latest file time in the archive.
+	# GNU tar doesn't include seconds in the time
+	RAWTIME=$(lzma -dc -- "$1" | tar tvf - | awk '{print $4 " " $5}' | sort -n | tail -1)
+	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME="$RAWTIME"
+}
+
+# File type: tlzip (Lzip-compressed Tape Archive)
+# requires: lzip, tar
+mtime_tlzip () {
+	# The mtime is considered to be the latest file time in the archive.
+	# GNU tar doesn't include seconds in the time
+	RAWTIME=$(lzip -dc -- "$1" | tar tvf - | awk '{print $4 " " $5}' | sort -n | tail -1)
+	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME="$RAWTIME"
+}
+
+# File type: txz (Xzip-compressed Tape Archive)
+# requires: xz, tar
+mtime_txz () {
+	# The mtime is considered to be the latest file time in the archive.
+	# GNU tar doesn't include seconds in the time
+	RAWTIME=$(xz -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -n | tail -1)
+	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME="$RAWTIME"
+}
+
+# File type: tzst (Zstd-compressed Tape Archive)
+# requires: zstd, tar
+mtime_tzst () {
+	# The mtime is considered to be the latest file time in the archive.
+	# GNU tar doesn't include seconds in the time
+	RAWTIME=$(zstd -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -n | tail -1)
+	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME="$RAWTIME"
+}
+
+# File type: tiff (TIFF image)
+# requires: libtiff-progs
+mtime_tiff () {
+	RAWTIME=$(tiffinfo -- "$1" | sed -n -e 's/^ *DateTime: //p')
+	# $RAWTIME is like 2009:01:22 14:56:39
+	# TimeZoneOffset is part of TIFF/EP
+	# As of ver. 4.5.0 tiffinfo does not yet support TimeZoneOffset so this
+	# is commented out as the output format is unknown.
+	#TZOFFSET=$(tiffinfo -- "$1" | sed -n -e 's/^ *TimeZoneOffset: //p' | sed -E -n -e 's/^[^,]+, *([0-9]+).*$/\1/p')
+	#if [ -n "$TZOFFSET" ] ; then
+	#	RAWTIME="$(printf '%s %+03d00' "$RAWTIME" "$TZOFFSET")"
+	#fi
+	TIME=$(echo "$RAWTIME" | sed -E -e 's/^([0-9][0-9][0-9][0-9]):([0-9][0-9]):/\1-\2-/')
+}
+
+# File type: otf (OpenType font/TrueType font)
+# requires: freetype2-demos
+mtime_otf () {
+	RAWTIME=$(ftdump "$1" | sed -n -e 's/^ *modified: *//p' | sort -n | tail -1)
+	# $RAWTIME is like 2021-10-17
+	TIME="$RAWTIME"
+}
+
+# File type: gpx (GPX GPS track)
+# requires: xmlstarlet
+mtime_gpx () {
+	# The most recent date stamp or last-modified entry in the file is used
+	RAWTIME=$(xmlstarlet sel -N g=http://www.topografix.com/GPX/1/1 -N g0=http://www.topografix.com/GPX/1/0 -N m=http://www.topografix.com/GPX/gpx_modified/0/1 -t -v '/g:gpx/g:trk/g:trkseg/g:trkpt/g:time' -n -v '/g0:gpx/g0:trk/g0:trkseg/g0:trkpt/g0:time' -n -v '/g0:gpx/g0:time' -n -v '/g:gpx/g:metadata/g:time' -n -v '/g:gpx/g:metadata/g:extensions/m:time' -n -v '/g:gpx/g:wpt/g:time' -n -v '/g0:gpx/g0:wpt/g0:time' -n < "$1" | sort -n | tail -1)
+	# $RAWTIME is like 2022-10-01T23:43:05Z
+	TIME=$(normalize_iso_time "$RAWTIME")
+}
+
+# File type: ipk (Itsy package)
+# See http://www.handhelds.org/ (defunct as of 2021)
+# requires: binutils, file, grep, gzip, tar
+mtime_ipk () {
+	if file "$1" | egrep -iq 'Debian|ar archive' ; then
+		mtime_ar "$1"
+	else
+		mtime_tgz "$1"
+	fi
+}
+
+# File type: warcgz (Compressed Web Archive Collection file)
+mtime_warcgz () {
+	# Look for the WARC-Date: lines only within the WARC header sections
+	RAWTIME=$(gzip -dc < "$1" | tr -d '\015' | sed -E -n -e '/^WARC\/1\.[0-9]+$/,/^$/s/^WARC-Date: *//p' | sort -n | tail -1)
+	# $RAWTIME is like 2022-05-27T13:75:25.812Z
+	TIME=$(normalize_iso_time "$RAWTIME")
+}
+
+# File type: wml (Wireless Markup Language)
+# requires: xmlstarlet
+mtime_wml () {
+	RAWTIME=$(xmlstarlet sel -t -v "/wml/head/meta[@name='date']/@content" < "$1" 2>/dev/null)
+	# $RAWTIME is like Thu Jan 12 10:33:38 2023
+	TIME=$(normalize_time "$RAWTIME")
+}
+
+# File type: xcf (Gimp image)
+# requires: gimp
+mtime_xcf () {
+	# The mtime is considered to be the most recent stored event, which is
+	# generally a "save" event (which makes sense).
+	# gimp's Scheme interpreter displays some logging info before and after the
+	# desired output, so use sed to delete it to leave only XML.
+	METADATA=$(echo '((display "\nMETADATA-START\n") (let ((img (car (gimp-file-load 1 "'"$1"'" "file")))) (display (car (gimp-image-get-metadata img))) (gimp-image-delete img)) (gimp-quit TRUE))' | gimp -n -i -d -f -s -g /dev/null --stack-trace-mode=never -b -  2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
+	RAWTIME=$(echo "$METADATA" | xmlstarlet sel -t -v  "/metadata/tag[starts-with(@name, 'Xmp.xmpMM.History[') and contains(@name, '/stEvt:when')]" | sed 's/lang="x-default" *//' | sort -n | tail -1)
+	# $RAWTIME is like 2022-02-23T22:50:48-08:00
+	TIME="$(normalize_iso_time "$RAWTIME")"
+	if [ -z "$TIME" ]; then
+		# Gimp probably isn't installed; maybe exiftool is
+		mtime_xcf_exiftool "$1"
+	fi
+}
+
+# File type: xcf (Gimp image)
+# requires: exiftool, xmlstarlet
+# This version uses exiftool instead of Gimp itself.
+# This version does not support xcf compressed with gzip, bzip2, etc.
+mtime_xcf_exiftool () {
+	# The mtime is considered to be the most recent stored event, which is
+	# generally a "save" event (which makes sense).
+	RAWTIME=$(exiftool -X -XML:* -a -- "$1" | xmlstarlet sel -N rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' -N XML=http://ns.exiftool.ca/XML/XML/1.0/ -t -v "/rdf:RDF/rdf:Description/XML:MetadataTagName[starts-with(text(), 'Xmp.xmpMM.History[') and contains(text(), ']/stEvt:when')]//following::XML:MetadataTag[1]" | sort -n | tail -1)
+	# $RAWTIME is like 2022:02:23 22:50:48-08:00
+	TIME=$(echo "$RAWTIME" | sed -E -e 's/^([0-9][0-9][0-9][0-9]):([0-9][0-9]):/\1-\2-/' -e 's/([-+][0-9][0-9])(:)?([0-9][0-9])$/ \1\3/')
+}
+
+# File type: zip (zip archive)
+# requires: unzip (Info-ZIP version), findutils
+mtime_zip () {
+	# The mtime is considered to be the latest file time in the archive.
+	# The date format can not, unfortunately, be easily sorted as-is, so it
+	# is converted to epoch time, sorted and only the most recent is used.
+	# The real raw time from zipinfo is like: 2007 Dec 9 18:26:28 or:
+	# 2021 Oct 15 22:12:13 local
+	# A third raw time like: 2021 Oct 16 05:12:13 UTC is filtered out since the
+	# equivalent local time is also shown and that can be treated like all the
+	# others, which are also local time.
+	# An "empty" time of '1980 000 0 00:00:00' is also filtered out.
+	RAWTIME=$(zipinfo -v -- "$1" | sed -n -e '/^ *file last modified on.*[^U]..$/s/^[^:]*: *//p' | awk '$2 != "000" {print $2 " " $3 ", " $1 " " $4}' | uniq | tr '\n' '\0' | xargs -0 -n1 date +'%s' -d | sort -n | tail -1)
+	# $RAWTIME is like 1234567890
+	# For ZIP files with time extensions, the time is stored absolute, but is
+	# displayed in the local time zone. Don't show the time zone here since
+	# it might actually not be known and that could be confusing.
+	TIME=$(normalize_time "@$RAWTIME")
+}
+
+# File type: zpaq (ZPAQ compressed archive)
+# requires: zpaq
+mtime_zpaq () {
+	# The mtime is considered to be the latest file time in the archive.
+	RAWTIME=$(zpaq l "$1" 2>/dev/null | sed -E -n -e 's/^- ([12][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-2][0-9]:[0-9][0-9]:[0-9][0-9]).*$/\1/p' | sort -n | tail -1)
+	# $RAWTIME is like 2021-10-14 18:40:56
+	TIME="$RAWTIME"
+}
+
+###########################
+
+if [ $# -eq 0 ] ; then
+	echo 'automtime ver. 4-dev'
+	echo 'Usage: automtime [-l] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
+	echo 'Extracts modification from internal file metadata'
+	echo '  -e cmd   command to run once for each file with args: mtime file'
+	echo '             e.g. "touch -d"'
+	echo '  -l         list supported file types'
+	echo '  -q         quiet output'
+	echo '  -t type  where type is one of the names shown with -l'
+	exit 1
+fi
+
+if [ "$1" = "-l" ]; then
+	sed -n -e 's/^# File type: //p' < "$0" | sort -u
+	exit 0
+fi
+
+if [ "$1" = "-e" ] ; then
+	PROG="$2"
+	shift
+	shift
+else
+	PROG=
+fi
+
+if [ "$1" = "-q" ] ; then
+	VERBOSE=0
+	shift
+else
+	VERBOSE=1
+fi
+
+if [ "$1" = "-t" ] ; then
+	SETTYPE="$2"
+	shift
+	shift
+else
+	SETTYPE=
+fi
+
+# Loop through files, extracting one at a time
+for f in "$@" ; do
+	TIME=""
+	RAWTIME=""
+
+	if ! [ -r "$f" ] ; then
+		echo "$f": Not found 1>&2
+		continue
+	fi
+
+	if [ -n "$SETTYPE" ] ; then
+		TYPE="$SETTYPE"
+	else
+		case "$f" in
+			*.7z)
+				TYPE=7zip
+				;;
+
+			# Debian uses ar as the outer package type
+			*.a | *.deb | *.opk)
+				TYPE=ar
+				;;
+
+			*.abw | *.zabw | *.abw.gz)
+				TYPE=abw
+				;;
+
+			*.amf)
+				TYPE=amf
+				;;
+
+			*.arj)
+				TYPE=arj
+				;;
+
+			*.cab | *.onepkg)
+				TYPE=cab
+				;;
+
+			*.dat)
+				TYPE=allegro4
+				;;
+
+			# Many DocBooks just use the .xml extension which is too generic
+			*.dbk)
+				TYPE=docbook
+				;;
+
+			*.docx | *.docm | *.xlsx | *.pptx)
+				TYPE=docx
+				;;
+
+			*.exe | *.dll)
+				TYPE=exe
+				;;
+
+			*.fodt | *.fods | *.fodp | *.fodg)
+				TYPE=fodf
+				;;
+
+			*.gcode | *.gc | *.ngc | *.ncc | *.nc | *.tap)
+				TYPE=gcode
+				;;
+
+			*.gnumeric)
+				TYPE=gnumeric
+				;;
+
+			*.gpx)
+				TYPE=gpx
+				;;
+
+			*.ics)
+				TYPE=ics
+				;;
+
+			*.ipk)
+				TYPE=ipk
+				;;
+
+			*.iso)
+				TYPE=iso
+				;;
+
+			*.jpg | *.jpeg | *.jfif)
+				TYPE=jpeg
+				;;
+
+			*.kra)
+				TYPE=kra
+				;;
+
+			*.lzh)
+				TYPE=lzh
+				;;
+
+			*.lzo)
+				TYPE=lzo
+				;;
+
+			*.mbox | *.mbx | *.mbo | *.nws | *.msg | *.patch | *.diff)
+				TYPE=email
+				;;
+
+			*.appdata.xml | *.metainfo.xml)
+				TYPE=appdata
+				;;
+
+			*.mov | *.mp4)
+				TYPE=mov
+				;;
+
+			*.odt | *.otm | *.ott | *.odh | *.odc | *.otc | *.odg | *.otg | *.odi | *.oti | *.odp | *.otp | *.ods | *.ots | *.odf | \
+			*.sxw | *.sxc | *.sxi | *.sxd | *.sxm)
+			# *.otf is left off because it's much more commonly a font file
+				TYPE=odf
+				;;
+
+			*.pcap | *.pcapng | *.5vw | *.erf | *.trc0 | *.cap | *.tr1 | *.snoop | *.ncf | *.ncfx | *.bfr | \
+			*.pcap.gz | *.pcapng.gz | *.5vw.gz | *.erf.gz | *.trc0.gz | *.cap.gz | *.tr1.gz | *.snoop.gz | *.ncf.gz | *.ncfx.gz | *.bfr.gz)
+				TYPE=pcap
+				;;
+
+			*.pdf)
+				TYPE=pdf
+				;;
+
+			*.png)
+				TYPE=png
+				;;
+
+			*.ps)
+				TYPE=ps
+				;;
+
+			*.rar)
+				TYPE=rar
+				;;
+
+			*.rpm)
+				TYPE=rpm
+				;;
+
+			*.rtf)
+				TYPE=rtf
+				;;
+
+			*.shar)
+				TYPE=shar
+				;;
+
+			*.sla | *.sla.gz)
+				TYPE=sla
+				;;
+
+			*.sqsh | *.squashfs | *.snap)
+				TYPE=squashfs
+				;;
+
+			*.svg | *.svgz)
+				TYPE=svg
+				;;
+
+			*.tar)
+				TYPE=tar
+				;;
+
+			*.tbz | *.tbz2 | *.tar.bz2)
+				TYPE=tbz
+				;;
+
+			*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz)
+				TYPE=tgz
+				;;
+
+			*.tlz | *.tar.lzma)
+				TYPE=tlz
+				;;
+
+			*.tar.lz)
+				TYPE=tlzip
+				;;
+
+			*.txz | *.tar.xz)
+				TYPE=txz
+				;;
+
+			*.tar.zst)
+				TYPE=tzst
+				;;
+
+			*.tif | *.tiff)
+				TYPE=tiff
+				;;
+
+			*.ttf | *.otf)
+				TYPE=otf
+				;;
+
+			*.warc.gz)
+				TYPE=warcgz
+				;;
+
+			*.wml)
+				TYPE=wml
+				;;
+
+			*.xcf)
+				TYPE=xcf
+				;;
+
+			*.zpaq)
+				TYPE=zpaq
+				;;
+
+			# Put generic compression programs last, since they are often a
+			# container for many other package types. A better parser will
+			# override these if found above.
+			*.gz)
+				TYPE=gz
+				;;
+
+			*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
+			*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | *.odt | \
+			*.ods | *.odp | *.odg | *.odf | \
+			*.otp | *.otg | *.ots | *.odb | *.odc | \
+			*.docx | *.epub | *.apk | *.apkm | *.war | *.xps | *.resource | \
+			*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf | \
+			*.sb2 | *.sb3 | *.ora | *.tc | *.wfp | *.wacz | \
+			*.pisi | *.pup)
+				TYPE=zip
+				;;
+
+			*)
+				TYPE=""
+				;;
+		esac
+	fi
+
+	if [ -z "$TYPE" ] ; then
+		echo "$f": Not a known file type 1>&2
+	else
+		# Call the right function to find the time
+		mtime_"$TYPE" "$f"
+	fi
+
+	if [ -z "$TIME" ] ; then
+		echo "$f": No time found 1>&2
+	else
+		if [ "$VERBOSE" -eq 1 ] ; then
+			shquote "$f"
+			printf " "
+			shquote "$TIME"
+			echo ""
+		fi
+		if [ -n "$PROG" ]; then
+			eval $PROG $(shquote "$TIME") $(shquote "$f")
+		fi
+	fi
+done
+exit 0

@@ -23,6 +23,7 @@
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
         <dc:title>SVG title</dc:title>
+        <dc:date>2020-01-02T03:45:01Z</dc:date>
         <dc:identifier>SVG identifier</dc:identifier>
         <dc:creator>
           <cc:Agent>

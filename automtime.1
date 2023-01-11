@@ -1,0 +1,248 @@
+.\" -*- nroff -*-
+.TH AUTOMTIME 1 "2023-01-11" "automtime version 4-dev"
+.SH NAME
+automtime \- automatically extract modification times from files
+.SH SYNOPSIS
+.B automtime
+[
+.B \-l
+]
+[
+.B \-e
+program ]
+[
+.B \-q
+]
+[
+.B \-t
+type ]
+file1
+[
+.I file2 ...
+]
+.SH DESCRIPTION
+.B automtime
+attempts to extracts metadata about the last modification time of a file from
+the internal contents of the file data. Many file formats contain provision for
+storing metadata such as the last time a file was saved within the contents of
+the file's data. This is entirely separate from the modification time stored on
+the filesystem and automatically updated by the OS when a file is updated.
+.LP
+The file names and times are output on stdout by default, using
+shell-compatible quoting for each. Using the \-e option, they can also be used
+as arguments to an optional user-defined program called for each file, which
+can be used to update the modification time of the file on the filesystem or
+any other function.
+.LP
+Many file formats require a special program to extract the metadata. If the
+required program is not found, an error message like \(lqcommand not found\(rq
+is displayed.
+.LP
+It currently supports the following file types:
+.LP
+.RS
+.\" This section comes from: ./automtime -l | sed -e a.LP
+7zip (7zip archive)
+.LP
+abw (AbiWord document)
+.LP
+amf (Additive Manufacturing File)
+.LP
+appdata (Appdata metainfo file)
+.LP
+ar (ar archive)
+.LP
+arj (arj archive)
+.LP
+cab (Microsoft Cabinet archive)
+.LP
+dat (Allegro4 not packed datafile)
+.LP
+dll (Microsoft Windows PE dynamic link library)
+.LP
+docbook (DocBook document)
+.LP
+docx (Microsoft Office Open XML)
+.LP
+email (E-mail or similar message)
+.LP
+exe (Microsoft Windows PE executable)
+.LP
+fodf (Open Document Format flat file)
+.LP
+gcode (G-code machine control file)
+.LP
+gnumeric (Gnumeric spreadsheet)
+.LP
+gpx (GPX GPS track)
+.LP
+gzip (gzip-compressed file)
+.LP
+ics (iCalendar file)
+.LP
+ipk (Itsy package)
+.LP
+iso (ISO-9660 CD-ROM image)
+.LP
+jpeg (JPEG JFIF image)
+.LP
+kra (Krita image)
+.LP
+lzh (lzh archive)
+.LP
+lzo (lzo archive)
+.LP
+mov (QuickTime video)
+.LP
+odf (Open Document Format)
+.LP
+otf (OpenType font/TrueType font)
+.LP
+pcap (Pcap network capture file)
+.LP
+pdf (Portable Document Format)
+.LP
+png (PNG image)
+.LP
+ps (PostScript)
+.LP
+rar (rar archive)
+.LP
+rpm (rpm package)
+.LP
+rtf (Rich Text Format file)
+.LP
+shar (shell archive)
+.LP
+sla (Scribus document)
+.LP
+squashfs (Squashfs filesystem image)
+.LP
+svg (Scalable Vector Graphics image)
+.LP
+tar (Tape Archive)
+.LP
+tbz (Bzip2-compressed Tape Archive)
+.LP
+tgz (Gzip-compressed Tape Archive)
+.LP
+tiff (TIFF image)
+.LP
+tlzip (Lzip-compressed Tape Archive)
+.LP
+tlz (Lzma-compressed Tape Archive)
+.LP
+txz (Xzip-compressed Tape Archive)
+.LP
+tzst (Zstd-compressed Tape Archive)
+.LP
+warcgz (Compressed Web Archive Collection file)
+.LP
+wml (Wireless Markup Language)
+.LP
+xcf (Gimp image)
+.LP
+zip (zip archive)
+.LP
+zpaq (ZPAQ compressed archive)
+.LP
+.\" End of mechanically-generated section
+.RE
+.\" ---------------------------------------------------------------------------
+.SH OPTIONS
+.TP
+.BI \-e \ program
+Run
+.I program
+once for each file. It is given two arguments; the file time and the file
+name. The program argument is subject to shell quoting so it can contain
+multiple words.
+.TP
+.B \-l
+List the types of files supported. The first word of each line is the type to
+give the \-t option. Some types are actually families that support several file
+extensions.
+.TP
+.BI \-t \ type
+Use
+.I type
+as the file type instead of determining it from the file name. The value of
+.I type
+must come from the list shown with \-l.
+.TP
+.B \-q
+Set quiet mode. Don't display anything except in case of error.
+.\" ---------------------------------------------------------------------------
+.SH EXAMPLES
+To see the save time of the PDF file
+.IR foo.pdf ,
+run:
+.EX
+automtime foo.pdf
+.EE
+.LP
+To see only the files with embedded times that can be extracted, run:
+.EX
+automtime * 2>/dev/null
+.EE
+.LP
+If the file
+.IR foo.otf
+is actually an OpenText file (and not an OpenType font file) run:
+.EX
+automtime -t odf foo.otf
+.EE
+.LP
+If the file
+.I foo.png
+contains an embedded modification time of Mon, 11 Oct 2021 12:34:56 +0000 then
+this command would change the mtime of the file in the filesystem:
+.EX
+automtime -e 'touch -d' foo.png
+.EE
+This would end up running the command
+.EX
+touch -d 'Mon, 11 Oct 2021 12:34:56 +0000' foo.png
+.EE
+.LP
+This command would rename all the PDF files to their modification times with a
+.I .pdf
+extension:
+.EX
+automtime -e 'renuniq -t %{DESC}%{EXT} -d' *.pdf
+.EE
+This relies on the
+.I renuniq
+program from https://github.com/dfandrich/renuniq/
+.\" ---------------------------------------------------------------------------
+.SH "EXIT STATUS"
+.B automtime
+always returns 0 unless no arguments were given when it returns 1. This is
+subject to change in a future release.
+.\" ---------------------------------------------------------------------------
+.SH BUGS
+.BR automtime 's
+command-line option processing is very limited; the order which options appear
+is significant and only one option may follow each dash. Its comment extraction
+is in some cases built around a simple regex that may be easily fooled.
+.LP
+The POSIX helper programs needed to process some file types (such as
+.BR date (1))
+are expected to support GNU extensions and may not produce the expected results
+otherwise. An automatic fallback is provided for
+.B date
+that works as well for many types but it requires that the nonstandard Python
+.I dateutil.parser
+and
+.I pytz
+modules be installed.
+.\" ---------------------------------------------------------------------------
+.SH AUTHOR
+Daniel Fandrich <dan@coneharvesters.com>
+.LP
+See https://github.com/dfandrich/fileviewinfo/
+.\" ---------------------------------------------------------------------------
+.SH COPYRIGHT
+.B automtime
+is placed into the public domain by Daniel Fandrich.
+See the file COPYING for details of how CC0 applies to this file.

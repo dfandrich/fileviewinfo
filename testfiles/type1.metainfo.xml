@@ -6,8 +6,14 @@
     <summary>Nonlocalized summary</summary>
     <summary xml:lang="x-test">Localized summary</summary>
     <url type="homepage">https://example.com/#homepage</url>
-	<url type="donation">https://example.com/#donation</url>
+    <url type="donation">https://example.com/#donation</url>
     <developer_name>Nobody &lt;nobody@example.com&gt;</developer_name>
     <project_license>CC0-1.0</project_license>
     <metadata_license>CC0-1.0</metadata_license>
+    <releases>
+        <release version="1.0.0" date="2020-07-31">
+        </release>
+        <release version="0.0.9" date="2019-06-03">
+        </release>
+    </releases>
 </component>

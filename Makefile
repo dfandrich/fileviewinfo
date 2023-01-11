@@ -10,7 +10,7 @@ mandir=$(datadir)/man
 VERSION=$(shell ./fv -\? | sed -n '1s/^.*ver. //p')
 SOURCES = fv fvi autodescribe fv.1 fvi.1 autodescribe.1
 DISTFILES = $(SOURCES) Makefile README.md COPYING .gitignore
-CLEAN_FILES = fv.man fv.html fvi.man fvi.html autodescribe.man autodescribe.html test-autodescribe.log test-fv.log test-fvi.log test-time.tmp
+CLEAN_FILES = fv.man fv.html fvi.man fvi.html autodescribe.man autodescribe.html test-autodescribe.log test-automtime.log test-fv.log test-fvi.log test-time.tmp
 
 all:
 	@echo Use \'make prefix=/usr/local install\' to install fileviewinfo $(VERSION) in the given
@@ -33,11 +33,17 @@ man: fv.man fv.html fvi.man fvi.html autodescribe.man autodescribe.html
 	#txt2html --linkonly < $@ > fv.tmp && mv -f fv.tmp $@ && tidy -m $@
 	#groff -man -Thtml < $^ > $@
 
-check: check-autodescribe check-fv check-fvi
+check: check-autodescribe check-automtime check-fv check-fvi
 
 check-autodescribe:
 	./autodescribe testfiles/* >test-autodescribe.log
 	diff test-autodescribe-expected test-autodescribe.log
+
+check-automtime:
+	# Run this in UTC since some output depends on the current time zone and
+	# we are comparing to a golden test file
+	env TZ=UTC ./automtime testfiles/* >test-automtime.log
+	diff test-automtime-expected test-automtime.log
 
 # Only check the file types that have significant processing in fv. Trying to
 # check all file types isn't done for several reasons:
