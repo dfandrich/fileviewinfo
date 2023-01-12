@@ -6,8 +6,8 @@ UID:12345@2018@example.com
 DTSTAMP:20180213T070722Z
 DTSTART:20180203T100000Z
 DTEND:20180203T105000Z
-SUMMARY:vCalendar summary
-DESCRIPTION:vCalendar description
+SUMMARY:iCalendar summary
+DESCRIPTION:iCalendar description
  Second line of description.
 X-ALT-DESC:<p>Alternative description</p>
 CLASS:PUBLIC

@@ -464,9 +464,9 @@ comment_gpx () {
 	fi
 }
 
-# File type: ics (vCalendar entry)
+# File type: ics (iCalendar entry)
 # requires: python3, python3-vobject
-comment_vcalendar () {
+comment_ics () {
 	# Only looks at the first entry if more than one
 	COMMENT=$(python3 -c "import vobject, sys; print(vobject.readOne(sys.stdin).contents['vevent'][0].summary.value)" < "$f")
 }
@@ -806,7 +806,7 @@ for f in "$@" ; do
 			*.html | *.htm)
 				TYPE=html
 				;;
-			*.ics)	TYPE=vcalendar
+			*.ics)	TYPE=ics
 				;;
 			*.iso)	TYPE=iso
 				;;
