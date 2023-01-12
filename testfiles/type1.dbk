@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+	"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+
+<!-- ================================================================================ -->
+<!-- This DocBook file was created by AbiWord.                                        -->
+<!-- AbiWord is a free, Open Source word processor.                                   -->
+<!-- You may obtain more information about AbiWord at http://www.abisource.com        -->
+<!-- ================================================================================ -->
+
+<book lang="en-CA">
+	<bookinfo>
+		<bibliomisc><application class="software">AbiWord</application></bibliomisc>
+		<title>Docbook Title</title>
+		<author><othername role="full">luser</othername></author>
+		<subjectset><subject><subjectterm>Docbook Subject</subjectterm></subject></subjectset>
+		<abstract><para>Docbook Description</para></abstract>
+		<publisher><publishername>AbiWord Publisher</publishername></publisher>
+		<collab><collabname>contributor</collabname></collab>
+		<date>Thu Jan 12 10:46:09 2023
+</date>
+	</bookinfo>
+	<chapter>
+		<title></title>
+		<section role="Normal">
+			<title></title>
+			<para>foo</para>
+		</section>
+	</chapter>
+</book>

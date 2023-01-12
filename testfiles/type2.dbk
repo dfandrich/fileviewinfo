@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+
+  <!ENTITY dhfirstname "<firstname>Nobody</firstname>">
+  <!ENTITY dhsurname   "<surname>Ispublic</surname>">
+  <!ENTITY dhdate      "<date>12 Jan 2023</date>">
+  <!ENTITY dhsection   "<manvolnum>7</manvolnum>">
+  <!ENTITY dhemail     "<email>nobody@example.com</email>">
+  <!ENTITY dhusername  "User Name">
+  <!ENTITY dhucpackage "<refentrytitle>DOCBOOK_MAN_PAGE_TEST_FILE</refentrytitle>">
+  <!ENTITY dhpackage   "docbooktest">
+  <!ENTITY dhversion   "<refmiscinfo class='version'>&dhpackage; 0.1</refmiscinfo>">
+]>
+
+<refentry>
+  <refentryinfo>
+    <address>
+      &dhemail;
+    </address>
+    <author>
+      &dhfirstname;
+      &dhsurname;
+    </author>
+    <copyright>
+      <year>2023</year>
+      <holder>&dhusername; &dhemail;</holder>
+	  <!-- This file is public domain. This copyright section is only a template. -->
+    </copyright>
+    <version>
+      &dhversion;
+    </version>
+    &dhdate;
+  </refentryinfo>
+  <refmeta>
+    &dhucpackage;
+
+    &dhsection;
+
+    &dhversion;
+  </refmeta>
+  <refnamediv>
+    <refname>&dhpackage;</refname>
+    <refpurpose>Test file for fileviewinfo</refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>&dhpackage;</command>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1>
+    <title>TEST FILE</title>
+  </refsect1>
+</refentry>
+

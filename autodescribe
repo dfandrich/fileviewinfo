@@ -265,13 +265,9 @@ comment_texi () {
 # File type: tiff (TIFF image)
 # requires: libtiff-progs
 comment_tiff () {
-	COMMENT=$(tiffinfo -- "$f" | sed -n -e 's/^ *ImageDescription: //p')
-	if [ -z "$COMMENT" ] ; then
-	# Try for alternate comments. ImageDescription can't be added as an
-	# alternative here because tags are sorted numerically and it would come
-	# after DocumentName, which is a less desirable tag to use if both exist.
-      COMMENT=$(tiffinfo -- "$f" | sed -n -e 's/^ *\(DocumentName\|Artist\): //p' | tr '\n' ' ')
-	fi
+	# Sort the tags so that ImageDescription is used in preference to the
+	# others.
+	COMMENT=$(tiffinfo -- "$f" | sort -r | sed -E -n -e 's/^ *(ImageDescription|DocumentName|Artist): //p' | head -1)
 }
 
 # File type: xhb (Homebank file)
@@ -418,6 +414,17 @@ comment_avi () {
 	fi
 }
 
+# File type: docbook (DocBook document)
+# requires: xmlstarlet
+comment_docbook () {
+	# Docbook document
+	COMMENT=$(xmlstarlet sel -t -v /book/bookinfo/title < "$f")
+	if [ -z "$COMMENT" ] ; then
+		# Docbook man page
+		COMMENT=$(xmlstarlet sel -t -v /refentry/refmeta/refentrytitle < "$f")
+	fi
+}
+
 # File type: flac (FLAC audio file)
 # requires: flac
 comment_flac () {
@@ -464,7 +471,7 @@ comment_vcalendar () {
 	COMMENT=$(python3 -c "import vobject, sys; print(vobject.readOne(sys.stdin).contents['vevent'][0].summary.value)" < "$f")
 }
 
-# File type: iso (ISO-9660 CD-ROm image)
+# File type: iso (ISO-9660 CD-ROM image)
 # requires: cdrkit-isotools
 comment_iso () {
 	COMMENT=$(isoinfo -d -i "$f" | sed -E -n -e 's/^Volume (set )?id: (.)/\2/p' | head -1)
@@ -558,7 +565,7 @@ comment_mp4 () {
 	fi
 }
 
-# File type: mov (MOV video)
+# File type: mov (QuickTime video)
 # requires: libquicktime-progs || ffmpeg
 comment_mov () {
 	comment_mp4 "$@"
@@ -589,7 +596,7 @@ comment_ogg () {
 # File type: odf (Open Document Format)
 # requires: unzip, xmlstarlet
 comment_odf () {
-	COMMENT=$(unzip -cq -- "$f" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:title)
+	COMMENT=$(unzip -cq -- "$f" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:title 2>/dev/null)
 }
 
 # File type: py (Python source code)
@@ -602,6 +609,12 @@ comment_py () {
 # File type: uue (UUencoded file)
 comment_uue () {
 	COMMENT=$(sed -E -n 's/^begin [0-9]+ //p' < "$f")
+}
+
+# File type: wml (Wireless Markup Language)
+# requires: xmlstarlet
+comment_wml () {
+	COMMENT=$(xmlstarlet sel -t -v "/wml/head/meta[@name='title']/@content" < "$f" 2>/dev/null)
 }
 
 # Get title from a number of different A/V formats
@@ -633,6 +646,12 @@ comment_wacz () {
 	COMMENT=$(unzip -qc "$f" datapackage.json | jq -r '.title')
 }
 
+# File type: warcgz (Compressed Web Archive Collection file)
+comment_warcgz () {
+	# Look for the isPartOf header only in the first data section
+	COMMENT=$(gzip -dc < "$f" | tr -d '\015' | sed -E -n -e '/^WARC\/1\.[0-9]+$/,/^$/d' -e '1,/^$/s/^isPartOf: *//p' | head -1)
+}
+
 # File type: whl (Python wheel package)
 comment_whl () {
 	COMMENT=$(unzip -caq -- "$f" '*/METADATA' | sed -n 's/^Summary: //p')
@@ -645,6 +664,7 @@ comment_xbm () {
 }
 
 # File type: xcf (Gimp image)
+# requires: gimp
 comment_xcf () {
 	# gimp's Scheme interpreter displays some logging info before and after the
 	# desired output, so use sed to delete it to leave only XML.
@@ -728,8 +748,7 @@ for f in "$@" ; do
 			*.3mf)
 				TYPE=3mf
 				;;
-			*.abw)
-				# TODO: this file type can be compressed as .zabw or .abw.gz
+			*.abw | *.zabw | *.abw.gz)
 				TYPE=abw
 				;;
 			*.ac)
@@ -762,9 +781,13 @@ for f in "$@" ; do
 				;;
 			*.cue)	TYPE=cue
 				;;
+			# Many DocBooks just use the .xml extension which is too generic
+			*.dbk) TYPE=docbook
+				;;
 			*.desktop)	TYPE=desktop
 				;;
-			*.docx)	TYPE=docx
+			*.docx | *.docm | *.pptx)
+				TYPE=docx
 				;;
 			*.exe | *.dll)
 				TYPE=exe
@@ -817,7 +840,8 @@ for f in "$@" ; do
 				;;
 			*.mp4)	TYPE=mp4
 				;;
-			*.odt | *.otm | *.ott | *.odh | *.odc | *.otc | *.odg | *.otg | *.odi | *.oti | *.odp | *.otp | *.ods | *.ots | *.odf)
+			*.odt | *.otm | *.ott | *.odh | *.odc | *.otc | *.odg | *.otg | *.odi | *.oti | *.odp | *.otp | *.ods | *.ots | *.odf | \
+			*.sxw | *.sxc | *.sxi | *.sxd | *.sxm)
 			# *.otf is left off because it's much more commonly a font file
 				TYPE=odf
 				;;
@@ -883,11 +907,17 @@ for f in "$@" ; do
 			*.wacz)
 				TYPE=wacz
 				;;
+			*.warc.gz)
+				TYPE=warcgz
+				;;
 			*.wav)
 				TYPE=wav
 				;;
 			*.whl)
 				TYPE=whl
+				;;
+			*.wml)
+				TYPE=wml
 				;;
 			*.xbm)
 				TYPE=xbm

@@ -1,0 +1,20 @@
+<!DOCTYPE wml PUBLIC "-//PHONE.COM//DTD WML 1.1//EN"
+	"http://www.openwave.com/dtd/wml11.dtd" >
+<!-- This WML file was created by AbiWord -->
+<!-- See http://www.abisource.com/ -->
+
+<wml>
+<head>
+<meta name="title" content="WML Title"/>
+<meta name="author" content="luser"/>
+<meta name="subject" content="WML Subject"/>
+<meta name="description" content="WML Description"/>
+<meta name="publisher" content="AbiWord Publisher"/>
+<meta name="contributor" content="contributor"/>
+<meta name="date" content="Thu Jan 12 10:33:38 2023
+"/>
+</head>
+<card id="card1" ordered="true">
+<p>foo</p>
+</card>
+</wml>

@@ -157,7 +157,8 @@ for f in "$@" ; do
 			;;
 
 		# requires: cabextract
-		*.cab)	archive_label Microsoft Cabinet archive
+		# Also Microsoft OneNote package .onepkg
+		*.cab | *.onepkg)	archive_label Microsoft Cabinet archive
 			cabextract -l -- "$f"
 			;;
 
@@ -205,7 +206,10 @@ for f in "$@" ; do
 		# On a Debian system, this should use 'dpkg -c "$f"' instead
 		# Also OpenMoko package .opk
 		*.deb | *.opk)  archive_label Debian distribution archive
-			ar p "$f" data.tar.gz | gzip -dc | tar tvf - || ( ar p "$f" data.tar.xz | xz -dc | tar tvf - )
+			# data is either gzip or xzip compressed; try them both but hide
+			# errors only from the first so only one error will be shown at
+			# most.
+			ar p "$f" data.tar.gz 2>/dev/null | gzip -dc 2>/dev/null | tar tvf - 2>/dev/null || ( ar p "$f" data.tar.xz | xz -dc | tar tvf - )
 			;;
 
 		# See https://github.com/sgan81/apfs-fuse
@@ -366,7 +370,7 @@ for f in "$@" ; do
 		# requires: unrar
 		# Also SNES sound archive .rsn
 		*.rar | *.rsn)	archive_label RAR compressed archive
-			unrar v -idc "$f"
+			unrar v -idc -- "$f"
 			;;
 
 		# See https://www.rpm.org/
@@ -564,6 +568,7 @@ EOF
 		# Also iPod Game .ipg
 		# Also OpenOffice Impress Presentation .sxi
 		# Also OpenOffice Drawing .sxd
+		# Also OpenOffice Math .sxm
 		# Also OpenOffice Writer Document .sxw
 		# Also OpenDocument Document .odt
 		# Also OpenDocument Chart .odc
@@ -578,8 +583,10 @@ EOF
 		# Also OpenDocument Presentation Template .otp
 		# Also Quake3 packed file .pk3
 		# Also Nokia mobile phone theme .nth
-		# Also Microsoft Office Open XML .docx
-		# Also Microsoft Office Open XML with Macros .docm
+		# Also Microsoft Office Open XML document .docx
+		# Also Microsoft Office Open XML document with Macros .docm
+		# Also Microsoft Office Open XML presentation .pptx
+		# Also Microsoft Office Open XML spreadsheet .xlsx
 		# Also EPub Document .epub
 		# Also Java Web Start .war
 		# Also XML Paper Specification .xps
@@ -599,12 +606,12 @@ EOF
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
-		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | *.odt | \
+		*.sxi | *.sxd | *.sxw | *.sxm | *.pk3 | *.ipg | *.nth | *.odt | \
 		*.ods | *.odp | *.odg | *.odf | \
 		*.otp | *.otg | *.ots | *.odb | *.odc | \
 		*.docx | *.epub | *.apk | *.apkm | *.war | *.xps | *.resource | \
 		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf | \
-		*.sb2 | *.sb3 | *.ora | *.tc | *.wfp | *.wacz)
+		*.sb2 | *.sb3 | *.ora | *.tc | *.wfp | *.wacz | *.xlsx | *.pptx)
 			archive_label ZIP archive
 			unzip -v -- "$f"
 			;;
@@ -650,7 +657,7 @@ EOF
 				#FILEDATE=`echo "$FILEINFO" | cut -c 43-54`
 				FILEDATE=`echo "$FILEINFO" | awk '{print $6 " " $7 " " $8}'`
 				FILENAME=`basename "$f" .bz2`
-				#FILECRC=`od -A n -j 10 -N 4 -t x1 "$f" | sed "s/ //g"`
+				#FILECRC=`od -A n -j 10 -N 4 -t x1 < "$f" | sed "s/ //g"`
 				FILECRC=`hexdump -e '4/1 "%02x" "\n"' -n 4 -s 10 < "$f"`
 				#FILECOMPRESS=`od -A n -j 3 -N 1 -t c "$f" | sed "s/ //g"`
 				FILECOMPRESS=`hexdump -e '"%_c" "\n"' -n 1 -s 3 < "$f"`
