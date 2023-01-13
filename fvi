@@ -135,7 +135,7 @@ for f in "$@" ; do
 				# If the amf file is zip compressed, uncompress it first
 				TMPFILE=$(mktemp)
 				INFILE="${TMPFILE}"
-				funzip "$f" > "$INFILE"
+				unzip -cq -- "$f" > "$INFILE"
 			else
 				TMPFILE=
 				INFILE="$f"
@@ -202,7 +202,7 @@ for f in "$@" ; do
 			dexlist -- "$f"
 			;;
 
-		# (Untested)
+		# hdiutil comes standard on OS X
 		*.dmg)	filetype_label Mac OS X Disk Image
 			hdiutil imageinfo "$f"
 			;;
@@ -406,7 +406,8 @@ for f in "$@" ; do
 
 		# requires: python >= 3
 		*.stl)	filetype_label STL model file
-			if dd if="$f" bs=1 count=80 2>/dev/null | sed -n -e N -e '/^solid .*\n/p' | grep -q .; then
+			# Detect ASCII or binary format
+			if [ "$(dd if="$f" bs=1 count=80 2>/dev/null | wc -l)" -gt 0 -a "$(dd if="$f" bs=1 count=6 2>/dev/null)" = "solid " -a "$(dd if="$f" bs=1 count=1 skip=80 2>/dev/null | od -An -b)" != "000" ]; then
 				# ASCII stl format
 				sed -n -E -e '1s/^solid +//p' "$f" | iconv -f windows-1252
 				grep "^[[:space:]]*facet " "$f" | wc -l | tr -d ' \n'

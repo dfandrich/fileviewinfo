@@ -5,7 +5,7 @@
 
 # Print a shell-quoted version of the first argument
 shquote() {
-	echo "$1" | awk -v q="'" '{gsub(q, q "\\" q q, $0); printf "%s", q $0 q;}'
+	printf '%s' "$1" | awk -v q="'" '{gsub(q, q "\\" q q, $0); printf "%s", q $0 q;}'
 }
 
 # Filter to trim leading and trailing whitespace and concatenate lines
@@ -213,12 +213,13 @@ comment_snap () {
 
 # File type: stl (STL model file)
 comment_stl () {
-	if dd if="$1" bs=1 count=80 2>/dev/null | sed -n -e N -e '/^solid .*\n/p' | grep -q .; then
+	# Detect ASCII or binary format
+	if [ "$(dd if="$1" bs=1 count=80 2>/dev/null | wc -l)" -gt 0 -a "$(dd if="$1" bs=1 count=6 2>/dev/null)" = "solid " -a "$(dd if="$1" bs=1 count=1 skip=80 2>/dev/null | od -An -b)" != "000" ]; then
 		# ASCII stl format
 		COMMENT=$(sed -n -E -e 's/[[:space:]]*$//' -e '1s/^solid +//p' < "$1")
 	else
 		# Binary stl format
-		COMMENT=$(dd if="$1" bs=1 count=80 2>/dev/null | sed -e 's/\x0.*$//' -e 's/[[:space:]]*$//' | iconv -f windows-1252)
+		COMMENT=$(dd if="$1" bs=1 count=80 2>/dev/null | sed -e 's/[[:space:]]*\x0.*$//' | iconv -f windows-1252)
 	fi
 }
 
@@ -328,7 +329,7 @@ comment_amf () {
 		# If the amf file is zip compressed, uncompress it first
 		TMPFILE=$(mktemp)
 		INFILE="${TMPFILE}"
-		funzip < "$1" > "$INFILE"
+		unzip -cq -- "$1" > "$INFILE"
 	else
 		TMPFILE=
 		INFILE="$1"
@@ -418,10 +419,10 @@ comment_avi () {
 # requires: xmlstarlet
 comment_docbook () {
 	# Docbook document
-	COMMENT=$(xmlstarlet sel -t -v /book/bookinfo/title < "$1")
+	COMMENT=$(xmlstarlet sel -t -v /book/bookinfo/title < "$1" 2>/dev/null)
 	if [ -z "$COMMENT" ] ; then
 		# Docbook man page
-		COMMENT=$(xmlstarlet sel -t -v /refentry/refmeta/refentrytitle < "$1")
+		COMMENT=$(xmlstarlet sel -t -v /refentry/refmeta/refentrytitle < "$1" 2>/dev/null)
 	fi
 }
 
@@ -506,7 +507,7 @@ comment_first_line () {
 
 # File type: html (HTML text)
 comment_html () {
-	COMMENT=$(sed -n 's,^.*<[tT][iI][tT][lL][eE]>\(.*\)</.*$,\1,p' < "$1")
+	COMMENT=$(sed -n 's,^.*<[tT][iI][tT][lL][eE]>\(.*\)</.*$,\1,p' < "$1" | head -1)
 }
 
 # File type: kdenlive (Kdenlive file)

@@ -1,11 +1,14 @@
 # Makefile for installing fileviewinfo
 # Placed into the public domain by Dan Fandrich <dan@coneharvesters.com>
 # See the file COPYING for details of how CC0 applies to this file.
+#
+# This Makefile relies on some GNU make extensions.
 
 prefix=/usr
 bindir=$(prefix)/bin
 datadir=$(prefix)/share
 mandir=$(datadir)/man
+SHELL=/bin/sh
 
 VERSION=$(shell ./fv -\? | sed -n '1s/^.*ver. //p')
 SOURCES = fv fvi autodescribe fv.1 fvi.1 autodescribe.1
@@ -36,13 +39,16 @@ man: fv.man fv.html fvi.man fvi.html autodescribe.man autodescribe.html
 check: check-autodescribe check-automtime check-fv check-fvi
 
 check-autodescribe:
-	./autodescribe testfiles/* >test-autodescribe.log
+	$(SHELL) ./autodescribe testfiles/* >test-autodescribe.log
 	diff test-autodescribe-expected test-autodescribe.log
 
 check-automtime:
 	# Run this in UTC since some output depends on the current time zone and
 	# we are comparing to a golden test file
-	env TZ=UTC ./automtime testfiles/* >test-automtime.log
+	# Note that some environments will include more accurate times than
+	# others, causing some tests to fail. The golden test file was created
+	# on a GNU/Linux environment and use the GNU versions of utilities.
+	env TZ=UTC $(SHELL) ./automtime testfiles/* >test-automtime.log
 	diff test-automtime-expected test-automtime.log
 
 # Only check the file types that have significant processing in fv. Trying to
@@ -59,14 +65,14 @@ check-fv:
 	# current time in a temp file and restore it at the end of the test.
 	touch -r testfiles/type1.bz2 test-time.tmp
 	touch -t 202110111213.14 testfiles/type1.bz2
-	./fv testfiles/*.{bz2,rz,shar} >test-fv.log
+	$(SHELL) ./fv $(addprefix testfiles/*., bz2 rz shar) >test-fv.log
 	touch -r test-time.tmp testfiles/type1.bz2
 	rm -f test-time.tmp
 	diff test-fv-expected test-fv.log
 
 # Only check the file types that have significant processing in fvi.
 check-fvi:
-	./fvi testfiles/*.{3mf,amf,stl} >test-fvi.log
+	$(SHELL) ./fvi $(addprefix testfiles/*., 3mf amf stl) >test-fvi.log
 	diff test-fvi-expected test-fvi.log
 
 install:
