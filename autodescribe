@@ -39,48 +39,48 @@ get_lang_generic() {
 # BUG: tar will extract all files if path ends in a number, e.g. playmidi-2.3/foo
 # requires: tar (GNU version), gzip, man-db
 comment_tgz () {
-	COMMENT=$(tar -xOkzf - --wildcards \*.man \*.\[0-9\] 2> /dev/null < "$f" | lexgrog - | grep -v '^-: parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
+	COMMENT=$(tar -xOkzf - --wildcards \*.man \*.\[0-9\] 2> /dev/null < "$1" | lexgrog - | grep -v '^-: parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(tar -xOkzf - \*.lsm 2> /dev/null < "$f" | sed -n 's/^Title: *//p')
+		COMMENT=$(tar -xOkzf - \*.lsm 2> /dev/null < "$1" | sed -n 's/^Title: *//p')
 	fi
 }
 
 # File type: lzh (lzh/lha archive with desc.sdi comment)
 # requires: lha
 comment_lzh () {
-	COMMENT=$(lha pq -- "$f" desc.sdi | head -3 | trimspace)
+	COMMENT=$(lha pq -- "$1" desc.sdi | head -3 | trimspace)
 }
 
 # File type: zip (zip archive)
 # requires: unzip (Info-ZIP version)
 comment_zip () {
-	if [ -n "$(unzip -zq -- "$f" dummy-file-to-eliminate-output)" ]; then
-		COMMENT=$(unzip -zq -- "$f" dummy-file-to-eliminate-output | head -2 | trimspace)
+	if [ -n "$(unzip -zq -- "$1" dummy-file-to-eliminate-output)" ]; then
+		COMMENT=$(unzip -zq -- "$1" dummy-file-to-eliminate-output | head -2 | trimspace)
 
-	elif unzip -vqq -- "$f" desc.sdi > /dev/null ; then
-		COMMENT=$(unzip -caq -- "$f" desc.sdi | head -3 | trimspace)
+	elif unzip -vqq -- "$1" desc.sdi > /dev/null ; then
+		COMMENT=$(unzip -caq -- "$1" desc.sdi | head -3 | trimspace)
 	fi
 }
 
 # File type: zoo (zoo archive)
 # requires: zoo
 comment_zoo () {
-	COMMENT=$(zoo vc "$f" dummy-file-to-eliminate-output | \
+	COMMENT=$(zoo vc "$1" dummy-file-to-eliminate-output | \
 		sed -n -e 's/^>> //p' | trimspace)
-	if [ -z "$COMMENT" ] && zoo vq "$f" desc.sdi > /dev/null ; then
-		COMMENT=$(zoo xpq "$f" desc.sdi | head -3 | trimspace)
+	if [ -z "$COMMENT" ] && zoo vq "$1" desc.sdi > /dev/null ; then
+		COMMENT=$(zoo xpq "$1" desc.sdi | head -3 | trimspace)
 	fi
 }
 
 # File type: rpm (rpm package)
 # requires: rpm
 comment_rpm () {
-	COMMENT=$(rpm -qp --queryformat '%{SUMMARY}' -- "$f")
+	COMMENT=$(rpm -qp --queryformat '%{SUMMARY}' -- "$1")
 }
 
 # File type: cue (CD cue index file)
 comment_cue () {
-	COMMENT=$(sed -n -E -e '/^TITLE/s/^TITLE *"([^"]*)" *$/\1/p' < "$f" | head -1)
+	COMMENT=$(sed -n -E -e '/^TITLE/s/^TITLE *"([^"]*)" *$/\1/p' < "$1" | head -1)
 }
 
 # File type: desktop (XDG desktop entry file)
@@ -90,20 +90,20 @@ comment_desktop () {
 	if [ -z "$L" ]; then
 		L=en  # English by default
 	fi
-	COMMENT=$(sed -n -e "s/^Name\[$L\]=//p" < "$f" | head -1)
+	COMMENT=$(sed -n -e "s/^Name\[$L\]=//p" < "$1" | head -1)
 	if [ -z "$COMMENT" ]; then
 		# Try again with generic language locale
 		L="$(get_lang_generic)"
-	    COMMENT=$(sed -n -e "s/^Name\[$L\]=//p" < "$f" | head -1)
+	    COMMENT=$(sed -n -e "s/^Name\[$L\]=//p" < "$1" | head -1)
 
 		if [ -z "$COMMENT" ]; then
 			# Try again with English
 			L=en
-			COMMENT=$(sed -n -e "s/^Name\[$L\]=//p" < "$f" | head -1)
+			COMMENT=$(sed -n -e "s/^Name\[$L\]=//p" < "$1" | head -1)
 
 		    if [ -z "$COMMENT" ]; then
 				# Finally, try the non-locale-dependent entry
-			    COMMENT=$(sed -n -e "s/^Name=//p" < "$f" | head -1)
+			    COMMENT=$(sed -n -e "s/^Name=//p" < "$1" | head -1)
 		    fi
 		fi
 	fi
@@ -112,7 +112,7 @@ comment_desktop () {
 # File type: docx (MS Word document)
 # requires: unzip, xmlstarlet
 comment_docx () {
-	COMMENT=$(unzip -cq -- "$f" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dc:title)
+	COMMENT=$(unzip -cq -- "$1" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dc:title)
 }
 
 # File type: exe (Microsoft Windows PE executable)
@@ -131,7 +131,7 @@ try:
 						for k,v in item.entries.items() if k == b"FileDescription" ]))
 except pefile.PEFormatError:
 	pass  # probably an old-style file
-' < "$f")
+' < "$1")
 }
 
 # File type: ebook (E-book formats, epub, azw, fbz, etc.)
@@ -139,11 +139,11 @@ except pefile.PEFormatError:
 # good reason to separate them into individual handlers.
 # requires: calibre
 comment_ebook() {
-	COMMENT=$(ebook-meta -- "$f" | sed -n -e 's/^Title *: //p')
+	COMMENT=$(ebook-meta -- "$1" | sed -n -e 's/^Title *: //p')
 	# ebook-meta falls back to the file name (without extension) as the title
 	# if no other title can be found. This isn't very useful here, so blank the
 	# comment if that happens.
-	BASENAME=$(basename "$f" | sed -e 's/\.[^.]*$//')
+	BASENAME=$(basename "$1" | sed -e 's/\.[^.]*$//')
 	if [ "$COMMENT" = "$BASENAME" ]; then
 		COMMENT=""
 	fi
@@ -152,93 +152,93 @@ comment_ebook() {
 # File type: kra (Krita image)
 # requires: unzip, xmlstarlet
 comment_kra () {
-	COMMENT=$(unzip -cq -- "$f" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:title 2>/dev/null )
+	COMMENT=$(unzip -cq -- "$1" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:title 2>/dev/null )
 }
 
 # File type: pdf (Portable Document Format)
 # requires: poppler
 comment_pdf () {
-	COMMENT=$(pdfinfo -- "$f" | sed -E -n -e 's/^(Title|Subject|Author):[[:space:]]*//p' | head -1)
+	COMMENT=$(pdfinfo -- "$1" | sed -E -n -e 's/^(Title|Subject|Author):[[:space:]]*//p' | head -1)
 }
 
 # File type: png (PNG image)
 # requires: pngtools
 comment_png () {
-	COMMENT=$(pnginfo "$f" | sed -n -e 's/^[[:space:]]\+Title[^:]*: //p')
+	COMMENT=$(pnginfo "$1" | sed -n -e 's/^[[:space:]]\+Title[^:]*: //p')
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(pnginfo "$f" | sed -n -e 's/^[[:space:]]\+Description[^:]*: //p')
+		COMMENT=$(pnginfo "$1" | sed -n -e 's/^[[:space:]]\+Description[^:]*: //p')
 	fi
 }
 
 # File type: ps (PostScript source code)
 comment_ps () {
-	COMMENT=$(sed -n 's/^%%Title: *//p' < "$f" | head -1)
+	COMMENT=$(sed -n 's/^%%Title: *//p' < "$1" | head -1)
 	if [ -z "$COMMENT" ] ; then
 		# Try for an alternate comment
 		# Look for a comment beginning with one or more % followed by a space
-		COMMENT=$(sed -n 's/^%%*  *//p' < "$f" | head -1)
+		COMMENT=$(sed -n 's/^%%*  *//p' < "$1" | head -1)
 	fi
 }
 
 # File type: psfont (PostScript font)
 comment_psfont () {
-	COMMENT=$(sed -n 's/^\/FullName[ 	]*(\(.*\)).*$/\1/p' < "$f" | head -1)
+	COMMENT=$(sed -n 's/^\/FullName[ 	]*(\(.*\)).*$/\1/p' < "$1" | head -1)
 	if [ -z "$COMMENT" ] ; then
         # Try for an alternate comment
-		COMMENT=$(sed -n 's/^\/FontName[ 	]*\/\([^ 	]*\).*$/\1/p' < "$f" | head -1)
+		COMMENT=$(sed -n 's/^\/FontName[ 	]*\/\([^ 	]*\).*$/\1/p' < "$1" | head -1)
 	fi
 }
 
 # File type: subject (news article or mail file)
 # File type: .patch git format-patch
 comment_subject () {
-	COMMENT=$(sed -n 's/^Subject: *//ip' < "$f" | head -1)
+	COMMENT=$(sed -n 's/^Subject: *//ip' < "$1" | head -1)
 	if [ -z "$COMMENT" ] ; then
         # Try for an alternate comment
-		COMMENT=$(sed -n 's/^Content-Description: *//ip' < "$f" | head -1)
+		COMMENT=$(sed -n 's/^Content-Description: *//ip' < "$1" | head -1)
 	fi
 }
 
 # File type: sla (Scribus document)
 # requires: xmlstarlet
 comment_sla () {
-	COMMENT=$(xmlstarlet sel -t -v '/SCRIBUSUTF8NEW/DOCUMENT/@TITLE' < "$f")
+	COMMENT=$(xmlstarlet sel -t -v '/SCRIBUSUTF8NEW/DOCUMENT/@TITLE' < "$1")
 }
 
 # File type: snap (Snap package)
 # requires: squashfs
 comment_snap () {
-	COMMENT=$(unsquashfs -cat "$f" meta/snap.yaml | sed -n 's/^summary: //p')
+	COMMENT=$(unsquashfs -cat "$1" meta/snap.yaml | sed -n 's/^summary: //p')
 }
 
 # File type: stl (STL model file)
 comment_stl () {
-	if dd if="$f" bs=1 count=80 2>/dev/null | sed -n -e N -e '/^solid .*\n/p' | grep -q .; then
+	if dd if="$1" bs=1 count=80 2>/dev/null | sed -n -e N -e '/^solid .*\n/p' | grep -q .; then
 		# ASCII stl format
-		COMMENT=$(sed -n -E -e 's/[[:space:]]*$//' -e '1s/^solid +//p' < "$f")
+		COMMENT=$(sed -n -E -e 's/[[:space:]]*$//' -e '1s/^solid +//p' < "$1")
 	else
 		# Binary stl format
-		COMMENT=$(dd if="$f" bs=1 count=80 2>/dev/null | sed -e 's/\x0.*$//' -e 's/[[:space:]]*$//' | iconv -f windows-1252)
+		COMMENT=$(dd if="$1" bs=1 count=80 2>/dev/null | sed -e 's/\x0.*$//' -e 's/[[:space:]]*$//' | iconv -f windows-1252)
 	fi
 }
 
 # File type: svg (Scalable Vector Graphics image)
 # requires: xmlstarlet
 comment_svg () {
-	COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']" < "$f")
+	COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']" < "$1")
 	if [ -z "$COMMENT" ] ; then
 		# Try for title in metadata
-		COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='title']" < "$f")
+		COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='title']" < "$1")
 	fi
 }
 
 # File type: svgz (Compressed Scalable Vector Graphics image)
 # requires: gzip, xmlstarlet
 comment_svgz () {
-	COMMENT=$(gzip -dc < "$f" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']")
+	COMMENT=$(gzip -dc < "$1" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']")
 	if [ -z "$COMMENT" ] ; then
 		# Try for title in metadata
-		COMMENT=$(gzip -dc < "$f" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='title']")
+		COMMENT=$(gzip -dc < "$1" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='title']")
 	fi
 }
 
@@ -247,19 +247,19 @@ comment_svgz () {
 comment_tellico () {
 	# stderr always contains a warning about the DTD; send that (and every
 	# other warning as a side effect) to /dev/null
-	COMMENT=$(unzip -qc -- "$f" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" 2> /dev/null)
+	COMMENT=$(unzip -qc -- "$1" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" 2> /dev/null)
 }
 
 # File type: tex (TeX document)
 comment_tex () {
 	# This parsing is probably too simplistic, but it works much of the time
-	COMMENT=$(sed -n -E -e 's/^[[:space:]]*\\title\{([^}]+)\}.*/\1/p' < "$f" | trimspace)
+	COMMENT=$(sed -n -E -e 's/^[[:space:]]*\\title\{([^}]+)\}.*/\1/p' < "$1" | trimspace)
 }
 
 # File type: texi (Texinfo document)
 comment_texi () {
 	# This parsing is probably too simplistic, but it works most of the time
-	COMMENT=$(sed -n -e 's/^[[:space:]]*@settitle //p' < "$f" | trimspace)
+	COMMENT=$(sed -n -e 's/^[[:space:]]*@settitle //p' < "$1" | trimspace)
 }
 
 # File type: tiff (TIFF image)
@@ -267,18 +267,18 @@ comment_texi () {
 comment_tiff () {
 	# Sort the tags so that ImageDescription is used in preference to the
 	# others.
-	COMMENT=$(tiffinfo -- "$f" | sort -r | sed -E -n -e 's/^ *(ImageDescription|DocumentName|Artist): //p' | head -1)
+	COMMENT=$(tiffinfo -- "$1" | sort -r | sed -E -n -e 's/^ *(ImageDescription|DocumentName|Artist): //p' | head -1)
 }
 
 # File type: xhb (Homebank file)
 # requires: xmlstarlet
 comment_xhb () {
-	COMMENT=$(xmlstarlet sel -t -v '/homebank/account/@name' < "$f")
+	COMMENT=$(xmlstarlet sel -t -v '/homebank/account/@name' < "$1")
 }
 
 # File type: ac (autoconf source code)
 comment_ac () {
-	COMMENT=$(sed -E -n 's/^[[:space:]]*AC_INIT\([[:space:]]*\[?([^],]+).*/\1/p' < "$f")
+	COMMENT=$(sed -E -n 's/^[[:space:]]*AC_INIT\([[:space:]]*\[?([^],]+).*/\1/p' < "$1")
 }
 
 # File type: c (C source code)
@@ -290,7 +290,7 @@ comment_c () {
 			s/\*\/ *$//
 			s/[ 	]*$//
 			p 
-			}' < "$f" | head -3 | trimspace)
+			}' < "$1" | head -3 | trimspace)
 }
 
 # File type: pascal (Pascal source code)
@@ -306,32 +306,32 @@ comment_pascal () {
 			s/^[ 	*]*//
 			s/[ 	]*$//
 			p
-			}' < "$f" | head -3 | trimspace)
+			}' < "$1" | head -3 | trimspace)
 }
 
 # File type: 3mf (3-D Manufacturing format)
 # requires: unzip, xmlstarlet
 comment_3mf () {
-	COMMENT=$(unzip -cq -- "$f" 3D/3dmodel.model | xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name='Title']")
+	COMMENT=$(unzip -cq -- "$1" 3D/3dmodel.model | xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name='Title']")
 }
 
 # File type: abw (AbiWord document)
 # requires: xmlstarlet
 comment_abw () {
-	COMMENT=$(xmlstarlet sel -N a=http://www.abisource.com/awml.dtd -t -v "/a:abiword/a:metadata/a:m[@key='dc.title']" < "$f" 2>/dev/null)
+	COMMENT=$(xmlstarlet sel -N a=http://www.abisource.com/awml.dtd -t -v "/a:abiword/a:metadata/a:m[@key='dc.title']" < "$1" 2>/dev/null)
 }
 
 # File type: amf (Additive Manufacturing File)
 # requires: unzip, xmlstarlet
 comment_amf () {
-	if [ "$(dd if="$f" bs=1 count=2 2>/dev/null )" = "PK" ]; then
+	if [ "$(dd if="$1" bs=1 count=2 2>/dev/null )" = "PK" ]; then
 		# If the amf file is zip compressed, uncompress it first
 		TMPFILE=$(mktemp)
 		INFILE="${TMPFILE}"
-		funzip < "$f" > "$INFILE"
+		funzip < "$1" > "$INFILE"
 	else
 		TMPFILE=
-		INFILE="$f"
+		INFILE="$1"
 	fi
 
 	COMMENT=$(xmlstarlet sel -t -v "/amf/metadata[@type='name']" < "$INFILE")
@@ -353,16 +353,16 @@ comment_apk () {
 	if [ -z "$L" ]; then
 		L=en  # English by default
 	fi
-	COMMENT=$(aapt  d badging "$f" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
+	COMMENT=$(aapt  d badging "$1" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
 	if [ -z "$COMMENT" ]; then
 		# Try again with generic locale
 		L="$(get_lang_generic)"
-		COMMENT=$(aapt  d badging "$f" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
+		COMMENT=$(aapt  d badging "$1" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
 
 		if [ -z "$COMMENT" ]; then
 			# Try again with English
 			L=en
-			COMMENT=$(aapt  d badging "$f" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
+			COMMENT=$(aapt  d badging "$1" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
 		fi
 	fi
 }
@@ -375,14 +375,14 @@ comment_appdata () {
 	if [ -z "$L" ]; then
 		L=en  # English by default
 	fi
-	COMMENT=$(xmlstarlet sel  -t -v 'component/name[@xml:lang="'"$L"'"]' <"$f")
+	COMMENT=$(xmlstarlet sel  -t -v 'component/name[@xml:lang="'"$L"'"]' <"$1")
 	if [ -z "$COMMENT" ]; then
 		# Try again with generic locale
 		L="$(get_lang_generic)"
-	    COMMENT=$(xmlstarlet sel  -t -v 'component/name[@xml:lang="'"$L"'"]' <"$f")
+	    COMMENT=$(xmlstarlet sel  -t -v 'component/name[@xml:lang="'"$L"'"]' <"$1")
 		if [ -z "$COMMENT" ]; then
 			# Try again with the default name
-			COMMENT=$(xmlstarlet sel  -t -v 'component/name[not(@xml:lang)]' <"$f" | head -1)
+			COMMENT=$(xmlstarlet sel  -t -v 'component/name[not(@xml:lang)]' <"$1" | head -1)
 		fi
 	fi
 }
@@ -390,25 +390,25 @@ comment_appdata () {
 # File type: arj (ARJ archive)
 # requires: arj
 comment_arj () {
-	COMMENT=$(arj v "$f" | sed -e '1,/^Archive created:/d' -e '/^Sequence\/Pathname\/Comment\/Chapters/,$d' | head -3 | trimspace)
+	COMMENT=$(arj v "$1" | sed -e '1,/^Archive created:/d' -e '/^Sequence\/Pathname\/Comment\/Chapters/,$d' | head -3 | trimspace)
 }
 
 # File type: asm (assembly language source)
 comment_asm () {
-	COMMENT=$(sed -n -E -e "/^[[:space:]]*(\.)?title/{s/^[[:space:]]*(\.)?title[[:space:]]*//;s/^['\"]*//;s/['\"]*$//;p;}" < "$f")
+	COMMENT=$(sed -n -E -e "/^[[:space:]]*(\.)?title/{s/^[[:space:]]*(\.)?title[[:space:]]*//;s/^['\"]*//;s/['\"]*$//;p;}" < "$1")
 }
 
 # File type: aup (Audacity Project file)
 # requires: xmlstarlet
 comment_aup () {
-	COMMENT=$(xmlstarlet sel -N a=http://audacity.sourceforge.net/xml/ -t -v '/a:project/a:tags/a:tag[@name="TITLE"]/@value' < "$f" 2>/dev/null)
+	COMMENT=$(xmlstarlet sel -N a=http://audacity.sourceforge.net/xml/ -t -v '/a:project/a:tags/a:tag[@name="TITLE"]/@value' < "$1" 2>/dev/null)
 }
 
 # File type: avi (Audio Video Interleave file)
 # See https://sourceforge.net/projects/avifile/
 # requires: avifile-samples
 comment_avi () {
-	COMMENT=$(avitype -- "$f" | sed -n -e 's/^<AVI reader> *: *InfoChunk Name: *//p')
+	COMMENT=$(avitype -- "$1" | sed -n -e 's/^<AVI reader> *: *InfoChunk Name: *//p')
 	if [ -z "$COMMENT" ] ; then
 		comment_ffmpeg "$@"
 	fi
@@ -418,17 +418,17 @@ comment_avi () {
 # requires: xmlstarlet
 comment_docbook () {
 	# Docbook document
-	COMMENT=$(xmlstarlet sel -t -v /book/bookinfo/title < "$f")
+	COMMENT=$(xmlstarlet sel -t -v /book/bookinfo/title < "$1")
 	if [ -z "$COMMENT" ] ; then
 		# Docbook man page
-		COMMENT=$(xmlstarlet sel -t -v /refentry/refmeta/refentrytitle < "$f")
+		COMMENT=$(xmlstarlet sel -t -v /refentry/refmeta/refentrytitle < "$1")
 	fi
 }
 
 # File type: flac (FLAC audio file)
 # requires: flac
 comment_flac () {
-	COMMENT=$(metaflac --export-tags-to=- -- "$f" | sed -n -E -e 's/^TITLE=//p')
+	COMMENT=$(metaflac --export-tags-to=- -- "$1" | sed -n -E -e 's/^TITLE=//p')
 	if [ -z "$COMMENT" ] ; then
 		comment_ffmpeg "$@"
 	fi
@@ -437,13 +437,13 @@ comment_flac () {
 # File type: fodf (Open Document Format flat file)
 # requires: xmlstarlet
 comment_fodf () {
-	COMMENT=$(xmlstarlet sel -t -v /office:document/office:meta/dc:title < "$f")
+	COMMENT=$(xmlstarlet sel -t -v /office:document/office:meta/dc:title < "$1")
 }
 
 # File type: gif (GIF image)
 # requires: gifsicle
 comment_gif () {
-	COMMENT=$(gifsicle --info -- "$f" | sed -n 's/^ *comment //p')
+	COMMENT=$(gifsicle --info -- "$1" | sed -n 's/^ *comment //p')
 	if [ -z "$COMMENT" ] ; then
 		comment_ffmpeg "$@"
 	fi
@@ -452,15 +452,15 @@ comment_gif () {
 # File type: gnumeric (Gnumeric spreadsheet)
 # requires: xmlstarlet
 comment_gnumeric () {
-	COMMENT=$(xmlstarlet sel -N gnm=http://www.gnumeric.org/v10.dtd -N office=urn:oasis:names:tc:opendocument:xmlns:office:1.0 -N dc=http://purl.org/dc/elements/1.1/ -t -v '/gnm:Workbook/office:document-meta/office:meta/dc:title' < "$f")
+	COMMENT=$(xmlstarlet sel -N gnm=http://www.gnumeric.org/v10.dtd -N office=urn:oasis:names:tc:opendocument:xmlns:office:1.0 -N dc=http://purl.org/dc/elements/1.1/ -t -v '/gnm:Workbook/office:document-meta/office:meta/dc:title' < "$1")
 }
 
 # File type: gpx (GPX GPS track)
 # requires: xmlstarlet
 comment_gpx () {
-	COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='gpx']/*[local-name()='metadata']/*[local-name()='name']" < "$f" | trimspace)
+	COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='gpx']/*[local-name()='metadata']/*[local-name()='name']" < "$1" | trimspace)
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='gpx']/*[local-name()='trk'][1]/*[local-name()='name']" < "$f" | trimspace)
+		COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='gpx']/*[local-name()='trk'][1]/*[local-name()='name']" < "$1" | trimspace)
 	fi
 }
 
@@ -468,68 +468,68 @@ comment_gpx () {
 # requires: python3, python3-vobject
 comment_ics () {
 	# Only looks at the first entry if more than one
-	COMMENT=$(python3 -c "import vobject, sys; print(vobject.readOne(sys.stdin).contents['vevent'][0].summary.value)" < "$f")
+	COMMENT=$(python3 -c "import vobject, sys; print(vobject.readOne(sys.stdin).contents['vevent'][0].summary.value)" < "$1")
 }
 
 # File type: iso (ISO-9660 CD-ROM image)
 # requires: cdrkit-isotools
 comment_iso () {
-	COMMENT=$(isoinfo -d -i "$f" | sed -E -n -e 's/^Volume (set )?id: (.)/\2/p' | head -1)
+	COMMENT=$(isoinfo -d -i "$1" | sed -E -n -e 's/^Volume (set )?id: (.)/\2/p' | head -1)
 }
 
 # File type: jpeg (JPEG JFIF image)
 # requires: jpeg-progs, exif
 comment_jpeg () {
-	COMMENT=$(rdjpgcom < "$f")
+	COMMENT=$(rdjpgcom < "$1")
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=0 --tag=ImageDescription -m -- "$f" 2>/dev/null)
+		COMMENT=$(exif --ifd=0 --tag=ImageDescription -m -- "$1" 2>/dev/null)
 	fi
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=0 --tag=Artist -m -- "$f" 2>/dev/null)
+		COMMENT=$(exif --ifd=0 --tag=Artist -m -- "$1" 2>/dev/null)
 	fi
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=0 --tag=XP_Author -m -- "$f" 2>/dev/null)
+		COMMENT=$(exif --ifd=0 --tag=XP_Author -m -- "$1" 2>/dev/null)
 	fi
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=0 --tag=Copyright -m -- "$f" 2>/dev/null)
+		COMMENT=$(exif --ifd=0 --tag=Copyright -m -- "$1" 2>/dev/null)
 	fi
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=EXIF --tag=UserComment -m -- "$f" 2>/dev/null)
+		COMMENT=$(exif --ifd=EXIF --tag=UserComment -m -- "$1" 2>/dev/null)
 	fi
 }
 
 # File type: first_line (first line of text file)
 comment_first_line () {
 	# Ignore completely blank lines and formatting lines consisting of all dashes, etc.
-	COMMENT=$(grep -v '^[-_=*:~[:space:]]*$' < "$f" | head -1)
+	COMMENT=$(grep -v '^[-_=*:~[:space:]]*$' < "$1" | head -1)
 }
 
 # File type: html (HTML text)
 comment_html () {
-	COMMENT=$(sed -n 's,^.*<[tT][iI][tT][lL][eE]>\(.*\)</.*$,\1,p' < "$f")
+	COMMENT=$(sed -n 's,^.*<[tT][iI][tT][lL][eE]>\(.*\)</.*$,\1,p' < "$1")
 }
 
 # File type: kdenlive (Kdenlive file)
 # requires: xmlstarlet
 comment_kdenlive () {
-	COMMENT=$(xmlstarlet sel -t -v '/mlt/playlist[@id="main_bin"]/property[@name="kdenlive:docmetadata.meta.attr.title.markup"]' < "$f")
+	COMMENT=$(xmlstarlet sel -t -v '/mlt/playlist[@id="main_bin"]/property[@name="kdenlive:docmetadata.meta.attr.title.markup"]' < "$1")
 }
 
 # File type: man (man page)
 # requires: man-db
 comment_man () {
-	COMMENT=$(lexgrog -- "$f" | grep -v ': parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
+	COMMENT=$(lexgrog -- "$1" | grep -v ': parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
 }
 
 # File type: md (Markdown text)
 comment_md () {
-	COMMENT=$(head -5 < "$f" | sed -n -e 's/^# //p' | trimspace)
+	COMMENT=$(head -5 < "$1" | sed -n -e 's/^# //p' | trimspace)
 }
 
 # File type: mkv (Matroska video)
 # requires: mkvtoolnix
 comment_mkv () {
-	COMMENT=$(mkvinfo "$f" | sed -n -e 's/^[|+ ]*Title: //p')
+	COMMENT=$(mkvinfo "$1" | sed -n -e 's/^[|+ ]*Title: //p')
 	if [ -z "$COMMENT" ] ; then
 		comment_ffmpeg "$@"
 	fi
@@ -539,7 +539,7 @@ comment_mkv () {
 # These are created by Kdenlive
 # requires: xmlstarlet
 comment_mlt () {
-	COMMENT=$(xmlstarlet sel -t -v '/mlt/@title' < "$f")
+	COMMENT=$(xmlstarlet sel -t -v '/mlt/@title' < "$1")
 }
 
 # File type: mp3 (MPEG-1 layer 3 audio)
@@ -548,7 +548,7 @@ comment_mlt () {
 # uses a format that's easy to parse.
 # requires: id3lib || ffmpeg
 comment_mp3 () {
-	COMMENT=$(id3info -- "$f" | sort -r | sed -E -n -e 's/^=== (TPE1|TIT2).*\): //p' | sed '2i\
+	COMMENT=$(id3info -- "$1" | sort -r | sed -E -n -e 's/^=== (TPE1|TIT2).*\): //p' | sed '2i\
 /
 ' | trimspace)
 	if [ -z "$COMMENT" ] ; then
@@ -559,7 +559,7 @@ comment_mp3 () {
 # File type: mp4 (MPEG-4 video)
 # requires: libquicktime-progs || ffmpeg
 comment_mp4 () {
-	COMMENT=$(qtdump "$f" | sed -n -e 's/^[[:space:]]*name:[[:space:]]*//p' | head -1)
+	COMMENT=$(qtdump "$1" | sed -n -e 's/^[[:space:]]*name:[[:space:]]*//p' | head -1)
 	if [ -z "$COMMENT" ] ; then
 		comment_ffmpeg "$@"
 	fi
@@ -575,20 +575,20 @@ comment_mov () {
 comment_sh () {
 	# delete #!/bin/sh line and blank comment lines
 	# comment must be in the first 10 lines of the file
-	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^#* *$/d' -e 's/^# *//p' < "$f" | head -1)
+	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^#* *$/d' -e 's/^# *//p' < "$1" | head -1)
 }
 
 # File type: otf (OpenType font/TrueType font)
 # requires: freetype2-demos
 comment_otf () {
-	COMMENT=$(ftdump "$f" | sed -n -E -e 's/^[[:space:]]*(family|style):[[:space:]]*//p' | trimspace)
+	COMMENT=$(ftdump "$1" | sed -n -E -e 's/^[[:space:]]*(family|style):[[:space:]]*//p' | trimspace)
 }
 
 # File type: ogg (Ogg media file)
 # If artist is found, prepend it to the title like "Artist / Title"
 # requires: vorbis-tools
 comment_ogg () {
-	COMMENT=$(ogginfo -- "$f" | sed -n -E -e '/^[[:space:]]*(title|artist)=/p' | sort | sed -E -e 's/^[[:space:]]*[a-z]+=//' | sed '2i\
+	COMMENT=$(ogginfo -- "$1" | sed -n -E -e '/^[[:space:]]*(title|artist)=/p' | sort | sed -E -e 's/^[[:space:]]*[a-z]+=//' | sed '2i\
 /
 ' | trimspace)
 }
@@ -596,25 +596,25 @@ comment_ogg () {
 # File type: odf (Open Document Format)
 # requires: unzip, xmlstarlet
 comment_odf () {
-	COMMENT=$(unzip -cq -- "$f" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:title 2>/dev/null)
+	COMMENT=$(unzip -cq -- "$1" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:title 2>/dev/null)
 }
 
 # File type: py (Python source code)
 comment_py () {
 	# delete #!/bin/sh line and blank comment lines
 	# comment must be in the first 10 lines of the file
-	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^[[:space:]]*#*[-*#[:space:]]*$/d' -e 's/^[[:space:]]*# *//p' -e "s/\(.\) *'''$/\1/" -e 's/\(.\) *"""$/\1/' -e "s/^''' *\(.\)/\1/p" -e 's/^""" *\(.\)/\1/p' -e "/^''' *$/{n;p;}" -e '/^""" *$/{n;p;}' < "$f" | head -1)
+	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^[[:space:]]*#*[-*#[:space:]]*$/d' -e 's/^[[:space:]]*# *//p' -e "s/\(.\) *'''$/\1/" -e 's/\(.\) *"""$/\1/' -e "s/^''' *\(.\)/\1/p" -e 's/^""" *\(.\)/\1/p' -e "/^''' *$/{n;p;}" -e '/^""" *$/{n;p;}' < "$1" | head -1)
 }
 
 # File type: uue (UUencoded file)
 comment_uue () {
-	COMMENT=$(sed -E -n 's/^begin [0-9]+ //p' < "$f")
+	COMMENT=$(sed -E -n 's/^begin [0-9]+ //p' < "$1")
 }
 
 # File type: wml (Wireless Markup Language)
 # requires: xmlstarlet
 comment_wml () {
-	COMMENT=$(xmlstarlet sel -t -v "/wml/head/meta[@name='title']/@content" < "$f" 2>/dev/null)
+	COMMENT=$(xmlstarlet sel -t -v "/wml/head/meta[@name='title']/@content" < "$1" 2>/dev/null)
 }
 
 # Get title from a number of different A/V formats
@@ -622,9 +622,9 @@ comment_wml () {
 # easier than having to install a new special program for each other formats.
 # requires: ffmpeg
 comment_ffmpeg () {
-	COMMENT=$(ffmpeg -loglevel error -i "$f" -f ffmetadata - | sed -n -E -e 's/^(title|com.apple\.quicktime\.title)=//ip' | head -1)
+	COMMENT=$(ffmpeg -loglevel error -i "$1" -f ffmetadata - | sed -n -E -e 's/^(title|com.apple\.quicktime\.title)=//ip' | head -1)
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(ffmpeg -loglevel error -i "$f" -f ffmetadata - | sed -n -E -e 's/^comment=//ip' | head -1)
+		COMMENT=$(ffmpeg -loglevel error -i "$1" -f ffmetadata - | sed -n -E -e 's/^comment=//ip' | head -1)
 	fi
 }
 
@@ -643,24 +643,24 @@ comment_aiff () {
 # File type: wacz (Web Archive Collection Zipped)
 # requires: unzip, jq
 comment_wacz () {
-	COMMENT=$(unzip -qc "$f" datapackage.json | jq -r '.title')
+	COMMENT=$(unzip -qc "$1" datapackage.json | jq -r '.title')
 }
 
 # File type: warcgz (Compressed Web Archive Collection file)
 comment_warcgz () {
 	# Look for the isPartOf header only in the first data section
-	COMMENT=$(gzip -dc < "$f" | tr -d '\015' | sed -E -n -e '/^WARC\/1\.[0-9]+$/,/^$/d' -e '1,/^$/s/^isPartOf: *//p' | head -1)
+	COMMENT=$(gzip -dc < "$1" | tr -d '\015' | sed -E -n -e '/^WARC\/1\.[0-9]+$/,/^$/d' -e '1,/^$/s/^isPartOf: *//p' | head -1)
 }
 
 # File type: whl (Python wheel package)
 comment_whl () {
-	COMMENT=$(unzip -caq -- "$f" '*/METADATA' | sed -n 's/^Summary: //p')
+	COMMENT=$(unzip -caq -- "$1" '*/METADATA' | sed -n 's/^Summary: //p')
 }
 
 # File type: xbm (X bitmap image)
 # Could extract image size here as well
 comment_xbm () {
-	COMMENT=$(sed -n 's/^.* \(.*\)_bits.*$/\1/p' < "$f")
+	COMMENT=$(sed -n 's/^.* \(.*\)_bits.*$/\1/p' < "$1")
 }
 
 # File type: xcf (Gimp image)
@@ -668,25 +668,25 @@ comment_xbm () {
 comment_xcf () {
 	# gimp's Scheme interpreter displays some logging info before and after the
 	# desired output, so use sed to delete it to leave only XML.
-	METADATA=$(echo '((display "\nMETADATA-START\n") (let ((img (car (gimp-file-load 1 "'"$f"'" "file")))) (display (car (gimp-image-get-metadata img))) (gimp-image-delete img)) (gimp-quit TRUE))' | gimp -n -i -d -f -s -g /dev/null --stack-trace-mode=never -b -  2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
+	METADATA=$(echo '((display "\nMETADATA-START\n") (let ((img (car (gimp-file-load 1 "'"$1"'" "file")))) (display (car (gimp-image-get-metadata img))) (gimp-image-delete img)) (gimp-quit TRUE))' | gimp -n -i -d -f -s -g /dev/null --stack-trace-mode=never -b -  2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
 	COMMENT=$(echo "$METADATA" | xmlstarlet sel -t -v  '/metadata/tag[@name="Xmp.dc.title"]' | sed 's/lang="x-default" *//')
 }
 
 # File type: xpm (X pixmap image)
 # Could extract image size here as well
 comment_xpm () {
-	COMMENT=$(sed -n 's/^.*\* *\(.*\)_xpm.*$/\1/p' < "$f")
+	COMMENT=$(sed -n 's/^.*\* *\(.*\)_xpm.*$/\1/p' < "$1")
 }
 
 # File type: pam (Portable Arbitrary Map image)
 # requires: netpbm
 comment_pam () {
-	COMMENT=$(pamfile -comments < "$f" | sed -e '1,/^Comments:$/d' -e 's/^ *# *//' | head -3 | trimspace)
+	COMMENT=$(pamfile -comments < "$1" | sed -e '1,/^Comments:$/d' -e 's/^ *# *//' | head -3 | trimspace)
 }
 
 # File type: pnm (pbm/pgm/ppm Portable Any Map image)
 comment_pnm () {
-	COMMENT=$(head -2 < "$f" | sed -n -e 's/^# *//p')
+	COMMENT=$(head -2 < "$1" | sed -n -e 's/^# *//p')
 }
 
 
@@ -956,7 +956,7 @@ for f in "$@" ; do
 		echo "$f": Not a known file type 1>&2
 	else
 		# Call the right function to find the comment
-		comment_"$TYPE"
+		comment_"$TYPE" "$f"
 	fi
 
 	if [ -z "$COMMENT" ] ; then
