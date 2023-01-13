@@ -1,9 +1,12 @@
 # Instructions for generating sample files
 # These commands may be incomplete and some were documented after the fact &
-# are therefore not guaranteed to work. The resulting files are checked in so
+# are therefore not well tested. The resulting files are checked in so
 # that these commands never need to be run again.
-# Smaller file size was sometimes prioritized over ease of creation. All files
-# must also be able to be released to the public domain.
+# Smaller file size is sometimes prioritized over ease of creation. All
+# generated files must also be able to be released to the public domain.
+
+all:
+	@echo Use this makefile to generate individual test files
 
 foo:
 	echo foo >foo
@@ -12,16 +15,37 @@ foo:
 	chown root:root foo
 
 type1.png: type1.pbm
-	echo This file was manually converted and tags added from type1.pbm with Kolourpaint
+	@echo This file was manually converted and tags added from type1.pbm with Kolourpaint
+
+type1.tiff: type1.pbm
+	@echo This file was manually converted with Gimp and tags added using tiffset
 
 type2.png: type1.pbm
-	echo This file was manually converted and tags added from type1.pbm with Kolourpaint
+	@echo This file was manually converted and tags added from type1.pbm with Kolourpaint
 
 type1.pdf:
-	echo This file was manually created in Scribus with "Outline all fonts" enabled
+	@echo This file was manually created in Scribus with "Outline all fonts" enabled
+
+type1.wacz:
+	@echo This file was manually created using ArchiveWeb.page with a web
+	@echo server run with 'python3 -m http.server'
+
+type1.warc.gz:
+	@echo This file was manually created using ArchiveWeb.page with a simple
+	@echo custom Python web server that adds custom headers that was run with:
+	@echo "  python2 httpd.py 8000 'WARC-Date: April 1, 2345' 'isPartOf: bogus header to be ignored"
+	@echo and the final .warc.gz file was extracted from the .wacz file produced.
 
 type1.epub:
-	echo This file was manually created in Libreoffice
+	@echo This file was manually created in Libreoffice
+
+type1.wml:
+	@echo This file was manually created in AbiWord
+
+type1.cab:
+	@echo This file was created in Windows XP with the commands:
+	@echo '  echo foo >foo'
+	@echo '  makecab foo type1.cab'
 
 type1.gcode:
 	@echo This file was created in PrusaSlicer 2.5.0 by slicing a 1×1×0.2mm
