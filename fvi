@@ -207,7 +207,7 @@ for f in "$@" ; do
 			hdiutil imageinfo "$f"
 			;;
 
-		# requires: dtc or device-tree-compiler
+		# requires: dtc || device-tree-compiler
 		*.dtb)	filetype_label Device Tree Binary file
 			dtc -I dtb -O dts -o - -- "$f"
 			;;
@@ -218,10 +218,10 @@ for f in "$@" ; do
 			;;
 
 
-		# requires: pev
+		# requires: pev || pefile (https://pypi.org/project/pefile/)
 		# Also Windows PE Dynamic Link Library .dll
 		*.exe | *.dll)	filetype_label Windows PE executable
-			pescan -v "$f"
+			pescan -v "$f" || python3 -m pefile "$f"
 			;;
 
 		# requires: flac
@@ -240,8 +240,10 @@ for f in "$@" ; do
 			giftext < "$f"
 			;;
 
+		# Also GnuPG signature
 		# requires: gnupg2
-		*.gpg | *.pgp)	filetype_label Gnu Privacy Guard/Pretty Good Privacy file
+		# .sig is used a bit generically, but GPG is probably the most general
+		*.gpg | *.pgp | *.sig)	filetype_label Gnu Privacy Guard/Pretty Good Privacy file
 			gpg --list-packets --list-only --no-autostart -- "$f"
 			;;
 
@@ -397,7 +399,7 @@ for f in "$@" ; do
 
 		# See https://github.com/plougher/squashfs-tools
 		# Also Snap package .snap
-		# requires: squashfs
+		# requires: squashfs-tools
 		*.sqsh | *.squashfs | *.snap) filetype_label Squashfs filesystem image
 			unsquashfs -s "$f"
 			;;
@@ -512,6 +514,7 @@ EOF
 		# Also iPod Game .ipg
 		# Also OpenOffice Impress Presentation .sxi
 		# Also OpenOffice Drawing .sxd
+		# Also OpenOffice Math .sxm
 		# Also OpenOffice Writer Document .sxw
 		# Also OpenDocument .odt
 		# Also OpenDocument Drawing .odg
@@ -544,7 +547,7 @@ EOF
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
-		*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | *.odt | \
+		*.sxi | *.sxd | *.sxw | *.sxm | *.pk3 | *.ipg | *.nth | *.odt | \
 		*.ods | *.odp | *.odg | *.odf | *.fodt | *.fods | *.fodp | *.fodg | \
 		*.otp | *.otg | *.ots | \
 		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
