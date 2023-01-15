@@ -10,7 +10,7 @@ shquote() {
 
 # Filter to trim leading and trailing whitespace and concatenate lines
 trimspace() {
-	tr '\n' ' ' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+	tr '\n' ' ' | tr -d '\015' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 }
 
 # Return the full language locale with dashes instead of underscores
@@ -441,6 +441,23 @@ comment_fodf () {
 	COMMENT=$(xmlstarlet sel -t -v /office:document/office:meta/dc:title < "$1")
 }
 
+# File type: gcode (G-code machine control file)
+# gcode has a few codes that could be used as titles, but aren't widely
+# supported. Just extract a title from structured comments.
+comment_gcode () {
+	# Supports PrusaSlicer ver. >= 2.2.0, Cura >= ~4.0.0, Fanuc
+	# Use the name of the first object when more than one are present
+	COMMENT=$(sed -n -E -e 's/^; printing object ([^ ]+).*$/\1/p' -e 's/^;MESH://p' -e 's/^[^;(]*\<[Oo][0-9]+ *\(([^)]+)\).*$/\1/p' < "$1" | head -1 | trimspace)
+	if [ -z "$COMMENT" ] ; then
+		# Supports CamBam http://www.cambam.co.uk/
+		COMMENT=$(sed -E -n -e '/Made using CamBam/{n;s/^\( *([^ ]+).*$/\1/p}'  < "$1")
+	fi
+	if [ -z "$COMMENT" ] ; then
+		# PyCAM https://pycam.sourceforge.net/
+		COMMENT=$(sed -n -E -e 's/^;PYCAM-META-DATA: Filename: (.*[/\\])?//p'< "$1" | head -1 | trimspace)
+	fi
+}
+
 # File type: gif (GIF image)
 # requires: gifsicle
 comment_gif () {
@@ -570,6 +587,12 @@ comment_mp4 () {
 # requires: libquicktime-progs || ffmpeg
 comment_mov () {
 	comment_mp4 "$@"
+}
+
+# File type: pcap (Pcap network capture file)
+# requires: wireshark-tools
+comment_pcap () {
+	COMMENT=$(capinfos -- "$1" | sed -n -e 's/^Capture comment: *//p')
 }
 
 # File type: sh (shell script)
@@ -798,6 +821,9 @@ for f in "$@" ; do
 			*.fodt | *.fods | *.fodp | *.fodg)
 				TYPE=fodf
 				;;
+			*.gcode | *.gc | *.ngc | *.ncc | *.nc | *.tap)
+				TYPE=gcode
+				;;
 			*.gif)	TYPE=gif
 				;;
 			*.gnumeric)	TYPE=gnumeric
@@ -857,6 +883,8 @@ for f in "$@" ; do
 				;;
 			*.pbm | *.pgm | *.ppm | *.pnm)
 				TYPE=pnm
+				;;
+			*.pcap | *.pcapng) TYPE=pcap
 				;;
 			*.pfa | *.gsf)
 				TYPE=psfont
