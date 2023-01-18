@@ -11,9 +11,14 @@ mandir=$(datadir)/man
 SHELL=/bin/sh
 
 VERSION=$(shell ./fv -\? | sed -n '1s/^.*ver. //p')
-SOURCES = fv fvi autodescribe fv.1 fvi.1 autodescribe.1
-DISTFILES = $(SOURCES) Makefile README.md COPYING .gitignore
-CLEAN_FILES = fv.man fv.html fvi.man fvi.html autodescribe.man autodescribe.html test-autodescribe.log test-automtime.log test-fv.log test-fvi.log test-time.tmp
+SOURCES = fv fvi autodescribe automtime fv.1 fvi.1 autodescribe.1 automtime.1
+DISTFILES = $(SOURCES) Makefile Makefile-testfiles README.md COPYING \
+	.gitignore test-fv-expected test-fvi-expected test-autodescribe-expected \
+	test-automtime-expected testfiles/*
+DOC_TARGETS = fv.man fv.html fvi.man fvi.html autodescribe.man \
+	autodescribe.html automtime.man automtime.html
+CLEAN_FILES = $(DOC_TARGETS) test-autodescribe.log test-automtime.log \
+	test-fv.log test-fvi.log test-time.tmp
 
 all:
 	@echo Use \'make prefix=/usr/local install\' to install fileviewinfo $(VERSION) in the given
@@ -23,7 +28,7 @@ all:
 clean:
 	-rm -f $(CLEAN_FILES)
 
-man: fv.man fv.html fvi.man fvi.html autodescribe.man autodescribe.html
+man: $(DOC_TARGETS)
 
 %.man: %.1
 	# This will output a man page with a charset for the current locale
@@ -77,14 +82,14 @@ check-fvi:
 
 install:
 	test -d $(bindir) || install -d $(bindir)
-	install -m 0755 fv fvi autodescribe $(bindir)
+	install -m 0755 fv fvi autodescribe automtime $(bindir)
 	test -d $(mandir)/man1 || install -d $(mandir)/man1
-	install -m 0644 fv.1 fvi.1 autodescribe.1 $(mandir)/man1
+	install -m 0644 fv.1 fvi.1 autodescribe.1 automtime.1 $(mandir)/man1
 
 dist: $(DISTFILES)
 	test ! -e fileviewinfo-$(VERSION)
 	mkdir fileviewinfo-$(VERSION)
-	cp -p $(DISTFILES) fileviewinfo-$(VERSION)
+	cp -p --parents $(DISTFILES) fileviewinfo-$(VERSION)
 	tar -cvf - fileviewinfo-$(VERSION) | gzip > fileviewinfo-$(VERSION).tar.gz
 	rm -rf fileviewinfo-$(VERSION)
 
