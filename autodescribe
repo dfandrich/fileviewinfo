@@ -854,7 +854,8 @@ for f in "$@" ; do
 			*.mbox | *.mbx | *.mbo | *.nws | *.msg | *.patch | *.diff)
 				TYPE=subject
 				;;
-			*.md)	TYPE=md
+			*.md | *.mkd | *.mkdn | *.mdwn | *.mdown | *.markdown)
+				TYPE=md
 				;;
 			*.mkv | *.webm)	TYPE=mkv
 				;;
