@@ -9,6 +9,7 @@ bindir=$(prefix)/bin
 datadir=$(prefix)/share
 mandir=$(datadir)/man
 SHELL=/bin/sh
+NROFFFLAGS=-man -c
 
 VERSION=$(shell ./fv -\? | sed -n '1s/^.*ver. //p')
 SOURCES = fv fvi autodescribe automtime fv.1 fvi.1 autodescribe.1 automtime.1
@@ -32,7 +33,7 @@ man: $(DOC_TARGETS)
 
 %.man: %.1
 	# This will output a man page with a charset for the current locale
-	nroff -man -c $^ > $@
+	nroff $(NROFFFLAGS) $^ > $@
 
 %.html: %.man
 	# This is the man2html from https://www.nongnu.org/man2html/
