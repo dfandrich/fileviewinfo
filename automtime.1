@@ -1,11 +1,14 @@
 .\" -*- nroff -*-
-.TH AUTOMTIME 1 "2023-01-11" "automtime version 4-dev"
+.TH AUTOMTIME 1 "2023-01-28" "automtime version 4-dev"
 .SH NAME
 automtime \- automatically extract modification times from files
 .SH SYNOPSIS
 .B automtime
 [
 .B \-l
+]
+[
+.B \-m
 ]
 [
 .B \-e
@@ -163,6 +166,11 @@ List the types of files supported. The first word of each line is the type to
 give the \-t option. Some types are actually families that support several file
 extensions.
 .TP
+.B \-m
+Set the mtime of the file on the filesystem to its embedded mtime. This is
+equivalent to setting
+.B \-e 'touch -d'.
+.TP
 .BI \-t \ type
 Use
 .I type
@@ -204,6 +212,7 @@ This would end up running the command
 .EX
 touch -d 'Mon, 11 Oct 2021 12:34:56 +0000' foo.png
 .EE
+The \-m option is a shortcut for setting this.
 .LP
 This command would rename all the PDF files to their modification times with a
 .I .pdf

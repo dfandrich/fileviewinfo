@@ -731,11 +731,12 @@ mtime_zpaq () {
 
 if [ $# -eq 0 ] ; then
 	echo 'automtime ver. 4-dev'
-	echo 'Usage: automtime [-l] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
+	echo 'Usage: automtime [-l] [-m] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
 	echo 'Extracts modification from internal file metadata'
 	echo '  -e cmd   command to run once for each file with args: mtime file'
 	echo '             e.g. "touch -d"'
 	echo '  -l         list supported file types'
+	echo '  -m         set mtime of file to internal file mtime metadata'
 	echo '  -q         quiet output'
 	echo '  -t type  where type is one of the names shown with -l'
 	exit 1
@@ -746,12 +747,16 @@ if [ "$1" = "-l" ]; then
 	exit 0
 fi
 
+PROG=
+if [ "$1" = "-m" ] ; then
+	PROG="touch -d"
+	shift
+fi
+
 if [ "$1" = "-e" ] ; then
 	PROG="$2"
 	shift
 	shift
-else
-	PROG=
 fi
 
 if [ "$1" = "-q" ] ; then
@@ -761,12 +766,11 @@ else
 	VERBOSE=1
 fi
 
+SETTYPE=
 if [ "$1" = "-t" ] ; then
 	SETTYPE="$2"
 	shift
 	shift
-else
-	SETTYPE=
 fi
 
 # Loop through files, extracting one at a time
