@@ -808,7 +808,7 @@ for f in "$@" ; do
 				TYPE=arj
 				;;
 
-			*.cab | *.onepkg)
+			*.cab | *.msi | *.onepkg)
 				TYPE=cab
 				;;
 
@@ -968,7 +968,7 @@ for f in "$@" ; do
 				TYPE=tiff
 				;;
 
-			*.ttf | *.otf)
+			*.ttf | *.otf | *.woff)
 				TYPE=otf
 				;;
 

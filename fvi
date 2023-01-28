@@ -581,7 +581,7 @@ EOF
 
 		# Catch-all font information displayer
 		# requires: freetype2-demos
-		*.ttf | *.pfa | *.pfb | *.otf \
+		*.ttf | *.pfa | *.pfb | *.otf | *.woff \
 		)	filetype_label Font file
 			ftdump "$f"
 			;;

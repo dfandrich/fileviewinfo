@@ -157,8 +157,9 @@ for f in "$@" ; do
 			;;
 
 		# requires: cabextract
+		# Also Microsoft Installer .msi
 		# Also Microsoft OneNote package .onepkg
-		*.cab | *.onepkg)	archive_label Microsoft Cabinet archive
+		*.cab | *.msi | *.onepkg)	archive_label Microsoft Cabinet archive
 			cabextract -l -- "$f"
 			;;
 

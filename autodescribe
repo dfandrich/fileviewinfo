@@ -875,7 +875,7 @@ for f in "$@" ; do
 				;;
 			*.ogg) TYPE=ogg
 				;;
-			*.otf | *.ttf) TYPE=otf
+			*.otf | *.ttf | *.woff) TYPE=otf
 				;;
 			*.pam) TYPE=pam
 				;;
@@ -928,7 +928,7 @@ for f in "$@" ; do
 			*.tif | *.tiff)
 				TYPE=tiff
 				;;
-			*.txt | *.asc)
+			*.txt | *.asc | *.rst)
 				TYPE=first_line
 				;;
 			*.uue)
