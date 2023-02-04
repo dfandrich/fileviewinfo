@@ -312,6 +312,11 @@ for f in "$@" ; do
 			mkvinfo "$f"
 			;;
 
+		# requires: advancecomp
+		*.mng) filetype_label Multiple-image Network Graphics file
+			advmng -l -- "$f"
+			;;
+
 		# requires: python-id3 || id3ed || mp3info || id3lib || id3v2 || mpgtx
 		*.mp3)	filetype_label MP3 audio file
 			id3v2 -l "$f" || listid3v2.py "$f" || id3ed -i "$f" || mp3info -- "$f" || id3info -- "$f" || tagmp3 show "$f"
