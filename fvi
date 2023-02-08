@@ -123,7 +123,7 @@ for f in "$@" ; do
 			rm -f "${TMPFILE}"
 			;;
 
-		# See http://p7zip.sourceforge.net/
+		# See https://p7zip.sourceforge.net/
 		# requires: p7zip
 		*.7z)	filetype_label 7zip archive
 			7za l -slt -- "$f" | sed '/^----------/,$d'

@@ -105,7 +105,7 @@ for f in "$@" ; do
 	fi
 	echo "$f":
 	case "$filetype" in
-		# See http://p7zip.sourceforge.net/
+		# See https://p7zip.sourceforge.net/
 		# requires: p7zip
 		*.7z)	archive_label 7zip archive
 			7za l -- "$f"
@@ -436,6 +436,7 @@ EOF
 			;;
 
 		# *.cbmarc extension is .arc, but that conflicts with SEA ARC
+		# See https://github.com/dfandrich/fvcbm/
 		# requires: fvcbm
 		# *.lzh and *.lha can be handled by fvcbm, but are taken care of
 		# by lha above
@@ -540,7 +541,7 @@ EOF
 			lswad "$f"
 			;;
 
-		# See http://tnef.sourceforge.net/
+		# See https://tnef.sourceforge.net/
 		# requires: tnef
 		# (Untested)
 		*winmail.dat)	archive_label Microsoft TNEF e-mail attachment
