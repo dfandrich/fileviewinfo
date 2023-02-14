@@ -62,7 +62,7 @@ jobs:
         wireshark-common
         xmlstarlet
         zpaq
-        make curl ca-certificates rpm2cpio cpio
+        make curl ca-certificates rpm2cpio cpio groff-base man2html-base
     - name: 'Install extras'
     # A few packages need newer versions to work properly, so install them
     # separately.
@@ -81,3 +81,11 @@ jobs:
       run: sed -i '/type1.lzh/d' test-automtime-expected
     - name: 'Run tests'
       run: env PATH="$PWD/bin:$PATH" LD_LIBRARY_PATH="$PWD/usr/lib64" make check -k
+    - name: 'Build documentation'
+      run: make man
+    - name: 'Test installation'
+      run: make install prefix="$PWD/install"
+    - name: 'Test dist'
+      run: make dist
+    - name: 'Test distclean'
+      run: make distclean
