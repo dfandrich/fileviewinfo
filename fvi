@@ -479,10 +479,12 @@ EOF
 			;;
 
 		# requires: samba-client
-		# Note: running as non-root usually results in "ERROR: could not init messaging context"
+		# Note: running as non-root usually results in
+		# "ERROR: could not init messaging context" since it needs to create
+		# a samba message lock file.
 		*.tdb)	filetype_label TDB database file
 			echo -n 'Number of keys in database: '
-			dbwrap_tool --persistent -- "$f" listkeys | wc -l
+			dbwrap_tool --persistent --configfile=/dev/null -- "$f" listkeys | wc -l
 			;;
 
 		# See https://simonowen.com/samdisk/
