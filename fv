@@ -97,13 +97,24 @@ archive_label () {
 	fi
 }
 
+# Make a filename starting with a dash - safe to provide a program that
+# would interpret it as an option.
+safefn () {
+	case "$1" in
+		-*) echo "./$1" ;;
+		*) echo "$1" ;;
+	esac
+}
+
 for f in "$@" ; do
 	if [ X"$staticfiletype" = X"" ] ; then
-		filetype=`basename "$f"`
+		filetype=`basename -- "$f"`
 	else
 		filetype="$staticfiletype"
 	fi
 	echo "$f":
+	# "safe" filename guaranteed not to start with a dash
+	sf="`safefn "$f"`"
 	case "$filetype" in
 		# See https://p7zip.sourceforge.net/
 		# requires: p7zip
@@ -113,18 +124,18 @@ for f in "$@" ; do
 
 		# requires: binutils
 		*.a | *.sa)	archive_label ar archive
-			ar tv "$f"
+			ar tv -- "$f"
 			;;
 
 		# requires: linunace
 		*.ace)	archive_label ACE archive
-			unace v "$f"
+		    unace v "$sf"
 			;;
 
 		# See http://www.kipple.pe.kr/win/unalz/ (defunct as of 2021)
 		# requires: unalz
 		*.alz)	archive_label ALZ archive
-			unalz -l "$f"
+			unalz -l "$sf"
 			;;
 
 		# See https://github.com/AppImage/AppImageKit
@@ -135,25 +146,25 @@ for f in "$@" ; do
 
 		# requires: arc
 		*.arc)	archive_label SEA ARC archive
-			arc v "$f"
+			arc v "$sf"
 			;;
 
 		# requires: nspark
 		# Extension is really .arc, but that conflicts with SEA ARC
 		*.spark)	archive_label 'Archimedes Spark archive (RiscOS)'
-			nspark -l -v "$f"
+			nspark -l -v "$sf"
 			;;
 
 		# requires: unarj || arj
 		*.arj)	archive_label ARJ archive
-			unarj l "$f" || arj l "$f"
+			unarj l "$f" || arj l -- "$f"
 			;;
 
 		# See http://www.star.le.ac.uk/~tjg/bun/ (defunct as of 2021)
 		# requires: bun
 		# (Untested)
 		*.bun)	archive_label BUN archive
-			bun tv "$f"
+			bun tv "$sf"
 			;;
 
 		# requires: cabextract
@@ -166,17 +177,17 @@ for f in "$@" ; do
 		# See http://wiki.conary.com/wiki/Conary (defunct as of 2021)
 		# requires: conary
 		*.ccs)	archive_label Conary Change Set
-			conary showcs --info --all --all-troves --trove-headers --info --lsl --no-recurse "$f"
+			conary showcs --info --all --all-troves --trove-headers --info --lsl --no-recurse "$sf"
 			;;
 
 		# snd+gfx--see sasteroids
 		*.cf)	archive_label Compound File Compiler archive
-			cvf "$f"
+			cvf "$sf"
 			;;
 
 		# requires: chmlib
 		*.chm)	archive_label Microsoft Compressed HTML
-			enum_chmLib "$f"
+			enum_chmLib "$sf"
 			;;
 
 		# requires: cpio, gzip
@@ -198,9 +209,9 @@ for f in "$@" ; do
 		# See http://dar.linux.free.fr/
 		# requires: dar
 		# (Untested)
-		# May need `basename "`basename "$f"`"`
+		# May need `basename -- "`basename -- "$f"`"`
 		*.dar)	archive_label Disk Archiver archive
-			dar -l "$f"
+			dar -l -- "$f"
 			;;
 
 		# requires: binutils, gzip, tar, xz
@@ -210,15 +221,15 @@ for f in "$@" ; do
 			# data is either gzip or xzip compressed; try them both but hide
 			# errors only from the first so only one error will be shown at
 			# most.
-			ar p "$f" data.tar.gz 2>/dev/null | gzip -dc 2>/dev/null | tar tvf - 2>/dev/null || ( ar p "$f" data.tar.xz | xz -dc | tar tvf - )
+			ar p "$sf" data.tar.gz 2>/dev/null | gzip -dc 2>/dev/null | tar tvf - 2>/dev/null || ( ar p "$sf" data.tar.xz | xz -dc | tar tvf - )
 			;;
 
 		# See https://github.com/sgan81/apfs-fuse
 		# requires dmg2img, kpartx, apfs_fuse
 		*.dmg)	archive_label Apple disk image
-			FVTMPDIR="$(mktemp -d)"
-			dmg2img "$f" "$FVTMPDIR/image.img"
-			DMGDEVICE="$(sudo kpartx -asrv "$FVTMPDIR/image.img" | awk '/^add map/ {print "/dev/mapper/" $3}')"
+			FVTMPDIR="`mktemp -d`"
+			dmg2img "$sf" "$FVTMPDIR/image.img"
+			DMGDEVICE="`sudo kpartx -asrv "$FVTMPDIR/image.img" | awk '/^add map/ {print "/dev/mapper/" $3}'`"
 			if [ -z "$FVTMPDIR" -o -z "$FVTMPDIR" ] ; then
 				echo "Error: cannot manipulate DMG file; are dmg2img and kpartx installed?"
 				# Indicate that an error has occurred
@@ -240,8 +251,8 @@ for f in "$@" ; do
 		# requires: binutils, file, grep, gzip, tar
 		*.ipk)	archive_label Itsy package
 			# Detect the old or new style ipk format
-			if file "$f" | egrep -iq 'Debian|ar archive' ; then
-				ar -p "$f" data.tar.gz | gzip -dc | tar tvf -
+			if file -- "$f" | egrep -iq 'Debian|ar archive' ; then
+				ar -p "$sf" data.tar.gz | gzip -dc | tar tvf -
 			else
 				# Internal file name may or may not be prefixed with ./
 				# which is what the \* catches.
@@ -257,7 +268,7 @@ for f in "$@" ; do
 
 		# I've forgotten what this is
 		*.ha)	archive_label ha archive
-			ha l "$f"
+			ha l "$sf"
 			;;
 
 		# requires: sed
@@ -267,7 +278,7 @@ for f in "$@" ; do
 
 		# requires: macutils
 		*.hqx)	archive_label Macintosh BinHex encoding
-			hexbin -il "$f"
+			hexbin -il "$sf"
 			;;
 
 		# requires: cdrecord
@@ -279,13 +290,13 @@ for f in "$@" ; do
 		# This just dumps file names without directory structure, but it's
 		# better than nothing
 		*.jffs2)	archive_label JFFS2 filesystem image file
-			jffs2dump -c "$f" | sed -n 's/^.*, name //p'
+			jffs2dump -c "$sf" | sed -n 's/^.*, name //p'
 			;;
 
 		# See http://rus.members.beeb.net/lbrate.html (defunct as of 2021)
 		# requires: lbrate
 		*.lbr)	archive_label CP/M LBR archive
-			lbrate -vl "$f"
+			lbrate -vl "$sf"
 			;;
 
 		# requires: lha || lhasa
@@ -316,14 +327,14 @@ for f in "$@" ; do
 		# requires: mar
 		# (Untested)
 		*.mar)	archive_label Meta Archive
-			mar -t "$f"
+			mar -t "$sf"
 			;;
 
 		# See http://www.dakotacom.net/~donut/programs/par2ls.html (defunct as of 2021)
 		# requires: par2ls
 		# (Untested)
 		*.par2)	archive_label Parity Archive ver. 2
-			par2ls "$f"
+			par2ls "$sf"
 			;;
 
 		# requires: poppler
@@ -341,13 +352,13 @@ for f in "$@" ; do
 		# (Don't know what kind of suffix this one uses)
 		# (Untested)
 		*.pkg)	archive_label 'SysV package (SCO UNIX, IRIX)'
-			pkginfo -d "`dirname "$f"`" -l "`basename "$f"`"
+			pkginfo -d "`dirname -- "$f"`" -l "`basename -- "$f"`"
 			;;
 
 		# See http://en.pardus-wiki.org/Package-manager (defunct as of 2021)
 		# requires: lzma, tar, unzip
 		*.pisi)	archive_label Pardus package
-			unzip -q -c  -- "$f" install.tar.lzma | lzma -dc | tar -tvf -
+			unzip -q -c "$sf" install.tar.lzma | lzma -dc | tar -tvf -
 			;;
 
 		# See http://mattmahoney.net/dc/
@@ -361,10 +372,10 @@ for f in "$@" ; do
 		# requires: gzip, tar, unzip
 		*.pup)
 			archive_label Puppy Linux package
-			if unzip -l -- "$f" dotpop.tar.gz >/dev/null; then
-				unzip -p -- "$f" dotpup.tar.gz | gzip -dc | tar tvf -
+			if unzip -l "$sf" dotpop.tar.gz >/dev/null; then
+				unzip -p "$sf" dotpup.tar.gz | gzip -dc | tar tvf -
 			else
-				unzip -lv -- "$f"
+				unzip -lv "$sf"
 			fi
 			;;
 
@@ -411,7 +422,7 @@ EOF
 
 		# requires: macutils
 		*.sit)	archive_label Macintosh StuffIt archive
-			macunpack -il "$f"
+			macunpack -il "$sf"
 			;;
 
 		# There are many kinds of shar archives with greatly differing
@@ -432,7 +443,7 @@ EOF
 		# See https://nulib.com/
 		# requires: nulib
 		*.shk | *.sh2 | *.sdk | *.bxy)	archive_label Apple II archive
-			nulib tv "$f"
+			nulib tv "$sf"
 			;;
 
 		# *.cbmarc extension is .arc, but that conflicts with SEA ARC
@@ -444,14 +455,14 @@ EOF
 		*.sda | *.sfx | *.d64 | *.x64 | *.t64 | *.lnx | \
 		*.n64 | *.lbr | *.[psrud]00 | \
 		*.cbmarc)	archive_label Commodore 64 archive
-			fvcbm "$f"
+			fvcbm "$sf"
 			;;
 
 		# See https://github.com/plougher/squashfs-tools
 		# Also Snap package .snap
 		# requires: squashfs
 		*.sqsh | *.squashfs | *.snap) archive_label Squashfs filesystem image
-			unsquashfs -ll "$f"
+			unsquashfs -ll "$sf"
 			;;
 
 		# gzip-compressed tar archive .tar.gz
@@ -538,14 +549,14 @@ EOF
 		# See https://jmtd.net/doom/
 		# requires: lswad
 		*.wad)	archive_label Doom WAD archive
-			lswad "$f"
+			lswad "$sf"
 			;;
 
 		# See https://tnef.sourceforge.net/
 		# requires: tnef
 		# (Untested)
 		*winmail.dat)	archive_label Microsoft TNEF e-mail attachment
-			tnef -t "$f"
+			tnef -t -- "$f"
 			;;
 
 		# requires: sed
@@ -556,7 +567,7 @@ EOF
 		# See http://xar.googlecode.com/ (defunct as of 2021)
 		# requires: xar
 		*.xar)	archive_label XAR archive
-			xar -t -f "$f"
+			xar -t -f "$sf"
 			;;
 
 		# zip archive .zip
@@ -615,25 +626,25 @@ EOF
 		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf | \
 		*.sb2 | *.sb3 | *.ora | *.tc | *.wfp | *.wacz | *.xlsx | *.pptx)
 			archive_label ZIP archive
-			unzip -v -- "$f"
+			unzip -v "$sf"
 			;;
 
 		# requires: zoo
 		*.zoo)	archive_label ZOO archive
-			zoo -list "$f"
+			zoo -list "$sf"
 			;;
 
 		# See http://mattmahoney.net/dc/zpaq.html
 		# requires: zpaq
 		*.zpaq)	archive_label ZPAQ compressed archive
-			zpaq l "$f"
+			zpaq l "$sf"
 			;;
 
 		# See https://archives.damiendebin.net/zzip/
 		# requires: zzip
 		# (Untested)
 		*.zz)	archive_label ZZIP archive
-			zzip l "$f"
+			zzip l "$sf"
 			;;
 
 # General extensions that are used more specifically above
@@ -653,12 +664,12 @@ EOF
 		*.bz2)	archive_label bzip2-compressed file
 		    if [ -e "$f" ] ; then
 				echo "method  crc      date           compressed uncompressed_name"
-				FILEINFO=`env LC_ALL=C ls -l "$f"`
+				FILEINFO=`env LC_ALL=C ls -l -- "$f"`
 				#FILESIZE=`echo "$FILEINFO" | cut -c 30-42`
 				FILESIZE=`echo "$FILEINFO" | awk '{print $5}'`
 				#FILEDATE=`echo "$FILEINFO" | cut -c 43-54`
 				FILEDATE=`echo "$FILEINFO" | awk '{print $6 " " $7 " " $8}'`
-				FILENAME=`basename "$f" .bz2`
+				FILENAME=`basename -- "$f" .bz2`
 				#FILECRC=`od -A n -j 10 -N 4 -t x1 < "$f" | sed "s/ //g"`
 				FILECRC=`hexdump -e '4/1 "%02x" "\n"' -n 4 -s 10 < "$f"`
 				#FILECOMPRESS=`od -A n -j 3 -N 1 -t c "$f" | sed "s/ //g"`
@@ -712,7 +723,7 @@ EOF
 		# requires: file
 		*)	echo "$filetype: Unsupported archive format." 1>&2
 			if [ X"$FV_VERBOSE" != X ] ; then
-				file "$f" 1>&2
+				file -- "$f" 1>&2
 			fi
 			# Indicate that an error has occurred
 			false

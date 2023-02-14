@@ -7,7 +7,7 @@
 
 # Print a shell-quoted version of the first argument
 shquote () {
-	echo "$1" | awk -v q="'" '{gsub(q, q "\\" q q, $0); printf "%s", q $0 q;}'
+	printf '%s' "$1" | awk -v q="'" '{gsub(q, q "\\" q q, $0); printf "%s", q $0 q;}'
 }
 
 # Use the time program to normalize an input time without time zone into the
@@ -70,7 +70,16 @@ print(d.strftime("%Y-%m-%d %H:%M:%S %z").rstrip())
 #   2012-01-23T13:14:15+08:00
 normalize_iso_time () {
 	# Delete any CR characters so end-of-line matches work
-	echo "$1" | tr -d '\015' | sed -Ee 's/([0-9])T([0-2])/\1 \2/' -e 's/Z$/+0000/' -e 's/([-+][0-9][0-9])(:)?([0-9][0-9])$/ \1\3/'
+	printf '%s' "$1" | tr -d '\015' | sed -Ee 's/([0-9])T([0-2])/\1 \2/' -e 's/Z$/+0000/' -e 's/([-+][0-9][0-9])(:)?([0-9][0-9])$/ \1\3/'
+}
+
+# Make a filename starting with a dash - safe to provide a program that
+# would interpret it as an option.
+safefn () {
+	case "$1" in
+		-*) echo "./$1" ;;
+		*) echo "$1" ;;
+	esac
 }
 
 ###########################
@@ -144,7 +153,9 @@ mtime_ar () {
 # File type: arj (arj archive)
 # requires: unarj || arj
 mtime_arj () {
-	RAWTIME="$( (unarj l "$1" 2>/dev/null || arj l "$1") | sed -E -n -e 's/^Archive created:.*modified: //p')"
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	RAWTIME="$( (unarj l "$sf" 2>/dev/null || arj l -- "$1") | sed -E -n -e 's/^Archive created:.*modified: //p')"
 	# $RAWTIME is like 2002-03-04 05:06:07
 	# Note that unarj ver. 2.65 has a bug with date handling and dates around
 	# 2022 are wrong by almost a decade.
@@ -179,7 +190,9 @@ mtime_docbook () {
 # File type: docx (Microsoft Office Open XML)
 # requires: unzip, xmlstarlet
 mtime_docx () {
-	RAWTIME=$(unzip -cq -- "$1" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dcterms:modified)
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	RAWTIME=$(unzip -cq "$sf" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dcterms:modified)
 	# $RAWTIME is like 2012-01-23T13:14:15Z
 	# Some programs incorrectly designate a time as UTC instead of local time,
 	# but there's nothing we can do to know that (in the general case).
@@ -353,7 +366,9 @@ mtime_jpeg () {
 # File type: kra (Krita image)
 # requires: unzip, xmlstarlet
 mtime_kra () {
-	RAWTIME=$(unzip -cq -- "$1" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:date 2>/dev/null )
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	RAWTIME=$(unzip -cq "$sf" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:date 2>/dev/null )
 	# $RAWTIME is like 2022-01-01T13:57:46
 	TIME="$(normalize_iso_time "$RAWTIME")"
 }
@@ -406,7 +421,9 @@ mtime_mov () {
 # File type: odf (Open Document Format)
 # requires: unzip, xmlstarlet
 mtime_odf () {
-	RAWTIME=$(unzip -cq -- "$1" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:date 2>/dev/null)
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	RAWTIME=$(unzip -cq "$sf" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:date 2>/dev/null)
 	# $RAWTIME is like 2009-10-11T12:13:14
 	TIME="$(normalize_iso_time "$RAWTIME")"
 	if [ -n "$RAWTIME" -a "$TIME" = "$RAWTIME" ]; then
@@ -443,7 +460,9 @@ mtime_pdf () {
 # File type: png (PNG image)
 # requires: pngtools
 mtime_png () {
-	RAWTIME=$(pnginfo "$1" | sed -n -e 's/^ *Creation Time[^:]*: *//p')
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	RAWTIME=$(pnginfo "$sf" | sed -n -e 's/^ *Creation Time[^:]*: *//p')
 	# $RAWTIME is like Mon, 11 Oct 2021 12:34:56 +0000
 	TIME=$(normalize_time_tz "$RAWTIME")
 }
@@ -512,7 +531,9 @@ mtime_sla () {
 # File type: squashfs (Squashfs filesystem image)
 # requires: squashfs-tools
 mtime_squashfs () {
-	RAWTIME=$(unsquashfs -s "$1" | sed -n -e 's/^Creation or last append time //p')
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	RAWTIME=$(unsquashfs -s "$sf" | sed -n -e 's/^Creation or last append time //p')
 	# $RAWTIME is like Sun May 23 06:33:44 2021
 	# The time is stored absolute, but is displayed in the local time zone
 	TIME=$(normalize_time_tz "$RAWTIME")
@@ -628,7 +649,9 @@ mtime_tiff () {
 # File type: otf (OpenType font/TrueType font)
 # requires: freetype2-demos
 mtime_otf () {
-	RAWTIME=$(ftdump "$1" | sed -n -e 's/^ *modified: *//p' | sort -n | tail -1)
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	RAWTIME=$(ftdump "$sf" | sed -n -e 's/^ *modified: *//p' | sort -n | tail -1)
 	# $RAWTIME is like 2021-10-17
 	TIME="$RAWTIME"
 }
@@ -701,6 +724,8 @@ mtime_xcf_exiftool () {
 # File type: zip (zip archive)
 # requires: unzip (Info-ZIP version), findutils
 mtime_zip () {
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
 	# The mtime is considered to be the latest file time in the archive.
 	# The date format can not, unfortunately, be easily sorted as-is, so it
 	# is converted to epoch time, sorted and only the most recent is used.
@@ -710,7 +735,7 @@ mtime_zip () {
 	# equivalent local time is also shown and that can be treated like all the
 	# others, which are also local time.
 	# An "empty" time of '1980 000 0 00:00:00' is also filtered out.
-	RAWTIME=$(zipinfo -v -- "$1" | sed -n -e '/^ *file last modified on.*[^U]..$/s/^[^:]*: *//p' | awk '$2 != "000" {print $2 " " $3 ", " $1 " " $4}' | uniq | tr '\n' '\0' | xargs -0 -n1 date +'%s' -d | sort -n | tail -1)
+	RAWTIME=$(zipinfo -v "$sf" | sed -n -e '/^ *file last modified on.*[^U]..$/s/^[^:]*: *//p' | awk '$2 != "000" {print $2 " " $3 ", " $1 " " $4}' | uniq | tr '\n' '\0' | xargs -0 -n1 date +'%s' -d | sort -n | tail -1)
 	# $RAWTIME is like 1234567890
 	# For ZIP files with time extensions, the time is stored absolute, but is
 	# displayed in the local time zone. Don't show the time zone here since
@@ -721,8 +746,10 @@ mtime_zip () {
 # File type: zpaq (ZPAQ compressed archive)
 # requires: zpaq
 mtime_zpaq () {
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
 	# The mtime is considered to be the latest file time in the archive.
-	RAWTIME=$(zpaq l "$1" 2>/dev/null | sed -E -n -e 's/^- ([12][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-2][0-9]:[0-9][0-9]:[0-9][0-9]).*$/\1/p' | sort -n | tail -1)
+	RAWTIME=$(zpaq l "$sf" 2>/dev/null | sed -E -n -e 's/^- ([12][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-2][0-9]:[0-9][0-9]:[0-9][0-9]).*$/\1/p' | sort -n | tail -1)
 	# $RAWTIME is like 2021-10-14 18:40:56
 	TIME="$RAWTIME"
 }

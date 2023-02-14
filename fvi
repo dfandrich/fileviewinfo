@@ -97,19 +97,30 @@ filetype_label () {
 	fi
 }
 
+# Make a filename starting with a dash - safe to provide a program that
+# would interpret it as an option.
+safefn () {
+	case "$1" in
+		-*) echo "./$1" ;;
+		*) echo "$1" ;;
+	esac
+}
+
 for f in "$@" ; do
 	if [ X"$staticfiletype" = X"" ] ; then
-		filetype=`basename "$f"`
+		filetype=`basename -- "$f"`
 	else
 		filetype="$staticfiletype"
 	fi
 	echo "$f":
+	# "safe" filename guaranteed not to start with a dash
+	sf="`safefn "$f"`"
 	case "$filetype" in
 
 		# requires: unzip, xmlstarlet
 		*.3mf)	filetype_label 3MF 3-D Manufacturing file
-			TMPFILE="$(mktemp)"
-			unzip -qc "$f" 3D/3dmodel.model > "${TMPFILE}"
+			TMPFILE="`mktemp`"
+			unzip -qc "$sf" 3D/3dmodel.model > "${TMPFILE}"
 			# This could probably be combined into a single xmlstarlet invocation for speed
 			printf 'Name: '
 			xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name]" < "${TMPFILE}"
@@ -131,11 +142,11 @@ for f in "$@" ; do
 
 		# requires: unzip, xmlstarlet
 		*.amf)	filetype_label Additive Manufacturing File
-			if [ "$(dd if="$f" bs=1 count=2 2>/dev/null )" = "PK" ]; then
+			if [ "`dd if="$f" bs=1 count=2 2>/dev/null`" = "PK" ]; then
 				# If the amf file is zip compressed, uncompress it first
-				TMPFILE=$(mktemp)
+				TMPFILE=`mktemp`
 				INFILE="${TMPFILE}"
-				unzip -cq -- "$f" > "$INFILE"
+				unzip -cq "$sf" > "$INFILE"
 			else
 				TMPFILE=
 				INFILE="$f"
@@ -161,13 +172,13 @@ for f in "$@" ; do
 		# See https://sourceforge.net/projects/avifile/
 		# requires: avifile-samples
 		*.avi)	filetype_label Microsoft Audio Video Interleaved
-			avitype "$f"
+			avitype -- "$f"
 			;;
 
 
 		# requires: Java jdk
 		*.class) filetype_label Java compiled class file
-			javap "$f" | grep -E '(^C)|({$)'
+			javap "$sf" | grep -E '(^C)|({$)'
 			;;
 
 		# requires: openssl
@@ -204,7 +215,7 @@ for f in "$@" ; do
 
 		# hdiutil comes standard on OS X
 		*.dmg)	filetype_label Mac OS X Disk Image
-			hdiutil imageinfo "$f"
+			hdiutil imageinfo "$sf"
 			;;
 
 		# requires: dtc || device-tree-compiler
@@ -214,14 +225,14 @@ for f in "$@" ; do
 
 		# requires: ebook-tools
 		*.epub)	filetype_label EPub Document
-			einfo "$f"
+			einfo "$sf"
 			;;
 
 
 		# requires: pev || pefile (https://pypi.org/project/pefile/)
 		# Also Windows PE Dynamic Link Library .dll
 		*.exe | *.dll)	filetype_label Windows PE executable
-			pescan -v "$f" || python3 -m pefile "$f"
+			pescan -v "$sf" || python3 -m pefile "$f"
 			;;
 
 		# requires: flac
@@ -232,7 +243,7 @@ for f in "$@" ; do
 		# requires: gdbm
 		# These databases are often given a .db extension instead
 		*.gdbm)	filetype_label GDBM database
-			echo 'set open=readonly;version;header;count;' | gdbmtool "$f"
+			echo 'set open=readonly;version;header;count;' | gdbmtool -- "$f"
 			;;
 
 		# requires: libungif-progs
@@ -250,7 +261,7 @@ for f in "$@" ; do
 		# See https://pypi.org/project/gpxpy/
 		# requires: gpxinfo || gpxpy
 		*.gpx)	filetype_label GPS exchange format file
-			gpxinfo "$f"
+			gpxinfo "$sf"
 			;;
 
 		# requires: libheif
@@ -262,8 +273,8 @@ for f in "$@" ; do
 		# requires: binutils, file, grep, gzip, tar
 		*.ipk)	filetype_label Itsy package
 			# Detect the old or new style ipk format
-			if file "$f" | egrep -iq 'Debian|ar archive' ; then
-				ar -p "$f" control.tar.gz | gzip -dc | tar xOf -
+			if file -- "$f" | egrep -iq 'Debian|ar archive' ; then
+				ar -p "$sf" control.tar.gz | gzip -dc | tar xOf -
 			else
 				# Internal file name may or may not be prefixed with ./
 				# which is what the \* catches.
@@ -278,7 +289,7 @@ for f in "$@" ; do
 
 		# requires: jhead || exiv2 || exif
 		*.jpg | *.jpeg | *.jfif)	filetype_label JPEG image
-			jhead "$f" || exiv2 pr "$f" || exif "$f"
+			jhead "$sf" || exiv2 pr "$sf" || exif -- "$f"
 			;;
 
 		# requires: openssl
@@ -309,7 +320,7 @@ for f in "$@" ; do
 
 		# requires: mkvtoolnix
 		*.mkv | *.webm) filetype_label Matroska video file
-			mkvinfo "$f"
+			mkvinfo "$sf"
 			;;
 
 		# requires: advancecomp
@@ -319,7 +330,7 @@ for f in "$@" ; do
 
 		# requires: python-id3 || id3ed || mp3info || id3lib || id3v2 || mpgtx
 		*.mp3)	filetype_label MP3 audio file
-			id3v2 -l "$f" || listid3v2.py "$f" || id3ed -i "$f" || mp3info -- "$f" || id3info -- "$f" || tagmp3 show "$f"
+			id3v2 -l "$sf" || listid3v2.py "$sf" || id3ed -i "$sf" || mp3info -- "$f" || id3info -- "$f" || tagmp3 show "$f"
 			;;
 
 		# requires: libquicktime-progs
@@ -356,7 +367,7 @@ for f in "$@" ; do
 
 		# requires: pngtools
 		*.png)	filetype_label Portable Network Graphics image
-			pnginfo "$f"
+			pnginfo "$sf"
 			;;
 
 		# requires: netpbm
@@ -399,23 +410,23 @@ for f in "$@" ; do
 
 		# requires: sqlite3-tools
 		*.sqlite | *.sqlite3) filetype_label Sqlite database file
-			sqlite3 "$f" .dbinfo "select 'Available Tables:';" .tables
+			sqlite3 "$sf" .dbinfo "select 'Available Tables:';" .tables
 			;;
 
 		# See https://github.com/plougher/squashfs-tools
 		# Also Snap package .snap
 		# requires: squashfs-tools
 		*.sqsh | *.squashfs | *.snap) filetype_label Squashfs filesystem image
-			unsquashfs -s "$f"
+			unsquashfs -s "$sf"
 			;;
 
 		# requires: python >= 3
 		*.stl)	filetype_label STL model file
 			# Detect ASCII or binary format
-			if [ "$(dd if="$f" bs=1 count=80 2>/dev/null | wc -l)" -gt 0 -a "$(dd if="$f" bs=1 count=6 2>/dev/null)" = "solid " -a "$(dd if="$f" bs=1 count=1 skip=80 2>/dev/null | od -An -b)" != "000" ]; then
+			if [ "`dd if="$f" bs=1 count=80 2>/dev/null | wc -l`" -gt 0 -a "`dd if="$f" bs=1 count=6 2>/dev/null`" = "solid " -a "`dd if="$f" bs=1 count=1 skip=80 2>/dev/null | od -An -b`" != "000" ]; then
 				# ASCII stl format
-				sed -n -E -e '1s/^solid +//p' "$f" | iconv -f windows-1252
-				grep "^[[:space:]]*facet " "$f" | wc -l | tr -d ' \n'
+				sed -n -E -e '1s/^solid +//p' < "$f" | iconv -f windows-1252
+				grep "^[[:space:]]*facet " < "$f" | wc -l | tr -d ' \n'
 				echo " facets"
 			else
 				# Binary stl format
@@ -437,7 +448,7 @@ EOF
 
 		# requires: imagemagick, gzip
 		*.svgz)	filetype_label Compressed Scalable Vector Graphic image file
-			zcat "$f" | identify -verbose -
+			zcat -- "$f" | identify -verbose -
 			;;
 
 		# See http://www.encode.ru/tc/ (obsolete as of 2022)
@@ -458,13 +469,13 @@ EOF
 
 		*.tc)	filetype_label Tellico database
 			echo -n 'Database name: '
-			unzip -qc -- "$f" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" -n 2> /dev/null
+			unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" -n 2> /dev/null
 			echo -n 'Number of records: '
-			unzip -qc -- "$f" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='entry'])" -n 2>/dev/null
+			unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='entry'])" -n 2>/dev/null
 			echo -n 'Number of images:'
-			unzip -qc -- "$f" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='images']/*[local-name()='image'])" -n 2>/dev/null
+			unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='images']/*[local-name()='image'])" -n 2>/dev/null
 			echo 'Database fields:'
-			unzip -qc -- "$f" tellico.xml | xmlstarlet sel -t -m "/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='fields']/*[local-name()='field']" -o '  ' -v '@name' -n 2>/dev/null
+			unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -m "/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='fields']/*[local-name()='field']" -o '  ' -v '@name' -n 2>/dev/null
 			;;
 
 		# requires: samba-client
@@ -492,7 +503,7 @@ EOF
 
 		# requires: bittorrent
 		*.torrent)	filetype_label BitTorrent torrent file
-			torrentinfo-console "$f"
+			torrentinfo-console "$sf"
 			;;
 
 		# requires: gobject-introspection, xmlstarlet
@@ -510,7 +521,7 @@ EOF
 
 		# requires: unzip, jq
 		*.wacz)	filetype_label Web Archive Collection Zipped
-			unzip -qc "$f" datapackage.json | jq 'del(.resources)'
+			unzip -qc "$sf" datapackage.json | jq 'del(.resources)'
 			;;
 
 		# zip archive .zip
@@ -564,7 +575,7 @@ EOF
 		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | \
 		*.sb2 | *.sb3 | *.apkm)
 			filetype_label ZIP archive
-			zipinfo -h -z "$f" | grep -v "^$"; zipinfo -l "$f" | tail -1
+			zipinfo -h -z "$sf" | grep -v "^$"; zipinfo -l "$sf" | tail -1
 			;;
 
 # Catch-all handlers. These must appear after the rest because they include
@@ -592,7 +603,7 @@ EOF
 		# requires: freetype2-demos
 		*.ttf | *.pfa | *.pfb | *.otf | *.woff \
 		)	filetype_label Font file
-			ftdump "$f"
+			ftdump "$sf"
 			;;
 
 		# Catch-all video and audio formats
@@ -662,7 +673,7 @@ EOF
 		# Unknown format
 		# requires: file
 		*)	echo "$filetype: Unsupported file format." 1>&2
-			file "$f" 1>&2
+			file -- "$f" 1>&2
 			# Indicate that an error has occurred
 			false
 			;;

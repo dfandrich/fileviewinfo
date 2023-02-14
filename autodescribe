@@ -4,29 +4,38 @@
 # See the file COPYING for details of how CC0 applies to this file.
 
 # Print a shell-quoted version of the first argument
-shquote() {
+shquote () {
 	printf '%s' "$1" | awk -v q="'" '{gsub(q, q "\\" q q, $0); printf "%s", q $0 q;}'
 }
 
 # Filter to trim leading and trailing whitespace and concatenate lines
-trimspace() {
+trimspace () {
 	tr '\n' ' ' | tr -d '\015' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 }
 
 # Return the full language locale with dashes instead of underscores
 # This might return a locale with or without a specific country.
-get_lang_full() {
+get_lang_full () {
 	locale | sed -n -E -e 's/_/-/g' -e '/^LANG=/s/^.*=([^.]*)\.?.*$/\1/p'
 }
 
 # Same as get_lang_full but with underscores instead of dashes
-get_lang_full_under() {
+get_lang_full_under () {
 	get_lang_full | tr '-' '_'
 }
 
 # Language locale with country-specific portion removed
-get_lang_generic() {
+get_lang_generic () {
 	get_lang_full | sed 's/-.*$//'
+}
+
+# Make a filename starting with a dash - safe to provide a program that
+# would interpret it as an option.
+safefn () {
+	case "$1" in
+		-*) echo "./$1" ;;
+		*) echo "$1" ;;
+	esac
 }
 
 # Following are functions to extract descriptions for specific file types
@@ -54,21 +63,25 @@ comment_lzh () {
 # File type: zip (zip archive)
 # requires: unzip (Info-ZIP version)
 comment_zip () {
-	if [ -n "$(unzip -zq -- "$1" dummy-file-to-eliminate-output)" ]; then
-		COMMENT=$(unzip -zq -- "$1" dummy-file-to-eliminate-output | head -2 | trimspace)
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	if [ -n "$(unzip -zq "$sf" dummy-file-to-eliminate-output)" ]; then
+		COMMENT=$(unzip -zq "$sf" dummy-file-to-eliminate-output | head -2 | trimspace)
 
-	elif unzip -vqq -- "$1" desc.sdi > /dev/null ; then
-		COMMENT=$(unzip -caq -- "$1" desc.sdi | head -3 | trimspace)
+	elif unzip -vqq "$sf" desc.sdi > /dev/null ; then
+		COMMENT=$(unzip -caq "$sf" desc.sdi | head -3 | trimspace)
 	fi
 }
 
 # File type: zoo (zoo archive)
 # requires: zoo
 comment_zoo () {
-	COMMENT=$(zoo vc "$1" dummy-file-to-eliminate-output | \
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(zoo vc "$sf" dummy-file-to-eliminate-output | \
 		sed -n -e 's/^>> //p' | trimspace)
-	if [ -z "$COMMENT" ] && zoo vq "$1" desc.sdi > /dev/null ; then
-		COMMENT=$(zoo xpq "$1" desc.sdi | head -3 | trimspace)
+	if [ -z "$COMMENT" ] && zoo vq "$sf" desc.sdi > /dev/null ; then
+		COMMENT=$(zoo xpq "$sf" desc.sdi | head -3 | trimspace)
 	fi
 }
 
@@ -112,7 +125,9 @@ comment_desktop () {
 # File type: docx (MS Word document)
 # requires: unzip, xmlstarlet
 comment_docx () {
-	COMMENT=$(unzip -cq -- "$1" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dc:title)
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(unzip -cq "$sf" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dc:title)
 }
 
 # File type: exe (Microsoft Windows PE executable)
@@ -143,7 +158,7 @@ comment_ebook() {
 	# ebook-meta falls back to the file name (without extension) as the title
 	# if no other title can be found. This isn't very useful here, so blank the
 	# comment if that happens.
-	BASENAME=$(basename "$1" | sed -e 's/\.[^.]*$//')
+	BASENAME=$(basename -- "$1" | sed -e 's/\.[^.]*$//')
 	if [ "$COMMENT" = "$BASENAME" ]; then
 		COMMENT=""
 	fi
@@ -152,7 +167,9 @@ comment_ebook() {
 # File type: kra (Krita image)
 # requires: unzip, xmlstarlet
 comment_kra () {
-	COMMENT=$(unzip -cq -- "$1" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:title 2>/dev/null )
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(unzip -cq "$sf" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:title 2>/dev/null )
 }
 
 # File type: pdf (Portable Document Format)
@@ -164,9 +181,11 @@ comment_pdf () {
 # File type: png (PNG image)
 # requires: pngtools
 comment_png () {
-	COMMENT=$(pnginfo "$1" | sed -n -e 's/^[[:space:]]\+Title[^:]*: //p')
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(pnginfo "$sf" | sed -n -e 's/^[[:space:]]\+Title[^:]*: //p')
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(pnginfo "$1" | sed -n -e 's/^[[:space:]]\+Description[^:]*: //p')
+		COMMENT=$(pnginfo "$sf" | sed -n -e 's/^[[:space:]]\+Description[^:]*: //p')
 	fi
 }
 
@@ -208,7 +227,9 @@ comment_sla () {
 # File type: snap (Snap package)
 # requires: squashfs
 comment_snap () {
-	COMMENT=$(unsquashfs -cat "$1" meta/snap.yaml | sed -n 's/^summary: //p')
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(unsquashfs -cat "$sf" meta/snap.yaml | sed -n 's/^summary: //p')
 }
 
 # File type: stl (STL model file)
@@ -246,9 +267,11 @@ comment_svgz () {
 # File type: tellico (Tellico database file)
 # requires: unzip, xmlstarlet
 comment_tellico () {
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
 	# stderr always contains a warning about the DTD; send that (and every
 	# other warning as a side effect) to /dev/null
-	COMMENT=$(unzip -qc -- "$1" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" 2> /dev/null)
+	COMMENT=$(unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" 2> /dev/null)
 }
 
 # File type: tex (TeX document)
@@ -313,7 +336,9 @@ comment_pascal () {
 # File type: 3mf (3-D Manufacturing format)
 # requires: unzip, xmlstarlet
 comment_3mf () {
-	COMMENT=$(unzip -cq -- "$1" 3D/3dmodel.model | xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name='Title']")
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(unzip -cq "$sf" 3D/3dmodel.model | xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name='Title']")
 }
 
 # File type: abw (AbiWord document)
@@ -325,11 +350,13 @@ comment_abw () {
 # File type: amf (Additive Manufacturing File)
 # requires: unzip, xmlstarlet
 comment_amf () {
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
 	if [ "$(dd if="$1" bs=1 count=2 2>/dev/null )" = "PK" ]; then
 		# If the amf file is zip compressed, uncompress it first
 		TMPFILE=$(mktemp)
 		INFILE="${TMPFILE}"
-		unzip -cq -- "$1" > "$INFILE"
+		unzip -cq "$sf" > "$INFILE"
 	else
 		TMPFILE=
 		INFILE="$1"
@@ -391,7 +418,7 @@ comment_appdata () {
 # File type: arj (ARJ archive)
 # requires: arj
 comment_arj () {
-	COMMENT=$(arj v "$1" | sed -e '1,/^Archive created:/d' -e '/^Sequence\/Pathname\/Comment\/Chapters/,$d' | head -3 | trimspace)
+	COMMENT=$(arj v -- "$1" | sed -e '1,/^Archive created:/d' -e '/^Sequence\/Pathname\/Comment\/Chapters/,$d' | head -3 | trimspace)
 }
 
 # File type: asm (assembly language source)
@@ -454,7 +481,7 @@ comment_gcode () {
 	fi
 	if [ -z "$COMMENT" ] ; then
 		# PyCAM https://pycam.sourceforge.net/
-		COMMENT=$(sed -n -E -e 's/^;PYCAM-META-DATA: Filename: (.*[/\\])?//p'< "$1" | head -1 | trimspace)
+		COMMENT=$(sed -n -E -e 's/^;PYCAM-META-DATA: Filename: (.*[/\\])?//p' < "$1" | head -1 | trimspace)
 	fi
 }
 
@@ -547,7 +574,9 @@ comment_md () {
 # File type: mkv (Matroska video)
 # requires: mkvtoolnix
 comment_mkv () {
-	COMMENT=$(mkvinfo "$1" | sed -n -e 's/^[|+ ]*Title: //p')
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(mkvinfo "$sf" | sed -n -e 's/^[|+ ]*Title: //p')
 	if [ -z "$COMMENT" ] ; then
 		comment_ffmpeg "$@"
 	fi
@@ -605,7 +634,9 @@ comment_sh () {
 # File type: otf (OpenType font/TrueType font)
 # requires: freetype2-demos
 comment_otf () {
-	COMMENT=$(ftdump "$1" | sed -n -E -e 's/^[[:space:]]*(family|style):[[:space:]]*//p' | trimspace)
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(ftdump "$sf" | sed -n -E -e 's/^[[:space:]]*(family|style):[[:space:]]*//p' | trimspace)
 }
 
 # File type: ogg (Ogg media file)
@@ -620,7 +651,9 @@ comment_ogg () {
 # File type: odf (Open Document Format)
 # requires: unzip, xmlstarlet
 comment_odf () {
-	COMMENT=$(unzip -cq -- "$1" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:title 2>/dev/null)
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(unzip -cq "$sf" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:title 2>/dev/null)
 }
 
 # File type: py (Python source code)
@@ -667,7 +700,9 @@ comment_aiff () {
 # File type: wacz (Web Archive Collection Zipped)
 # requires: unzip, jq
 comment_wacz () {
-	COMMENT=$(unzip -qc "$1" datapackage.json | jq -r '.title')
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(unzip -qc "$sf" datapackage.json | jq -r '.title')
 }
 
 # File type: warcgz (Compressed Web Archive Collection file)
@@ -678,7 +713,9 @@ comment_warcgz () {
 
 # File type: whl (Python wheel package)
 comment_whl () {
-	COMMENT=$(unzip -caq -- "$1" '*/METADATA' | sed -n 's/^Summary: //p')
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(unzip -caq "$sf" '*/METADATA' | sed -n 's/^Summary: //p')
 }
 
 # File type: xbm (X bitmap image)
