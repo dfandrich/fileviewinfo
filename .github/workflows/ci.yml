@@ -1,0 +1,83 @@
+# Github Actions configuration
+name: CI
+
+permissions: {}
+
+on:
+  # Trigger the workflow on push or pull requests, but only for the
+  # master and ci branches
+  push:
+    branches:
+      - master
+      - ci
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-22_04:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: 'Install deps'
+      run: >
+        sudo apt-get update -y &&
+        sudo apt-get install -y --no-install-suggests --no-install-recommends
+        arj
+        binutils
+        bsdextrautils
+        cabextract
+        calibre
+        exif
+        exiftool
+        ffmpeg
+        file
+        flac
+        freetype2-demos
+        genisoimage
+        gifsicle
+        gimp
+        jq
+        lhasa
+        liballegro4-dev
+        libavifile-0.7-bin
+        libid3-tools
+        libjpeg-turbo-progs
+        libtiff-tools
+        lzop
+        man-db
+        mkvtoolnix
+        netpbm
+        p7zip-full
+        pngtools
+        poppler-utils
+        python3-minimal
+        python3-vobject
+        quicktime-utils
+        rar
+        rpm
+        squashfs-tools
+        unzip
+        vorbis-tools
+        wireshark-common
+        xmlstarlet
+        zpaq
+        make curl ca-certificates rpm2cpio cpio
+    - name: 'Install extras'
+    # A few packages need newer versions to work properly, so install them
+    # separately.
+    # There doesn't seem to be any newer .deb out there for netpbm, so use the
+    # binaries from a recent-enough RPM instead.
+      run: |
+        curl -LOsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all http://azure.archive.ubuntu.com/ubuntu/pool/universe/p/pngtools/pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb
+        test "$(sha256sum pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb)" = "1c7490f01a64af135d6341b8e5a9ab2fc94dcfe99131882cef1e623739bfadc6  pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb" && sudo dpkg -i pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb
+        curl -LOsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all https://download.fedoraproject.org/pub/fedora/linux/updates/37/Everything/x86_64/Packages/n/netpbm-11.00.00-1.fc37.x86_64.rpm https://download.fedoraproject.org/pub/fedora/linux/updates/37/Everything/x86_64/Packages/n/netpbm-progs-11.00.00-1.fc37.x86_64.rpm
+        rpm2cpio netpbm-11.00.00-1.fc37.x86_64.rpm | cpio --extract --make-directories './usr/lib64/libnetpbm.so.*'
+        rpm2cpio netpbm-progs-11.00.00-1.fc37.x86_64.rpm | cpio --extract --make-directories ./usr/bin/pamfile
+        install -m0755 -D /usr/lib/unrar -t bin
+        mv usr/bin/pamfile bin/
+    - name: 'Patch tests'
+      # lhasa isn't a perfect substitute for lha: https://github.com/fragglet/lhasa/issues/40
+      run: sed -i '/type1.lzh/d' test-automtime-expected
+    - name: 'Run tests'
+      run: env PATH="$PWD/bin:$PATH" LD_LIBRARY_PATH="$PWD/usr/lib64" make check -k
