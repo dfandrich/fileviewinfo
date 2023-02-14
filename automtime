@@ -142,9 +142,9 @@ mtime_ar () {
 }
 
 # File type: arj (arj archive)
-# requires: unarj
+# requires: unarj || arj
 mtime_arj () {
-	RAWTIME="$(unarj l "$1" | sed -E -n -e 's/^Archive created:.*modified: //p')"
+	RAWTIME="$( (unarj l "$1" 2>/dev/null || arj l "$1") | sed -E -n -e 's/^Archive created:.*modified: //p')"
 	# $RAWTIME is like 2002-03-04 05:06:07
 	# Note that unarj ver. 2.65 has a bug with date handling and dates around
 	# 2022 are wrong by almost a decade.
@@ -865,7 +865,7 @@ for f in "$@" ; do
 				TYPE=kra
 				;;
 
-			*.lzh)
+			*.lzh | *.lha)
 				TYPE=lzh
 				;;
 
