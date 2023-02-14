@@ -46,9 +46,9 @@ comment_tgz () {
 }
 
 # File type: lzh (lzh/lha archive with desc.sdi comment)
-# requires: lha
+# requires: lha || lhasa
 comment_lzh () {
-	COMMENT=$(lha pq -- "$1" desc.sdi | head -3 | trimspace)
+	COMMENT=$( (lha pq -- "$1" desc.sdi 2>/dev/null || lhasa pq - desc.sdi < "$1" 2>/dev/null) | head -3 | trimspace)
 }
 
 # File type: zip (zip archive)
@@ -703,7 +703,7 @@ comment_xpm () {
 }
 
 # File type: pam (Portable Arbitrary Map image)
-# requires: netpbm
+# requires: netpbm >= 10.35.00
 comment_pam () {
 	COMMENT=$(pamfile -comments < "$1" | sed -e '1,/^Comments:$/d' -e 's/^ *# *//' | head -3 | trimspace)
 }

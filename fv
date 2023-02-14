@@ -288,9 +288,9 @@ for f in "$@" ; do
 			lbrate -vl "$f"
 			;;
 
-		# requires: lha
+		# requires: lha || lhasa
 		*.lha | *.lzh)	archive_label LHARC archive
-			lha v -- "$f"
+			lha v -- "$f" 2>/dev/null || lhasa v - < "$f"
 			;;
 
 		# See https://www.lzop.org/
