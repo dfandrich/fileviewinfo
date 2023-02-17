@@ -137,7 +137,7 @@ for f in "$@" ; do
 		# See https://p7zip.sourceforge.net/
 		# requires: p7zip
 		*.7z)	filetype_label 7zip archive
-			7za l -slt -- "$f" | sed '/^----------/,$d'
+			7za l -slt -bso0 -- "$f" | sed '/^----------/,$d'
 			;;
 
 		# requires: unzip, xmlstarlet
@@ -243,7 +243,7 @@ for f in "$@" ; do
 		# requires: gdbm
 		# These databases are often given a .db extension instead
 		*.gdbm)	filetype_label GDBM database
-			echo 'set open=readonly;version;header;count;' | gdbmtool -- "$f"
+			echo 'set open=readonly;header;count;' | gdbmtool -q -- "$f"
 			;;
 
 		# requires: libungif-progs
