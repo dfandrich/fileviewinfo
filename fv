@@ -138,7 +138,7 @@ for f in "$@" ; do
 			unalz -l "$sf"
 			;;
 
-		# See https://github.com/AppImage/AppImageKit
+		# See https://github.com/AppImage/AppImageKit/
 		# requires: appimagetool
 		*.AppImage)	archive_label AppImage package
 			appimagetool --list --verbose -- "$f"
@@ -224,7 +224,7 @@ for f in "$@" ; do
 			ar p "$sf" data.tar.gz 2>/dev/null | gzip -dc 2>/dev/null | tar tvf - 2>/dev/null || ( ar p "$sf" data.tar.xz | xz -dc | tar tvf - )
 			;;
 
-		# See https://github.com/sgan81/apfs-fuse
+		# See https://github.com/sgan81/apfs-fuse/
 		# requires dmg2img, kpartx, apfs_fuse
 		*.dmg)	archive_label Apple disk image
 			FVTMPDIR="`mktemp -d`"
@@ -385,7 +385,7 @@ for f in "$@" ; do
 			unrar v -idc -- "$f"
 			;;
 
-		# See https://www.rpm.org/
+		# See http://www.rpm.org/
 		# requires: rpm
 		*.rpm | *.spm)	archive_label Red Hat RPM package
 			rpm -qilvp -- "$f"
@@ -458,7 +458,7 @@ EOF
 			fvcbm "$sf"
 			;;
 
-		# See https://github.com/plougher/squashfs-tools
+		# See https://github.com/plougher/squashfs-tools/
 		# Also Snap package .snap
 		# requires: squashfs
 		*.sqsh | *.squashfs | *.snap) archive_label Squashfs filesystem image

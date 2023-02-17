@@ -385,7 +385,7 @@ for f in "$@" ; do
 			unrar vta -sl0 -idc -- "$f"
 			;;
 
-		# See https://www.rpm.org/
+		# See http://www.rpm.org/
 		# requires: rpm
 		*.rpm | *.spm)	filetype_label Red Hat RPM package
 			rpm -qip -- "$f"
@@ -413,7 +413,7 @@ for f in "$@" ; do
 			sqlite3 "$sf" .dbinfo "select 'Available Tables:';" .tables
 			;;
 
-		# See https://github.com/plougher/squashfs-tools
+		# See https://github.com/plougher/squashfs-tools/
 		# Also Snap package .snap
 		# requires: squashfs-tools
 		*.sqsh | *.squashfs | *.snap) filetype_label Squashfs filesystem image
@@ -451,7 +451,7 @@ EOF
 			zcat -- "$f" | identify -verbose -
 			;;
 
-		# See http://www.encode.ru/tc/ (obsolete as of 2022)
+		# See http://www.encode.ru/tc/ (defunct as of 2022)
 		# requires: python >= 3
 		# Note: the real file extension conflicts with Tellico files, so this
 		# is a made up one

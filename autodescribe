@@ -132,7 +132,7 @@ comment_docx () {
 
 # File type: exe (Microsoft Windows PE executable)
 # File type: dll (Microsoft Windows PE dynamic link library)
-# requires: python >= 3, pefile (see https://github.com/erocarrera/pefile)
+# requires: python >= 3, pefile (see https://github.com/erocarrera/pefile/)
 comment_exe () {
 	COMMENT=$(python3 -c '
 import pefile,sys
