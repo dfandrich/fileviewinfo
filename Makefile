@@ -71,7 +71,7 @@ check-fv:
 	# current time in a temp file and restore it at the end of the test.
 	touch -r testfiles/type1.bz2 test-time.tmp
 	touch -t 202110111213.14 testfiles/type1.bz2
-	$(SHELL) ./fv $(addprefix testfiles/*., bz2 rz shar uue) >test-fv.log
+	$(SHELL) ./fv $(addprefix testfiles/*., bz2 jffs2 rz shar uue) >test-fv.log
 	touch -r test-time.tmp testfiles/type1.bz2
 	rm -f test-time.tmp
 	diff test-fv-expected test-fv.log

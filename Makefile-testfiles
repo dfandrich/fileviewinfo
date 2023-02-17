@@ -249,6 +249,13 @@ type1.gdbm:
 type1.sqlite:
 	sqlite3 "$@" 'PRAGMA page_size=512; CREATE TABLE tab(k, v); INSERT INTO tab (k, v) VALUES ("key", "value");'
 
+type1.jffs2: foo
+	mkdir directory.tmp
+	cp foo directory.tmp
+	setfattr -n user.xdg.comment -v 'Extended filesystem attribute comment' directory.tmp/foo
+	mkfs.jffs2 -v -l -q --with-xattr -o "$@" -r directory.tmp
+	rm -r directory.tmp
+
 # The following files are pretty huge compared to others so they aren't
 # included in the repository but can be generated here if needed.
 

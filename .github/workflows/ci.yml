@@ -47,6 +47,7 @@ jobs:
         lzop
         man-db
         mkvtoolnix
+        mtd-utils
         netpbm
         p7zip-full
         pngtools

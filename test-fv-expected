@@ -1,6 +1,9 @@
 testfiles/type1.bz2:
 method  crc      date           compressed uncompressed_name
 bzip2-9 76f6b3e5 Oct 11 2021            40 type1
+testfiles/type1.jffs2:
+foo
+
 testfiles/type1.rz:
 rz ver    length filename
  2.01          4 type1

@@ -288,9 +288,11 @@ for f in "$@" ; do
 
 		# requires: mtd-utils
 		# This just dumps file names without directory structure, but it's
-		# better than nothing
+		# better than nothing. jffs2dump provides enough information to show
+		# file size as well as which files have extended attributes, but that
+		# would mean more post-processing to track inodes.
 		*.jffs2)	archive_label JFFS2 filesystem image file
-			jffs2dump -c "$sf" | sed -n 's/^.*, name //p'
+			jffs2dump -c "$sf" | sed -n '/^ *Dirent/s/^.*, name //p'
 			;;
 
 		# See http://rus.members.beeb.net/lbrate.html (defunct as of 2021)
