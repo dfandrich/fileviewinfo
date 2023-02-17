@@ -11,3 +11,6 @@ length mode       name
 ------ ---------- ------------------------------------------
      4 -rw-rw---- foo
 
+testfiles/type1.uue:
+640 original_name
+

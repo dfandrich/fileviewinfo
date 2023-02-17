@@ -4,6 +4,20 @@ Name: 3MF title
 1 build item(s)
 0 material(s)
 
+testfiles/type1.7z:
+
+Listing archive: testfiles/type1.7z
+
+--
+Path = testfiles/type1.7z
+Type = 7z
+Physical Size = 122
+Headers Size = 114
+Method = LZMA2:12
+Solid = -
+Blocks = 1
+
+
 testfiles/type1.amf:
 Name: AMF name
 1 object(s)
@@ -30,4 +44,65 @@ STL name
 testfiles/type3.stl:
 solid description that looks like an ASCII file but is actually binary
 8 facets
+
+testfiles/type1.tc:
+Database name: Tellico Collection Name
+Number of records: 1
+Number of images:0
+Database fields:
+  title
+  subtitle
+  author
+  editor
+  binding
+  pur_date
+  pur_price
+  publisher
+  edition
+  cr_year
+  pub_year
+  isbn
+  lccn
+  pages
+  translator
+  language
+  genre
+  keyword
+  series
+  series_num
+  condition
+  signed
+  read
+  gift
+  loaned
+  rating
+  cover
+  plot
+  comments
+  id
+  cdate
+  mdate
+
+testfiles/type1.wacz:
+{
+  "profile": "data-package",
+  "wacz_version": "1.1.1",
+  "title": "WACZ Title",
+  "software": "Webrecorder ArchiveWeb.page 0.7.9, using warcio.js 1.5.0",
+  "created": "2022-05-21T20:53:16.472Z",
+  "modified": "2022-05-21T21:14:47.155Z"
+}
+
+testfiles/type1.warc.gz:
+WARC-Record-ID: <urn:uuid:34fe9375-4bb9-54bc-b0a9-8ef87dc8e632>
+WARC-Filename: warc-title.wacz#/archive/data.warc.gz
+WARC-Date: 2023-01-13T17:59:17.831Z
+WARC-Type: warcinfo
+Content-Type: application/warc-fields
+Content-Length: 120
+
+software: Webrecorder ArchiveWeb.page 0.9.4, using warcio.js 2.0.1
+format: WARC File Format 1.1
+isPartOf: WARC Title
+
 

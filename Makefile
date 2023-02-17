@@ -71,14 +71,14 @@ check-fv:
 	# current time in a temp file and restore it at the end of the test.
 	touch -r testfiles/type1.bz2 test-time.tmp
 	touch -t 202110111213.14 testfiles/type1.bz2
-	$(SHELL) ./fv $(addprefix testfiles/*., bz2 rz shar) >test-fv.log
+	$(SHELL) ./fv $(addprefix testfiles/*., bz2 rz shar uue) >test-fv.log
 	touch -r test-time.tmp testfiles/type1.bz2
 	rm -f test-time.tmp
 	diff test-fv-expected test-fv.log
 
 # Only check the file types that have significant processing in fvi.
 check-fvi:
-	$(SHELL) ./fvi $(addprefix testfiles/*., 3mf amf stl) >test-fvi.log
+	$(SHELL) ./fvi $(addprefix testfiles/*., 3mf 7z amf stl tc wacz warc.gz) >test-fvi.log
 	diff test-fvi-expected test-fvi.log
 
 install:
