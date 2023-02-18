@@ -4,7 +4,7 @@
 #
 # This Makefile relies on some GNU make extensions.
 
-prefix=/usr
+prefix=/usr/local
 bindir=$(prefix)/bin
 datadir=$(prefix)/share
 mandir=$(datadir)/man
