@@ -41,10 +41,14 @@ that file type.
 
 ## Installation
 
+The latest release is available for download from
+https://github.com/dfandrich/fileviewinfo/releases/latest
+
 The programs are written in portable Bourne shell and do not require
-compilation (the makefile relies on some GNUisms, however, and requires the use
-of GNU make, often known as "gmake").  Install them by running this command as
-root:
+compilation, but a makefile is included for easier installaation. The makefile
+relies on some GNUisms, however, and requires the use of GNU make (sometimes
+called "gmake").  Install the scripts and documentation by running this command
+as root:
 
     make install
 
@@ -57,8 +61,17 @@ If a needed external program is missing, the test will fail. Some test runs
 show "Not a known file type" or "No comment found" which is normal, since not
 all file types are supported by all programs being tested.  The test suite is
 sensitive to the locale and will not pass in some non-English locales due to
-some language-specific output. The programs themselves should run file in
-any locale, however.
+some language-specific output, hence the LC_ALL setting above. The programs
+themselves should run fine in any locale, however.
+
+## Development
+
+The project home is at https://github.com/dfandrich/fileviewinfo/  Report bugs
+or issues there, or submit pull requests to support new file types.
+
+[![Download](https://img.shields.io/github/v/release/dfandrich/fileviewinfo?sort=semver)](https://github.com/dfandrich/fileviewinfo/releases/latest)
+[![License](https://img.shields.io/badge/License-CC0v1-blue.svg)](https://creativecommons.org/publicdomain/zero/1.0/)
+[![Github Actions Build Status](https://github.com/dfandrich/fileviewinfo/workflows/CI/badge.svg?branch=master)](https://github.com/dfandrich/fileviewinfo/actions?query=workflow%3A%22CI%22)
 
 ## Author
 
