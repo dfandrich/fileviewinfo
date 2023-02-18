@@ -1,7 +1,6 @@
 # Test po file
 # Public domain 2023 by Daniel Fandrich
 # This file is distributed under the same license as the fileviewinfo package.
-# Daniel Fandrich <dan@coneharvesters.com>, 2023.
 #
 msgid ""
 msgstr ""
@@ -9,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-02-17 20:19-0800\n"
 "PO-Revision-Date: 2023-02-17 20:19-0800\n"
-"Last-Translator: Daniel Fandrich <dan@coneharvesters.com>\n"
+"Last-Translator: Some One <someone@example.com>\n"
 "Language-Team: en <en@example.org>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
