@@ -314,7 +314,7 @@ for f in "$@" ; do
 
 		# requires: gettext
 		# requires: sed
-		*.mo) filetype_label Binary message catalog file
+		*.mo | *.gmo) filetype_label Binary message catalog file
 			msgunfmt -- "$f" | sed '/^$/,$d'
 			;;
 
@@ -368,6 +368,11 @@ for f in "$@" ; do
 		# requires: pngtools
 		*.png)	filetype_label Portable Network Graphics image
 			pnginfo "$sf"
+			;;
+
+		# requires: sed
+		*.po) filetype_label Text message catalog file
+			sed '/^$/,$d' < "$f"
 			;;
 
 		# requires: netpbm

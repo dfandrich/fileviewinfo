@@ -78,7 +78,7 @@ check-fv:
 
 # Only check the file types that have significant processing in fvi.
 check-fvi:
-	$(SHELL) ./fvi $(addprefix testfiles/*., 3mf 7z amf stl tc wacz warc.gz) >test-fvi.log
+	$(SHELL) ./fvi $(addprefix testfiles/*., 3mf 7z amf class gmo po stl tc wacz warc.gz) >test-fvi.log
 	diff test-fvi-expected test-fvi.log
 
 install:

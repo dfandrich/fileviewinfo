@@ -256,6 +256,14 @@ type1.jffs2: foo
 	mkfs.jffs2 -v -l -q --with-xattr -o "$@" -r directory.tmp
 	rm -r directory.tmp
 
+type1.class:
+	echo 'public class type1 { }' >type1.java
+	javac type1.java
+	rm type1.java
+
+type1.gmo: type1.po
+	msgfmt -c --statistics --verbose -o "$@" "$^"
+
 # The following files are pretty huge compared to others so they aren't
 # included in the repository but can be generated here if needed.
 

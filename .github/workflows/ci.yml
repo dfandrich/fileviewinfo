@@ -35,8 +35,10 @@ jobs:
         flac
         freetype2-demos
         genisoimage
+        gettext
         gifsicle
         gimp
+        openjdk-18-jdk-headless
         jq
         lhasa
         liballegro4-dev
