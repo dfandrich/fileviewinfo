@@ -473,11 +473,11 @@ EOF
 			;;
 
 		*.tc)	filetype_label Tellico database
-			echo -n 'Database name: '
+			printf 'Database name: '
 			unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" -n 2> /dev/null
-			echo -n 'Number of records: '
+			printf 'Number of records: '
 			unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='entry'])" -n 2>/dev/null
-			echo -n 'Number of images:'
+			printf 'Number of images:'
 			unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='images']/*[local-name()='image'])" -n 2>/dev/null
 			echo 'Database fields:'
 			unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -m "/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='fields']/*[local-name()='field']" -o '  ' -v '@name' -n 2>/dev/null
@@ -488,7 +488,7 @@ EOF
 		# "ERROR: could not init messaging context" since it needs to create
 		# a samba message lock file.
 		*.tdb)	filetype_label TDB database file
-			echo -n 'Number of keys in database: '
+			printf 'Number of keys in database: '
 			dbwrap_tool --persistent --configfile=/dev/null -- "$f" listkeys | wc -l
 			;;
 
