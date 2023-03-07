@@ -28,6 +28,7 @@ jobs:
         bsdextrautils
         cabextract
         calibre
+        cpio
         exif
         exiftool
         ffmpeg
@@ -65,37 +66,38 @@ jobs:
         wireshark-common
         xmlstarlet
         zpaq
-        make curl ca-certificates rpm2cpio cpio groff-base man2html-base bash busybox ksh yash zsh
+        make curl ca-certificates groff-base man2html-base bash busybox ksh yash zsh
     - name: 'Install extras'
     # A few packages need newer versions to work properly, so install them
     # separately.
-    # There doesn't seem to be any newer .deb out there for netpbm, so use the
-    # binaries from a recent-enough RPM instead.
       run: |
-        curl -LOsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all http://azure.archive.ubuntu.com/ubuntu/pool/universe/p/pngtools/pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb
-        test "$(sha256sum pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb)" = "1c7490f01a64af135d6341b8e5a9ab2fc94dcfe99131882cef1e623739bfadc6  pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb" && sudo dpkg -i pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb
-        curl -LOsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all https://download.fedoraproject.org/pub/fedora/linux/updates/37/Everything/x86_64/Packages/n/netpbm-11.00.00-1.fc37.x86_64.rpm https://download.fedoraproject.org/pub/fedora/linux/updates/37/Everything/x86_64/Packages/n/netpbm-progs-11.00.00-1.fc37.x86_64.rpm
-        rpm2cpio netpbm-11.00.00-1.fc37.x86_64.rpm | cpio --extract --make-directories './usr/lib64/libnetpbm.so.*'
-        rpm2cpio netpbm-progs-11.00.00-1.fc37.x86_64.rpm | cpio --extract --make-directories ./usr/bin/pamfile
-        install -m0755 -D /usr/lib/unrar -t bin
-        mv usr/bin/pamfile bin/
+        curl -LsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all \
+            http://azure.archive.ubuntu.com/ubuntu/pool/universe/p/pngtools/pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb \
+            http://azure.archive.ubuntu.com/ubuntu/pool/universe/n/netpbm-free/netpbm_11.01.00-2build1_amd64.deb \
+            http://azure.archive.ubuntu.com/ubuntu/pool/universe/n/netpbm-free/libnetpbm11_11.01.00-2build1_amd64.deb
+        test "$(sha256sum pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb)" = "1c7490f01a64af135d6341b8e5a9ab2fc94dcfe99131882cef1e623739bfadc6  pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb"
+        test "$(sha256sum netpbm_11.01.00-2build1_amd64.deb)" = "ee102926ef4289c0830092447d650a58a48a0d136cab268af52b55d81d6485ce  netpbm_11.01.00-2build1_amd64.deb"
+        test "$(sha256sum libnetpbm11_11.01.00-2build1_amd64.deb)" = "d690a886c1ff250ebca438d7fa64f0a6f9f56a1543c312b503ed3209a56efda3  libnetpbm11_11.01.00-2build1_amd64.deb"
+        sudo dpkg -i pngtools*.deb netpbm*.deb libnetpbm*.deb || true Ignore missing dependency errors--they are not needed for our tests
+        # unrar isn't installed in /usr/bin for some reason
+        sudo install -m0755 -D /usr/lib/unrar -t /usr/local/bin
     - name: 'Patch tests'
       # lhasa isn't a perfect substitute for lha: https://github.com/fragglet/lhasa/issues/40
       run: sed -i '/type1.lzh/d' test-automtime-expected
     - name: 'Run tests'
-      run: env PATH="$PWD/bin:$PATH" LD_LIBRARY_PATH="$PWD/usr/lib64" make check -k
+      run: make check -k
     - name: 'Run tests with ash'
-      run: env PATH="$PWD/bin:$PATH" LD_LIBRARY_PATH="$PWD/usr/lib64" make check -k SHELL='busybox ash'
+      run: make check -k SHELL='busybox ash'
     - name: 'Run tests with bash'
-      run: env PATH="$PWD/bin:$PATH" LD_LIBRARY_PATH="$PWD/usr/lib64" make check -k SHELL=bash
+      run: make check -k SHELL=bash
     - name: 'Run tests with dash'
-      run: env PATH="$PWD/bin:$PATH" LD_LIBRARY_PATH="$PWD/usr/lib64" make check -k SHELL=dash
+      run: make check -k SHELL=dash
     - name: 'Run tests with ksh'
-      run: env PATH="$PWD/bin:$PATH" LD_LIBRARY_PATH="$PWD/usr/lib64" make check -k SHELL=ksh
+      run: make check -k SHELL=ksh
     - name: 'Run tests with yash'
-      run: env PATH="$PWD/bin:$PATH" LD_LIBRARY_PATH="$PWD/usr/lib64" make check -k SHELL=yash
+      run: make check -k SHELL=yash
     - name: 'Run tests with zsh'
-      run: env PATH="$PWD/bin:$PATH" LD_LIBRARY_PATH="$PWD/usr/lib64" make check -k SHELL=zsh
+      run: make check -k SHELL=zsh
     - name: 'Build documentation'
       run: make man
     - name: 'Test installation'
