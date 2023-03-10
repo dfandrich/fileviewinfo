@@ -186,6 +186,11 @@ for f in "$@" ; do
 			openssl crl -text -in "$f"
 			;;
 
+		# requires: openssl
+		*.csr) filetype_label X509 Certificate Signing Request
+			openssl req -text -noout -in "$f"
+			;;
+
 		# requires: db53-utils
 		# This extension is rather generic and often contains a gdbm, sqlite3
 		# or some other file.
