@@ -43,7 +43,7 @@ is displayed.
 It currently supports the following file types:
 .LP
 .RS
-.\" This section comes from: ./autodescribe -l | sed -e a.LP
+.\" This section comes from: ./autodescribe -l | sed -e a.LP -e 's/^\./\\\&./'
 3mf (3-D Manufacturing format)
 .LP
 abw (AbiWord document)
@@ -134,7 +134,7 @@ pam (Portable Arbitrary Map image)
 .LP
 pascal (Pascal source code)
 .LP
-.patch git format-patch
+\&.patch git format-patch
 .LP
 pcap (Pcap network capture file)
 .LP
