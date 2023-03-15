@@ -760,7 +760,7 @@ mtime_zpaq () {
 ###########################
 
 if [ $# -eq 0 ] ; then
-	echo 'automtime ver. 5'
+	echo 'automtime ver. 5-dev'
 	echo 'Usage: automtime [-l] [-m] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
 	echo 'Extracts modification from internal file metadata'
 	echo '  -e cmd   command to run once for each file with args: mtime file'
