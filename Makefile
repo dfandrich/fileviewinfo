@@ -1,6 +1,7 @@
 # Makefile for installing fileviewinfo
-# Placed into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# See the file COPYING for details of how CC0 applies to this file.
+#
+# Copyright (c) 2023 Dan Fandrich <dan@coneharvesters.com>
+# Licensed under the MIT license (see LICENSE).
 #
 # This Makefile relies on some GNU make extensions.
 
@@ -13,7 +14,7 @@ NROFFFLAGS=-man -c
 
 VERSION=$(shell ./fv -\? | sed -n '1s/^.*ver. //p')
 SOURCES = fv fvi autodescribe automtime fv.1 fvi.1 autodescribe.1 automtime.1
-DISTFILES = $(SOURCES) Makefile Makefile-testfiles README.md COPYING \
+DISTFILES = $(SOURCES) Makefile Makefile-testfiles README.md LICENSE \
 	.gitignore test-fv-expected test-fvi-expected test-autodescribe-expected \
 	test-automtime-expected testfiles/*
 DOC_TARGETS = fv.man fv.html fvi.man fvi.html autodescribe.man \

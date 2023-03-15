@@ -1,5 +1,8 @@
 # Instructions for generating sample test files
 #
+# Copyright (c) 2023 Dan Fandrich <dan@coneharvesters.com>
+# Licensed under the MIT license (see LICENSE).
+#
 # The resulting files are checked in (with a few exceptions at the end) so that
 # these commands never need to be run again.  Smaller file size is sometimes
 # prioritized over ease of creation. All generated files must also be able to

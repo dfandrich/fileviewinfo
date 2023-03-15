@@ -70,12 +70,12 @@ The project home is at https://github.com/dfandrich/fileviewinfo/  Report bugs
 or issues there, or submit pull requests to support new file types.
 
 [![Download](https://img.shields.io/github/v/release/dfandrich/fileviewinfo?sort=semver)](https://github.com/dfandrich/fileviewinfo/releases/latest)
-[![License](https://img.shields.io/badge/License-CC0v1-blue.svg)](https://creativecommons.org/publicdomain/zero/1.0/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/license/mit/)
 [![Github Actions Build Status](https://github.com/dfandrich/fileviewinfo/workflows/CI/badge.svg?branch=master)](https://github.com/dfandrich/fileviewinfo/actions?query=workflow%3A%22CI%22)
 
 ## Author
 
-Daniel Fandrich <dan@coneharvesters.com>
-
-The fileviewinfo package is placed into the public domain by Daniel Fandrich.
-See the file [COPYING](COPYING) for details of how CC0 applies to this file.
+Copyright (c) 2023 Dan Fandrich <dan@coneharvesters.com>
+Licensed under the MIT license (see the file [LICENSE](LICENSE) for details)
+with the exception of the files in testfiles/ which are hereby dedicated to the
+public domain in jurisdictions where such a dedication is legally permitted.

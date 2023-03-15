@@ -1,7 +1,8 @@
 #!/bin/sh
 # autodescribe - automatically extract comments from files
-# Placed into the public domain by Dan Fandrich <dan@coneharvesters.com>
-# See the file COPYING for details of how CC0 applies to this file.
+#
+# Copyright (c) 2023 Dan Fandrich <dan@coneharvesters.com>
+# Licensed under the MIT license (see LICENSE).
 
 # Print a shell-quoted version of the first argument
 shquote () {
