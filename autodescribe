@@ -57,7 +57,9 @@ comment_tgz () {
 # File type: lzh (lzh/lha archive with desc.sdi comment)
 # requires: lha || lhasa
 comment_lzh () {
-	COMMENT=$( (lha pq -- "$1" desc.sdi 2>/dev/null || lhasa pq - desc.sdi < "$1" 2>/dev/null) | head -3 | trimspace)
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$( (lha pq "$sf" desc.sdi 2>/dev/null || lhasa pq - desc.sdi < "$1" 2>/dev/null) | head -3 | trimspace)
 }
 
 # File type: zip (zip archive)

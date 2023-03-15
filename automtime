@@ -376,11 +376,13 @@ mtime_kra () {
 # File type: lzh (lzh archive)
 # requires: lha
 mtime_lzh () {
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
 	# The mtime is considered to be the latest file time in the archive.
 	# File name lines are interleaved with metadata lines, so the complicated
 	# sed expression is needed to find the metadata lines and weed out the file
 	# names.
-	RAWTIME="$(lha v -v -- "$1" | sed -E -n -e 's/^[-rwxs]{10} *[0-9/]+ *[0-9]+ *[0-9]+ *[0-9.%]* *..... *[0-9a-f]{4} ([12][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-2][0-9]:[0-9][0-9]:[0-9][0-9]).*$/\1/p' | sort -n | tail -1)"
+	RAWTIME="$(lha -vv "$sf" | sed -E -n -e 's/^[-rwxs]{10} *[0-9/]+ *[0-9]+ *[0-9]+ *[0-9.%]* *..... *[0-9a-f]{4} ([12][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-2][0-9]:[0-9][0-9]:[0-9][0-9]).*$/\1/p' | sort -n | tail -1)"
 	# $RAWTIME is like 2021-10-14 23:09:47
 	TIME="$RAWTIME"
 }

@@ -82,7 +82,7 @@ jobs:
         # unrar isn't installed in /usr/bin for some reason
         sudo install -m0755 -D /usr/lib/unrar -t /usr/local/bin
     - name: 'Patch tests'
-      # lhasa isn't a perfect substitute for lha: https://github.com/fragglet/lhasa/issues/40
+      # lhasa isn't a perfect substitute for lha until post-v0.3.1
       run: sed -i '/type1.lzh/d' test-automtime-expected
     - name: 'Run tests'
       run: make check -k
