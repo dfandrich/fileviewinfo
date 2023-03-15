@@ -757,7 +757,7 @@ comment_pnm () {
 ###########################
 
 if [ $# -eq 0 ] ; then
-	echo 'autodescribe ver. 4-dev'
+	echo 'autodescribe ver. 5'
 	echo 'Usage: autodescribe [-l] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
 	echo 'Extracts comments from files'
 	echo '  -e cmd   command to run once for each file with args: comment file'
