@@ -229,6 +229,11 @@ for f in "$@" ; do
 			dtc -I dtb -O dts -o - -- "$f"
 			;;
 
+		# requires: unzip
+		*.egg)	filetype_label Python egg package
+			unzip -qc "$sf" EGG-INFO/PKG-INFO
+			;;
+
 		# requires: ebook-tools
 		*.epub)	filetype_label EPub Document
 			einfo "$sf"
@@ -528,6 +533,7 @@ EOF
 			gzip -dc -- "$f" | tr -d '\015' | sed -n -e 1d -e '2,/^$/{p;b}' -e p -e '/^$/q'
 			;;
 
+		# requires: wavplay
 		*.wav)	filetype_label WAV audio file
 			wavplay -i -- "$f"
 			;;
@@ -536,6 +542,12 @@ EOF
 		*.wacz)	filetype_label Web Archive Collection Zipped
 			unzip -qc "$sf" datapackage.json | jq 'del(.resources)'
 			;;
+
+		# requires: unzip
+		*.whl)	filetype_label Python wheel package
+			unzip -qc "$sf" '*.dist-info/METADATA' | sed '/^$/,$d'
+			;;
+
 
 		# zip archive .zip
 		# Also Android package .apk
@@ -573,8 +585,6 @@ EOF
 		# Also Syllable resource package .resource
 		# Also Syllable application package .application
 		# Also (unknown 3D package) .f3d
-		# Also Python package .egg
-		# Also Python wheel package .whl
 		# Also Krita image .kra
 		# Also Scratch Project .sb2
 		# Also Scratch Project .sb3
@@ -585,7 +595,7 @@ EOF
 		*.ods | *.odp | *.odg | *.odf | *.fodt | *.fods | *.fodp | *.fodg | \
 		*.otp | *.otg | *.ots | \
 		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
-		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | \
+		*.application | *.docm | *.f3d | *.kra | \
 		*.sb2 | *.sb3 | *.apkm)
 			filetype_label ZIP archive
 			zipinfo -h -z "$sf" | grep -v "^$"; zipinfo -l "$sf" | tail -1

@@ -267,6 +267,19 @@ type1.class:
 type1.gmo: type1.po
 	msgfmt -c --statistics --verbose -o "$@" "$^"
 
+type1.egg:
+	test ! -e setup.cfg # Abort if found to avoid accidentally overwriting something important
+	printf '[metadata]\nname = python-package-name\nsummary = package summary\nversion = 0\nauthor = Dan Fandrich\nlicense = public domain\nclassifiers = Programming Language :: Python\n' >setup.cfg
+	python -c 'from setuptools import setup;setup()' bdist_egg
+	mv dist/python_package_name-0-py*.egg "$@"
+
+type1.whl:
+	test ! -e setup.cfg # Abort if found to avoid accidentally overwriting something important
+	printf '[build-system]\nrequires = ["setuptools>=42", "wheel"]\nbuild-backend = "setuptools.build_meta"\n' >pyproject.toml
+	printf '[metadata]\nname = python-package-name\nsummary = package summary\nversion = 0\nauthor = Dan Fandrich\nlicense = public domain\nclassifiers = Programming Language :: Python\n' >setup.cfg
+	python -m pip wheel .
+	mv python_package_name-0-py3-none-any.whl "$@"
+
 # The following files are pretty huge compared to others so they aren't
 # included in the repository but can be generated here if needed.
 

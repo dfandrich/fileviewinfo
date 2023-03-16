@@ -33,6 +33,18 @@ Name: AMF object name
 1 object(s)
 0 material(s)
 
+testfiles/type1.egg:
+Metadata-Version: 2.1
+Name: python-package-name
+Version: 0
+Summary: package summary
+Home-page: UNKNOWN
+Author: Dan Fandrich
+License: public domain
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python
+
 testfiles/type1.class:
 Compiled from "type1.java"
 public class type1 {
@@ -140,4 +152,13 @@ software: Webrecorder ArchiveWeb.page 0.9.4, using warcio.js 2.0.1
 format: WARC File Format 1.1
 isPartOf: WARC Title
 
+
+testfiles/type1.whl:
+Metadata-Version: 2.1
+Name: python-package-name
+Version: 0
+Summary: package summary
+Author: Dan Fandrich
+License: public domain
+Classifier: Programming Language :: Python
 
