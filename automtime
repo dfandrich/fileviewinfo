@@ -23,7 +23,7 @@ shquote () {
 # Solaris date doesn't parse arbitrary dates at all.
 # The Python fallback code is tried if the regular date returns an error, and,
 # while it isn't as powerful as GNU date, it does a decent job (but only if
-# the external dateutil.parser and pytz modules are available).
+# the external dateutil and pytz modules are available).
 normalize_time () {
 	test -z "$1" -o "$1" = "@" -o "$1" = "@0" && return
 	date --date="$1" '+%+4Y-%m-%d %H:%M:%S' 2>/dev/null || {
@@ -58,6 +58,20 @@ else:
 		x:pytz.timezone(x) for x in pytz.all_timezones})
 print(d.strftime("%Y-%m-%d %H:%M:%S %z").rstrip())
 	' "$1"
+	}
+}
+
+# Works like normalize_time but returns the given time as seconds past 1970.
+epoch_time () {
+	test -z "$1" -o "$1" = "@" -o "$1" = "@0" && return
+	date --date="$1" '+%s' 2>/dev/null || {
+		python3 -c '
+import dateutil.parser, sys
+if sys.argv[1][0] == "@":
+	print(sys.argv[1][1:])
+else:
+	print(int(dateutil.parser.parse(sys.argv[1]).timestamp()))
+' "$1"
 	}
 }
 
@@ -145,7 +159,7 @@ mtime_ar () {
 	# The date format can not, unfortunately, be easily sorted as-is, so it
 	# is converted to epoch time, sorted and only the most recent is used.
 	# The real raw time from ar is like: Jan 12 11:56 2023
-	RAWTIME=$(ar tv -- "$1" | awk '{print $4 " " $5 " " $6 " " $7}' | uniq | tr '\n' '\0' | xargs -0 -n1 date +'%s' -d | sort -n | tail -1)
+	RAWTIME=$(ar tv -- "$1" | awk '{print $4 " " $5 " " $6 " " $7}' | uniq | tr '\n' '\0' | xargs -0 -n1 "$AUTOMTIME" --epoch_time | sort -n | tail -1)
 	# $RAWTIME is like 1234567890
 	# The time is stored absolute, but is displayed in the local time zone
 	TIME=$(normalize_time_tz "@$RAWTIME")
@@ -738,7 +752,7 @@ mtime_zip () {
 	# equivalent local time is also shown and that can be treated like all the
 	# others, which are also local time.
 	# An "empty" time of '1980 000 0 00:00:00' is also filtered out.
-	RAWTIME=$(zipinfo -v "$sf" | sed -n -e '/^ *file last modified on.*[^U]..$/s/^[^:]*: *//p' | awk '$2 != "000" {print $2 " " $3 ", " $1 " " $4}' | uniq | tr '\n' '\0' | xargs -0 -n1 date +'%s' -d | sort -n | tail -1)
+	RAWTIME=$(zipinfo -v "$sf" | sed -n -e '/^ *file last modified on.*[^U]..$/s/^[^:]*: *//p' | awk '$2 != "000" {print $2 " " $3 ", " $1 " " $4}' | uniq | tr '\n' '\0' | xargs -0 -n1 "$AUTOMTIME" --epoch_time | sort -n | tail -1)
 	# $RAWTIME is like 1234567890
 	# For ZIP files with time extensions, the time is stored absolute, but is
 	# displayed in the local time zone. Don't show the time zone here since
@@ -776,6 +790,17 @@ if [ "$1" = "-l" ]; then
 	sed -n -e 's/^# File type: //p' < "$0" | sort -u
 	exit 0
 fi
+
+if [ "$1" = "--epoch_time" ]; then
+	# This is an internal option to gain access to the epoch_time function
+	# so it can be called by xargs within this script.
+	epoch_time "$2"
+	exit $?
+fi
+
+# Store this script's location so it can be called recursively later.
+# This is needed by zsh since it changes $0 within shell functions.
+readonly AUTOMTIME="$0"
 
 PROG=
 if [ "$1" = "-m" ] ; then

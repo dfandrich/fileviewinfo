@@ -45,10 +45,13 @@ The latest release is available for download from
 https://github.com/dfandrich/fileviewinfo/releases/latest
 
 The programs are written in portable Bourne shell and do not require
-compilation, but a makefile is included for easier installaation. The makefile
+compilation, but a makefile is included for easier installation. The makefile
 relies on some GNUisms, however, and requires the use of GNU make (sometimes
-called "gmake").  Install the scripts and documentation by running this command
-as root:
+called "gmake").  Most file formats also require an external helper program to
+parse each file type. Systems without GNU date installed will use a fallback
+date parsing utility that requires the Python dateutil and pytz modules.
+
+Install the scripts and documentation by running this command as root:
 
     make install
 
