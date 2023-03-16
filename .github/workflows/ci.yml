@@ -55,6 +55,7 @@ jobs:
         p7zip-full
         pngtools
         poppler-utils
+        python3-dateutil
         python3-minimal
         python3-vobject
         quicktime-utils
@@ -98,6 +99,23 @@ jobs:
       run: make check -k SHELL=yash
     - name: 'Run tests with zsh'
       run: make check -k SHELL=zsh
+    - name: 'Patch tests for Busybox'
+      run: |
+        mkdir -p "$PWD/bb"
+        busybox --install -s "$PWD/bb"
+        # These Busybox applets don't have the required features, so the native
+        # applications are needed instead.
+        rm -f "$PWD"/bb/{lzop,rpm,tar,unzip}
+        # Time zone output is different when using the fallback date routine
+        # that's used when Busybox 'date' is in use. All the lines are
+        # equivalent; only the time zone representation differs.
+        sed -i \
+          -e 's/2023-01-06 02:15:02 +0000/2023-01-05 21:15:02 -0500/' \
+          -e 's/2021-10-13 08:02:00 +0000/2021-10-13 01:02:00 -0700/' \
+          -e 's/2021-10-18 16:55:54 +0000/2021-10-18 16:55:54/' \
+          test-automtime-expected
+    - name: 'Run tests using Busybox'
+      run: PATH="$PWD/bb:$PATH" make check -k SHELL="$PWD/bb/sh"
     - name: 'Build documentation'
       run: make man
     - name: 'Test installation'
