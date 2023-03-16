@@ -121,7 +121,7 @@ for f in "$@" ; do
 		# requires: unzip, xmlstarlet
 		*.3mf)	filetype_label 3MF 3-D Manufacturing file
 			TMPFILE="`mktemp`"
-			unzip -qc "$sf" 3D/3dmodel.model > "${TMPFILE}"
+			unzip -pq "$sf" 3D/3dmodel.model > "${TMPFILE}"
 			# This could probably be combined into a single xmlstarlet invocation for speed
 			printf 'Name: '
 			xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name]" < "${TMPFILE}"
@@ -147,7 +147,7 @@ for f in "$@" ; do
 				# If the amf file is zip compressed, uncompress it first
 				TMPFILE=`mktemp`
 				INFILE="${TMPFILE}"
-				unzip -cq "$sf" > "$INFILE"
+				unzip -pq "$sf" > "$INFILE"
 			else
 				TMPFILE=
 				INFILE="$f"
@@ -231,7 +231,7 @@ for f in "$@" ; do
 
 		# requires: unzip
 		*.egg)	filetype_label Python egg package
-			unzip -qc "$sf" EGG-INFO/PKG-INFO
+			unzip -qp "$sf" EGG-INFO/PKG-INFO
 			;;
 
 		# requires: ebook-tools
@@ -485,13 +485,13 @@ EOF
 
 		*.tc)	filetype_label Tellico database
 			printf 'Database name: '
-			unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" -n 2> /dev/null
+			unzip -pq "$sf" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" -n 2> /dev/null
 			printf 'Number of records: '
-			unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='entry'])" -n 2>/dev/null
+			unzip -pq "$sf" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='entry'])" -n 2>/dev/null
 			printf 'Number of images:'
-			unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='images']/*[local-name()='image'])" -n 2>/dev/null
+			unzip -pq "$sf" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='images']/*[local-name()='image'])" -n 2>/dev/null
 			echo 'Database fields:'
-			unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -m "/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='fields']/*[local-name()='field']" -o '  ' -v '@name' -n 2>/dev/null
+			unzip -pq "$sf" tellico.xml | xmlstarlet sel -t -m "/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='fields']/*[local-name()='field']" -o '  ' -v '@name' -n 2>/dev/null
 			;;
 
 		# requires: samba-client
@@ -540,12 +540,12 @@ EOF
 
 		# requires: unzip, jq
 		*.wacz)	filetype_label Web Archive Collection Zipped
-			unzip -qc "$sf" datapackage.json | jq 'del(.resources)'
+			unzip -pq "$sf" datapackage.json | jq 'del(.resources)'
 			;;
 
 		# requires: unzip
 		*.whl)	filetype_label Python wheel package
-			unzip -qc "$sf" '*.dist-info/METADATA' | sed '/^$/,$d'
+			unzip -pq "$sf" '*.dist-info/METADATA' | sed '/^$/,$d'
 			;;
 
 

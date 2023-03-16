@@ -193,7 +193,7 @@ mtime_docbook () {
 mtime_docx () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
-	RAWTIME=$(unzip -cq "$sf" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dcterms:modified)
+	RAWTIME=$(unzip -pq "$sf" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dcterms:modified)
 	# $RAWTIME is like 2012-01-23T13:14:15Z
 	# Some programs incorrectly designate a time as UTC instead of local time,
 	# but there's nothing we can do to know that (in the general case).
@@ -369,7 +369,7 @@ mtime_jpeg () {
 mtime_kra () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
-	RAWTIME=$(unzip -cq "$sf" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:date 2>/dev/null )
+	RAWTIME=$(unzip -pq "$sf" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:date 2>/dev/null )
 	# $RAWTIME is like 2022-01-01T13:57:46
 	TIME="$(normalize_iso_time "$RAWTIME")"
 }
@@ -426,7 +426,7 @@ mtime_mov () {
 mtime_odf () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
-	RAWTIME=$(unzip -cq "$sf" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:date 2>/dev/null)
+	RAWTIME=$(unzip -pq "$sf" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:date 2>/dev/null)
 	# $RAWTIME is like 2009-10-11T12:13:14
 	TIME="$(normalize_iso_time "$RAWTIME")"
 	if [ -n "$RAWTIME" -a "$TIME" = "$RAWTIME" ]; then

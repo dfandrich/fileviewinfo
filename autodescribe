@@ -72,7 +72,7 @@ comment_zip () {
 		COMMENT=$(unzip -zq "$sf" dummy-file-to-eliminate-output | head -2 | trimspace)
 
 	elif unzip -vqq "$sf" desc.sdi > /dev/null ; then
-		COMMENT=$(unzip -caq "$sf" desc.sdi | head -3 | trimspace)
+		COMMENT=$(unzip -pq "$sf" desc.sdi | head -3 | trimspace)
 	fi
 }
 
@@ -130,7 +130,7 @@ comment_desktop () {
 comment_docx () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
-	COMMENT=$(unzip -cq "$sf" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dc:title)
+	COMMENT=$(unzip -pq "$sf" docProps/core.xml | xmlstarlet sel -t -v /cp:coreProperties/dc:title)
 }
 
 # File type: egg (Python egg package)
@@ -138,7 +138,7 @@ comment_docx () {
 comment_egg () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
-	COMMENT=$(unzip -cq "$sf" EGG-INFO/PKG-INFO | sed -En 's/^(Name|Summary): *//p' | sed -e N -e 's/\n/, /')
+	COMMENT=$(unzip -pq "$sf" EGG-INFO/PKG-INFO | sed -En 's/^(Name|Summary): *//p' | sed -e N -e 's/\n/, /')
 }
 
 # File type: exe (Microsoft Windows PE executable)
@@ -180,7 +180,7 @@ comment_ebook() {
 comment_kra () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
-	COMMENT=$(unzip -cq "$sf" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:title 2>/dev/null )
+	COMMENT=$(unzip -pq "$sf" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:title 2>/dev/null )
 }
 
 # File type: pdf (Portable Document Format)
@@ -282,7 +282,7 @@ comment_tellico () {
 	sf="$(safefn "$1")"
 	# stderr always contains a warning about the DTD; send that (and every
 	# other warning as a side effect) to /dev/null
-	COMMENT=$(unzip -qc "$sf" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" 2> /dev/null)
+	COMMENT=$(unzip -pq "$sf" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" 2> /dev/null)
 }
 
 # File type: tex (TeX document)
@@ -310,7 +310,7 @@ comment_tiff () {
 comment_whl () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
-	COMMENT=$(unzip -cq "$sf" '*.dist-info/METADATA' | sed -En 's/^(Name|Summary): *//p' | sed -e N -e 's/\n/, /')
+	COMMENT=$(unzip -pq "$sf" '*.dist-info/METADATA' | sed -En 's/^(Name|Summary): *//p' | sed -e N -e 's/\n/, /')
 }
 
 # File type: xhb (Homebank file)
@@ -357,7 +357,7 @@ comment_pascal () {
 comment_3mf () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
-	COMMENT=$(unzip -cq "$sf" 3D/3dmodel.model | xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name='Title']")
+	COMMENT=$(unzip -pq "$sf" 3D/3dmodel.model | xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name='Title']")
 }
 
 # File type: abw (AbiWord document)
@@ -375,7 +375,7 @@ comment_amf () {
 		# If the amf file is zip compressed, uncompress it first
 		TMPFILE=$(mktemp)
 		INFILE="${TMPFILE}"
-		unzip -cq "$sf" > "$INFILE"
+		unzip -pq "$sf" > "$INFILE"
 	else
 		TMPFILE=
 		INFILE="$1"
@@ -672,7 +672,7 @@ comment_ogg () {
 comment_odf () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
-	COMMENT=$(unzip -cq "$sf" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:title 2>/dev/null)
+	COMMENT=$(unzip -pq "$sf" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:title 2>/dev/null)
 }
 
 # File type: py (Python source code)
@@ -721,7 +721,7 @@ comment_aiff () {
 comment_wacz () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
-	COMMENT=$(unzip -qc "$sf" datapackage.json | jq -r '.title')
+	COMMENT=$(unzip -pq "$sf" datapackage.json | jq -r '.title')
 }
 
 # File type: warcgz (Compressed Web Archive Collection file)

@@ -361,7 +361,7 @@ for f in "$@" ; do
 		# See http://en.pardus-wiki.org/Package-manager (defunct as of 2021)
 		# requires: lzma, tar, unzip
 		*.pisi)	archive_label Pardus package
-			unzip -q -c "$sf" install.tar.lzma | lzma -dc | tar -tvf -
+			unzip -pq "$sf" install.tar.lzma | lzma -dc | tar -tvf -
 			;;
 
 		# See http://mattmahoney.net/dc/
