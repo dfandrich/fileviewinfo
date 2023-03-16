@@ -179,7 +179,7 @@ for f in "$@" ; do
 
 		# requires: Java jdk
 		*.class) filetype_label Java compiled class file
-			javap "$sf" | grep -E '(^C)|({$)'
+			javap "$sf" | grep -E '(^C)|(\{$)'
 			;;
 
 		# requires: openssl
@@ -530,7 +530,7 @@ EOF
 			;;
 
 		*.warc.gz)	filetype_label Compressed Web Archive Collection file
-			gzip -dc -- "$f" | tr -d '\015' | sed -n -e 1d -e '2,/^$/{p;b}' -e p -e '/^$/q'
+			gzip -dc -- "$f" | tr -d '\015' | sed -n -e 1d -e '2,/^$/{p;b' -e '}' -e p -e '/^$/q'
 			;;
 
 		# requires: wavplay

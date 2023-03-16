@@ -251,7 +251,7 @@ comment_stl () {
 		COMMENT=$(sed -n -E -e 's/[[:space:]]*$//' -e '1s/^solid +//p' < "$1")
 	else
 		# Binary stl format
-		COMMENT=$(dd if="$1" bs=1 count=80 2>/dev/null | sed -e 's/[[:space:]]*\x0.*$//' | iconv -f windows-1252)
+		COMMENT=$(dd if="$1" bs=1 count=80 2>/dev/null | tr -d '\0' | sed -e 's/[[:space:]]*$//' | iconv -f windows-1252)
 	fi
 }
 
