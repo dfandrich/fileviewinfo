@@ -54,8 +54,11 @@ if sys.argv[1][0] == "@":
 	localtz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
 	d = datetime.datetime.fromtimestamp(int(sys.argv[1][1:]), tz=localtz)
 else:
-	d = dateutil.parser.parse(sys.argv[1], tzinfos={
-		x:pytz.timezone(x) for x in pytz.all_timezones})
+	pyz = {x:pytz.timezone(x) for x in pytz.all_timezones}
+	rfc822z = {abbr:pyz[f"Etc/GMT{-off:+}"] for abbr,off in {
+		"UT":0,"Z":0,"AST":-4,"ADT":-3,"EST":-5,"EDT":-4,"CST":-6,"CDT":-5,
+		"MST":-7,"MDT":-6,"PST":-8,"PDT":-7}.items()} # tz abbr. from RFC 822
+	d = dateutil.parser.parse(sys.argv[1], tzinfos={**pyz, **rfc822z})
 print(d.strftime("%Y-%m-%d %H:%M:%S %z").rstrip())
 	' "$1"
 	}
