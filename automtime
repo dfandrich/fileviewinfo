@@ -26,7 +26,7 @@ shquote () {
 # the external dateutil and pytz modules are available).
 normalize_time () {
 	test -z "$1" -o "$1" = "@" -o "$1" = "@0" && return
-	date --date="$1" '+%+4Y-%m-%d %H:%M:%S' 2>/dev/null || {
+	date --date="$1" '+%04Y-%m-%d %H:%M:%S' 2>/dev/null || {
 		python3 -c '
 import datetime, dateutil.parser, sys
 if sys.argv[1][0] == "@":
@@ -47,7 +47,7 @@ print(d.astimezone().strftime("%Y-%m-%d %H:%M:%S"))
 # actually does the right thing here.
 normalize_time_tz () {
 	test -z "$1" -o "$1" = "@" -o "$1" = "@0" && return
-	date --date="$1" '+%+4Y-%m-%d %H:%M:%S %z' || {
+	date --date="$1" '+%04Y-%m-%d %H:%M:%S %z' 2>/dev/null || {
 		python3 -c '
 import datetime, dateutil.parser, pytz, sys
 if sys.argv[1][0] == "@":
