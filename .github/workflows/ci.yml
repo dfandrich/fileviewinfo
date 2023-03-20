@@ -75,11 +75,13 @@ jobs:
         curl -LsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all \
             http://azure.archive.ubuntu.com/ubuntu/pool/universe/p/pngtools/pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb \
             http://azure.archive.ubuntu.com/ubuntu/pool/universe/n/netpbm-free/netpbm_11.01.00-2build1_amd64.deb \
-            http://azure.archive.ubuntu.com/ubuntu/pool/universe/n/netpbm-free/libnetpbm11_11.01.00-2build1_amd64.deb
+            http://azure.archive.ubuntu.com/ubuntu/pool/universe/n/netpbm-free/libnetpbm11_11.01.00-2build1_amd64.deb \
+            http://azure.archive.ubuntu.com/ubuntu/pool/universe/r/rust-coreutils/rust-coreutils_0.0.17-2_amd64.deb
         test "$(sha256sum pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb)" = "1c7490f01a64af135d6341b8e5a9ab2fc94dcfe99131882cef1e623739bfadc6  pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb"
         test "$(sha256sum netpbm_11.01.00-2build1_amd64.deb)" = "ee102926ef4289c0830092447d650a58a48a0d136cab268af52b55d81d6485ce  netpbm_11.01.00-2build1_amd64.deb"
         test "$(sha256sum libnetpbm11_11.01.00-2build1_amd64.deb)" = "d690a886c1ff250ebca438d7fa64f0a6f9f56a1543c312b503ed3209a56efda3  libnetpbm11_11.01.00-2build1_amd64.deb"
-        sudo dpkg -i pngtools*.deb netpbm*.deb libnetpbm*.deb || true Ignore missing dependency errors--they are not needed for our tests
+        test "$(sha256sum rust-coreutils_0.0.17-2_amd64.deb)" = "f34842f12753527bdc7fac8595dc91e9aede0296348dd556614a3580811e4a06  rust-coreutils_0.0.17-2_amd64.deb"
+        sudo dpkg -i pngtools*.deb netpbm*.deb libnetpbm*.deb rust-coreutils*.deb || true Ignore missing dependency errors--they are not needed for our tests
         # unrar isn't installed in /usr/bin for some reason
         sudo install -m0755 -D /usr/lib/unrar -t /usr/local/bin
     - name: 'Patch tests'
@@ -99,7 +101,11 @@ jobs:
       run: make check -k SHELL=yash
     - name: 'Run tests with zsh'
       run: make check -k SHELL=zsh
-    - name: 'Patch tests for Busybox'
+    - name: 'Prepare for uutils-coreutils'
+      run: sudo rm /usr/lib/cargo/bin/coreutils/date  # buggy up to 0.0.17
+    - name: 'Run tests using uutils-coreutils'
+      run: PATH="/usr/lib/cargo/bin/coreutils:$PATH" make check -k
+    - name: 'Prepare for Busybox'
       run: |
         mkdir -p "$PWD/bb"
         busybox --install -s "$PWD/bb"
