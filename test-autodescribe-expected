@@ -53,6 +53,7 @@
 'testfiles/type1.rtf' 'RTF title'
 'testfiles/type1.s' 'Assembly title'
 'testfiles/type1.sla' 'Scribus Title'
+'testfiles/type1.slob' 'SLOB file label'
 'testfiles/type1.stl' 'STL_name'
 'testfiles/type1.svg' 'SVG root title'
 'testfiles/type1.svgz' 'SVG root title'

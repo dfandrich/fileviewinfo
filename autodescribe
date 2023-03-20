@@ -235,6 +235,13 @@ comment_sla () {
 	COMMENT=$(xmlstarlet sel -t -v '/SCRIBUSUTF8NEW/DOCUMENT/@TITLE' < "$1")
 }
 
+# File type: slob (Sorted List of Blobs dictionary)
+# See https://github.com/itkach/slob/
+# requires: slob
+comment_slob () {
+	COMMENT=$(slob tag -n label -- "$1")
+}
+
 # File type: snap (Snap package)
 # requires: squashfs
 comment_snap () {
@@ -956,6 +963,8 @@ for f in "$@" ; do
 			*.py)	TYPE=py
 				;;
 			*.sla)	TYPE=sla
+				;;
+			*.slob)	TYPE=slob
 				;;
 			*.snap)	TYPE=snap
 				;;

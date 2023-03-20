@@ -548,6 +548,15 @@ mtime_sla () {
 	TIME=$(normalize_time "$RAWTIME")
 }
 
+# File type: slob (Sorted List of Blobs dictionary)
+# See https://github.com/itkach/slob/
+# requires: slob
+mtime_slob () {
+	RAWTIME=$(slob tag -n created.at -- "$1")
+	# $RAWTIME is like 2020-12-28T10:06:20.108760+00:00
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
 # File type: squashfs (Squashfs filesystem image)
 # requires: squashfs-tools
 mtime_squashfs () {
@@ -984,6 +993,10 @@ for f in "$@" ; do
 
 			*.sla | *.sla.gz)
 				TYPE=sla
+				;;
+
+			*.slob)
+				TYPE=slob
 				;;
 
 			*.sqsh | *.squashfs | *.snap)
