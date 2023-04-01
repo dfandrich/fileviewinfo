@@ -453,6 +453,27 @@ mtime_odf () {
 	fi
 }
 
+# File type: patch (unified diff style patch)
+mtime_patch () {
+    # git-style format-patch
+	RAWTIME=$(sed -n -e '1,/^$/s/^[Dd][Aa][Tt][Ee]: *//p' < "$1")
+	# $RAWTIME is usually like Wed, 18 Jun 2014 17:06:32 -0400
+	if [ -z "$RAWTIME" ]; then
+		# The standard diff -u output includes the mtime of each file.
+		# Use the most recent file date included in the diff.
+		# The date format can not, unfortunately, be easily sorted as-is, so it
+		# is converted to epoch time, sorted and only the most recent is used.
+		# The real raw time from diff is usually like:
+		# 2023-04-01 13:18:48.718247759 -0700
+		# but is sometimes not supplied at all.
+		RAWTIME=$(sed -nE -e 's/^\+\+\+ .*\t([^(])/\1/p' "$1" | tr '\n' '\0' | xargs -0 -n1 "$AUTOMTIME" --epoch_time | sort -n | tail -1)
+		# $RAWTIME is like 1234567890
+		TIME=$(normalize_time_tz "@$RAWTIME")
+	else
+		TIME=$(normalize_time_tz "$RAWTIME")
+	fi
+}
+
 # File type: pcap (Pcap network capture file)
 # requires: wireshark-cli || wireshark-tools
 # Wireshark handles a lot more packet capture file formats that are all handled
@@ -940,8 +961,12 @@ for f in "$@" ; do
 				TYPE=lzo
 				;;
 
-			*.mbox | *.mbx | *.mbo | *.nws | *.msg | *.patch | *.diff)
+			*.mbox | *.mbx | *.mbo | *.nws | *.msg)
 				TYPE=email
+				;;
+
+			*.patch | *.diff)
+				TYPE=patch
 				;;
 
 			*.appdata.xml | *.metainfo.xml)

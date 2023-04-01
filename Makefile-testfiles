@@ -284,6 +284,14 @@ type1.slob:
 	# Requires https://github.com/itkach/slob/
 	printf 'import slob\nwith slob.create("type1.slob") as f:\n f.add(b"Word", "word")\n f.tag("label", "SLOB file label")\n' | python3
 
+type1.diff: foo
+	echo older > older.tmp
+	touch -d '-400 days' -r older.tmp older.tmp
+	echo newest > newest.tmp
+	diff -u /dev/null older.tmp > "$@" || test "$$?" -eq 1
+	diff -u /dev/null newest.tmp >> "$@" || test "$$?" -eq 1
+	diff -u /dev/null foo >> "$@" || test "$$?" -eq 1
+
 # The following files are pretty huge compared to others so they aren't
 # included in the repository but can be generated here if needed.
 
