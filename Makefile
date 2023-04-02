@@ -68,13 +68,7 @@ check-automtime:
 #   if their licenses were compatible (exiting files also often quite large
 #   which would add some hardship in using this otherwise lean project)
 check-fv:
-	# fv needs a known time for this file for consistent output. Save the
-	# current time in a temp file and restore it at the end of the test.
-	touch -r testfiles/type1.bz2 test-time.tmp
-	touch -t 202110111213.14 testfiles/type1.bz2
 	$(SHELL) ./fv $(addprefix testfiles/*., bz2 jffs2 rz shar uue) >test-fv.log
-	touch -r test-time.tmp testfiles/type1.bz2
-	rm -f test-time.tmp
 	diff test-fv-expected test-fv.log
 
 # Only check the file types that have significant processing in fvi.

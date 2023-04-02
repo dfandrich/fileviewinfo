@@ -683,18 +683,16 @@ EOF
 		# requires: fileutils, textutils, sh-utils, awk, util-linux
 		*.bz2)	archive_label bzip2-compressed file
 		    if [ -e "$f" ] ; then
-				echo "method  crc      date           compressed uncompressed_name"
 				FILEINFO=`env LC_ALL=C ls -l -- "$f"`
 				#FILESIZE=`echo "$FILEINFO" | cut -c 30-42`
 				FILESIZE=`echo "$FILEINFO" | awk '{print $5}'`
-				#FILEDATE=`echo "$FILEINFO" | cut -c 43-54`
-				FILEDATE=`echo "$FILEINFO" | awk '{print $6 " " $7 " " $8}'`
 				FILENAME=`basename -- "$f" .bz2`
 				#FILECRC=`od -A n -j 10 -N 4 -t x1 < "$f" | sed "s/ //g"`
 				FILECRC=`hexdump -e '4/1 "%02x" "\n"' -n 4 -s 10 < "$f"`
 				#FILECOMPRESS=`od -A n -j 3 -N 1 -t c "$f" | sed "s/ //g"`
 				FILECOMPRESS=`hexdump -e '"%_c" "\n"' -n 1 -s 3 < "$f"`
-				printf "bzip2-%s %8s %s %13s %s" "$FILECOMPRESS" "$FILECRC" "$FILEDATE" "$FILESIZE" "$FILENAME"
+				echo "method  crc         compressed uncompressed_name"
+				printf "bzip2-%s %8s %13s %s" "$FILECOMPRESS" "$FILECRC" "$FILESIZE" "$FILENAME"
 			else
 				echo "$f: No such file or directory"
 			fi
