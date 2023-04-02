@@ -129,9 +129,8 @@ jobs:
       run: |
         mkdir -p "$PWD/tb"
         for i in $(/usr/bin/toybox); do ln -s /usr/bin/toybox "$PWD/tb/$i"; done
-        # Toybox tar doesn't support --wildcards which fv assumes
         # Toybox ls uses a different date format than what fv assumes
-        rm "$PWD/tb/"{ls,tar}
+        rm "$PWD/tb/ls"
     - name: 'Run tests using Toybox'
       run: PATH="$PWD/tb:$PATH" make check -k
     - name: 'Build documentation'

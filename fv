@@ -107,6 +107,22 @@ safefn () {
 	esac
 }
 
+# Check if 'tar' needs the --wildcards option for globbing
+# Set the TAR_WILDCARDS environment variable with the appropriate option
+TAR_WILDCARDS=
+checked_tar_wildcards=
+check_tar_wildcards () {
+	if [ -n "$checked_tar_wildcards" ]; then
+		# We've already done the check
+		return
+	fi
+	if tar --help 2>&1 | grep '[-]-wildcards' >/dev/null; then
+		TAR_WILDCARDS=--wildcards
+	fi
+	checked_tar_wildcards=yes
+}
+
+
 for f in "$@" ; do
 	if [ X"$staticfiletype" = X"" ] ; then
 		filetype=`basename -- "$f"`
@@ -256,8 +272,9 @@ for f in "$@" ; do
 				ar -p "$sf" data.tar.gz | gzip -dc | tar tvf -
 			else
 				# Internal file name may or may not be prefixed with ./
-				# which is what the \* catches.
-				gzip -dc -- "$f" | tar xOf - --wildcards \*data.tar.gz | gzip -dc | tar tvf -
+				# which is what the * catches.
+				check_tar_wildcards
+				gzip -dc -- "$f" | tar xOf - $TAR_WILDCARDS '*data.tar.gz' | gzip -dc | tar tvf -
 			fi
 			;;
 
