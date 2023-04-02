@@ -65,7 +65,7 @@ check_tar_wildcards () {
 # requires: tar (GNU version), gzip, man-db
 comment_tgz () {
 	check_tar_wildcards
-	COMMENT=$(tar -xOkzf - $TAR_WILDCARDS \*.man \*.\[0-9\] 2> /dev/null < "$1" | lexgrog - | grep -v '^-: parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
+	COMMENT=$(tar -xOkzf - $TAR_WILDCARDS \*.man \*.\[0-9\] 2> /dev/null < "$1" | LC_ALL=C lexgrog - | grep -v '^-: parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
 	if [ -z "$COMMENT" ] ; then
 		COMMENT=$(tar -xOkzf - $TAR_WILDCARDS \*.lsm 2> /dev/null < "$1" | sed -n 's/^Title: *//p')
 	fi
@@ -605,7 +605,7 @@ comment_kdenlive () {
 # File type: man (man page)
 # requires: man-db
 comment_man () {
-	COMMENT=$(lexgrog -- "$1" | grep -v ': parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
+	COMMENT=$(LC_ALL=C lexgrog -- "$1" | grep -v ': parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
 }
 
 # File type: md (Markdown text)
