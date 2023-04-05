@@ -564,6 +564,14 @@ comment_iso () {
 	COMMENT=$(isoinfo -d -i "$1" | sed -E -n -e 's/^Volume (set )?id: (.)/\2/p' | head -1)
 }
 
+# File type: jar (Java jar)
+# requires: unzip
+comment_jar () {
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(unzip -pqaa "$sf" META-INF/MANIFEST.MF | sed -n -E -e 's/^([Aa]pplication-[Nn]ame|[Bb]undle-[Nn]ame): *//p' | head -1)
+}
+
 # File type: jpeg (JPEG JFIF image)
 # requires: jpeg-progs, exif
 comment_jpeg () {
@@ -914,6 +922,8 @@ for f in "$@" ; do
 				;;
 			*.kdenlive)
 				TYPE=kdenlive
+				;;
+			*.jar)	TYPE=jar
 				;;
 			*.jpeg | *.jpg)
 				TYPE=jpeg

@@ -264,6 +264,12 @@ type1.class:
 	javac type1.java
 	rm type1.java
 
+type1.jar:
+	echo 'class Foo { public static void main(String []args) { System.out.println("foo"); } };' > Foo.java
+	javac Foo.java
+	echo 'Application-Name: Jar Application Name' >manifest
+	jar cfem "$@" Foo manifest Foo.class
+
 type1.gmo: type1.po
 	msgfmt -c --statistics --verbose -o "$@" "$^"
 
