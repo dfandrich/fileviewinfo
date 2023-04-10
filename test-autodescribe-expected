@@ -14,6 +14,7 @@
 'testfiles/type1.docx' 'MS Word title'
 'testfiles/type1.egg' 'python-package-name, package summary'
 'testfiles/type1.epub' 'EPUB title'
+'testfiles/type1.exe' 'Windows executable name'
 'testfiles/type1.flac' 'FLAC title'
 'testfiles/type1.fods' 'OpenDocument Spreadsheet Title'
 'testfiles/type1.fodt' 'Open Document title'
