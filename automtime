@@ -136,10 +136,12 @@ mtime_abw () {
 # See https://liballeg.org/
 # requires: allegro4
 mtime_allegro4 () {
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
 	# There is also a packed Allegro4 datafile type with the same
 	# extension, but there seems to be no metadata within the file to
 	# display without uncompressing the file.
-	RAWTIME="$(dat -l -v -- "$1" | sed -E -n -e "s/'//g" -e 's/  . DATE //p')"
+	RAWTIME="$(dat -l -v "$sf" | sed -E -n -e "s/'//g" -e 's/  . DATE //p')"
 	# $RAWTIME is like 10-13-2021, 7:53
 	# The second sed here is to zero-prefix the time, when necessary
 	TIME="$(echo "$RAWTIME" | sed -E -e 's/^([0-9][0-9])-([0-9][0-9])-([0-9][0-9][0-9][0-9]), *([0-9]+:[0-9][0-9]).*$/\3-\1-\2 \4/' | sed -E -e 's/^(.{10}) ([0-9]):/\1 0\2:/')"
@@ -466,7 +468,7 @@ mtime_patch () {
 		# The real raw time from diff is usually like:
 		# 2023-04-01 13:18:48.718247759 -0700
 		# but is sometimes not supplied at all.
-		RAWTIME=$(sed -nE -e 's/^\+\+\+ .*\t([^(])/\1/p' "$1" | tr '\n' '\0' | xargs -0 -n1 "$AUTOMTIME" --epoch_time | sort -n | tail -1)
+		RAWTIME=$(sed -nE -e 's/^\+\+\+ .*\t([^(])/\1/p' < "$1" | tr '\n' '\0' | xargs -0 -n1 "$AUTOMTIME" --epoch_time | sort -n | tail -1)
 		# $RAWTIME is like 1234567890
 		TIME=$(normalize_time_tz "@$RAWTIME")
 	else

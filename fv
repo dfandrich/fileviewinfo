@@ -675,7 +675,7 @@ EOF
 			# There is also a packed Allegro4 datafile type with the same
 			# extension, but there seems to be no metadata within the file to
 			# display without uncompressing the file.
-			dat -l -v -- "$f"
+			dat -l -v "$sf"
 			;;
 
 # Compressed files must come after compressed archives
