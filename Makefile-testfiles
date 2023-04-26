@@ -375,6 +375,15 @@ type1.exe:
 	echo 'void __cdecl mainCRTStartup() { DWORD num; HANDLE hf = GetStdHandle(STD_OUTPUT_HANDLE); WriteFile(hf, "foo\r\n", 5, &num, 0); ExitProcess(0); }' >>test.c
 	x86_64-w64-mingw32-gcc -m32 -s -Os -fno-ident -fno-stack-protector -fomit-frame-pointer -fno-unwind-tables -fno-asynchronous-unwind-tables -mconsole -o type1.exe test.c type1.o -nostdlib -nodefaultlibs -lkernel32
 
+type1.deb:
+	mkdir type1-0.0.1
+	echo foo >type1-0.0.1/foo
+	echo public domain >license
+	touch type1-0.0.1/Makefile
+	tar czvf type1-0.0.1.tar.gz type1-0.0.1
+	rm type1-0.0.1/*
+	cd type1-0.0.1 && DEBEMAIL="your@example.com" DEBFULLNAME="Fake Maintainer" dh_make -y -i -c custom --copyrightfile ../../license -f ../type1-0.0.1.tar.gz && dpkg-buildpackage -d
+
 # The following files are pretty huge compared to others so they aren't
 # included in the repository but can be generated here if needed.
 
