@@ -33,6 +33,18 @@ Name: AMF object name
 1 object(s)
 0 material(s)
 
+testfiles/type1.deb:
+Package: type1
+Version: 0.0.1-1
+Architecture: all
+Maintainer: Fake Maintainer <your@example.com>
+Installed-Size: 11
+Section: unknown
+Priority: optional
+Homepage: <insert the upstream URL, if relevant>
+Description: Deb package description
+ Long deb package description
+
 testfiles/type1.egg:
 Metadata-Version: 2.1
 Name: python-package-name

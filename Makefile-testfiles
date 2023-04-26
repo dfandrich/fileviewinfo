@@ -382,7 +382,7 @@ type1.deb:
 	touch type1-0.0.1/Makefile
 	tar czvf type1-0.0.1.tar.gz type1-0.0.1
 	rm type1-0.0.1/*
-	cd type1-0.0.1 && DEBEMAIL="your@example.com" DEBFULLNAME="Fake Maintainer" dh_make -y -i -c custom --copyrightfile ../../license -f ../type1-0.0.1.tar.gz && dpkg-buildpackage -d
+	cd type1-0.0.1 && DEBEMAIL="your@example.com" DEBFULLNAME="Fake Maintainer" dh_make -y -i -c custom --copyrightfile ../../license -f ../type1-0.0.1.tar.gz && sed -i -e '/^Description:/{i\Description: Deb package description' -e 'i\ Long deb package description' -e '}' -e '/^Description:/,$$d' debian/control && dpkg-buildpackage -d
 
 # The following files are pretty huge compared to others so they aren't
 # included in the repository but can be generated here if needed.

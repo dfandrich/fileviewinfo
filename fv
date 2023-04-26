@@ -236,10 +236,10 @@ for f in "$@" ; do
 		# Also OpenMoko package .opk
 		*.deb | *.opk)  archive_label Debian distribution archive
 			case "$(ar t -- "$f" data.tar.zst data.tar.xz data.tar.gz 2>/dev/null)" in
-				*zst) ar p "$sf" data.tar.zst | zstd -dc | tar tvf - ;;
-				*xz) ar p "$sf" data.tar.xz | xz -qdc | tar tvf - ;;
-				*gz) ar p "$sf" data.tar.gz | gzip -qdc | tar tvf - ;;
-				*) echo Error: unknown deb compression
+				*zst) ar p -- "$f" data.tar.zst | zstd -dc | tar tvf - ;;
+				*xz) ar p -- "$f" data.tar.xz | xz -qdc | tar tvf - ;;
+				*gz) ar p -- "$f" data.tar.gz | gzip -qdc | tar tvf - ;;
+				*) echo Error: unknown deb compression 1>&2 ;;
 			esac
 			;;
 

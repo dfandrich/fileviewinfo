@@ -229,6 +229,18 @@ for f in "$@" ; do
 			openssl x509 -text -inform der -in "$f"
 			;;
 
+		# requires: binutils, gzip, tar, xz, zstd
+		# On a Debian system, this should use 'dpkg -I "$f"' instead
+		# Also OpenMoko package .opk
+		*.deb | *.opk)  filetype_label Debian distribution archive
+			case "$(ar t -- "$f" control.tar.zst control.tar.xz control.tar.gz 2>/dev/null)" in
+				*zst) ar p -- "$f" control.tar.zst | zstd -dc | tar xOf - ./control ;;
+				*xz) ar p -- "$f" control.tar.xz | xz -qdc | tar xOf - ./control ;;
+				*gz) ar p -- "$f" control.tar.gz | gzip -qdc | tar xOf - ./control ;;
+				*) echo Error: unknown deb compression 1>&2 ;;
+			esac
+			;;
+
 		# needs Android SDK
 		*.dex)	filetype_label Android Java class file
 			dexlist -- "$f"
