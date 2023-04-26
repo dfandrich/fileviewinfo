@@ -607,6 +607,8 @@ EOF
 		# Also Nokia mobile phone theme .nth
 		# Also Microsoft Office Open XML .docx
 		# Also Microsoft Office Open XML with Macros .docm
+		# Also Microsoft Office Open XML .pptx
+		# Also Microsoft Office Open XML .xlsx
 		# Also EPub Document .epub
 		# Also Java Web Start .war
 		# Also XML Paper Specification .xps
@@ -622,8 +624,8 @@ EOF
 		*.sxi | *.sxd | *.sxw | *.sxm | *.pk3 | *.ipg | *.nth | *.odt | \
 		*.ods | *.odp | *.odg | *.odf | \
 		*.otp | *.otg | *.ots | \
-		*.docx | *.epub | *.apk | *.war | *.xps | *.resource | \
-		*.application | *.docm | *.f3d | *.kra | \
+		*.docx | *.pptx | *.xlsx | *.epub | *.apk | *.war | *.xps | \
+		*.resource | *.application | *.docm | *.f3d | *.kra | \
 		*.sb2 | *.sb3 | *.apkm)
 			filetype_label ZIP archive
 			zipinfo -h -z "$sf" | grep -v "^$"; zipinfo -l "$sf" | tail -1

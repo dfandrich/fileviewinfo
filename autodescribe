@@ -141,7 +141,7 @@ comment_desktop () {
 	fi
 }
 
-# File type: docx (MS Word document)
+# File type: docx (Microsoft Office document)
 # requires: unzip, xmlstarlet
 comment_docx () {
 	# "safe" filename guaranteed not to start with a dash
@@ -905,7 +905,7 @@ for f in "$@" ; do
 				;;
 			*.desktop)	TYPE=desktop
 				;;
-			*.docx | *.docm | *.pptx)
+			*.docx | *.docm | *.pptx | *.xlsx)
 				TYPE=docx
 				;;
 			*.egg)
