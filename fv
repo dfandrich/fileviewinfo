@@ -231,14 +231,16 @@ for f in "$@" ; do
 			dar -l -- "$f"
 			;;
 
-		# requires: binutils, gzip, tar, xz
+		# requires: binutils, gzip, tar, xz, zstd
 		# On a Debian system, this should use 'dpkg -c "$f"' instead
 		# Also OpenMoko package .opk
 		*.deb | *.opk)  archive_label Debian distribution archive
-			# data is either gzip or xzip compressed; try them both but hide
-			# errors only from the first so only one error will be shown at
-			# most.
-			ar p "$sf" data.tar.gz 2>/dev/null | gzip -dc 2>/dev/null | tar tvf - 2>/dev/null || ( ar p "$sf" data.tar.xz | xz -dc | tar tvf - )
+			case "$(ar t -- "$f" data.tar.zst data.tar.xz data.tar.gz 2>/dev/null)" in
+				*zst) ar p "$sf" data.tar.zst | zstd -dc | tar tvf - ;;
+				*xz) ar p "$sf" data.tar.xz | xz -qdc | tar tvf - ;;
+				*gz) ar p "$sf" data.tar.gz | gzip -qdc | tar tvf - ;;
+				*) echo Error: unknown deb compression
+			esac
 			;;
 
 		# See https://github.com/sgan81/apfs-fuse/
