@@ -201,6 +201,12 @@ comment_kra () {
 	COMMENT=$(unzip -pq "$sf" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:title 2>/dev/null )
 }
 
+# File type: lsm (Linux Software Map)
+comment_lsm () {
+	# Title can probably be multiline, but we don't bother
+	COMMENT=$(sed -n 's/^Title: *//p' < "$1" | head -1)
+}
+
 # File type: pdf (Portable Document Format)
 # requires: poppler
 comment_pdf () {
@@ -947,6 +953,9 @@ for f in "$@" ; do
 				;;
 			*.kra)
 				TYPE=kra
+				;;
+			*.lsm)
+				TYPE=lsm
 				;;
 			*.lzh | *.lha)
 				TYPE=lzh

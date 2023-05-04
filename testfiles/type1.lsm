@@ -1,0 +1,15 @@
+Begin4
+Title:          LSM Title
+Version:        0.1
+Entered-date:   2023-05-04
+Description:    LSM description, which can flow over
+                more than one line.
+Keywords:       test, archive, software, metadata,
+                command-line, utility
+Author:         nobody@example.com (No User)
+Maintained-by:  nobody@example.com (No User)
+Primary-site:   https://www.example.com/files/
+                0kB not-existing.tar.gz
+Platforms:      Linux
+Copying-policy: public domain
+End

@@ -30,6 +30,7 @@
 'testfiles/type1.jpg' 'JPEG comment'
 'testfiles/type1.kdenlive' 'Project Title'
 'testfiles/type1.kra' 'Krita name'
+'testfiles/type1.lsm' 'LSM Title'
 'testfiles/type1.lzh' 'LZH comment in desc.sdi file'
 'testfiles/type1.md' 'Markdown title'
 'testfiles/type1.metainfo.xml' 'Nonlocalized name'
