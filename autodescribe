@@ -64,10 +64,54 @@ check_tar_wildcards () {
 # BUG: tar will extract all files if path ends in a number, e.g. playmidi-2.3/foo
 # requires: tar, gzip, man-db
 comment_tgz () {
-	check_tar_wildcards
-	COMMENT=$(tar -xOkzf - $TAR_WILDCARDS \*.man \*.\[0-9\] 2> /dev/null < "$1" | LC_ALL=C lexgrog - | grep -v '^-: parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
-	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(tar -xOkzf - $TAR_WILDCARDS \*.lsm 2> /dev/null < "$1" | sed -n 's/^Title: *//p')
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	TMPFILE=$(mktemp)
+	TMPFILE2=$(mktemp)
+	# First, scan for all the possible embedded types we support. A list of all
+	# possible file types are scanned first so the file only needs to be
+	# decompressed a maximum of one more time to save time while also avoiding
+	# having lots of temporary files lying around at the same time.
+	gzip -dc -- "$1" | tar -tf - | grep -E '(\.man|\.[0-9]|\.lsm)$' > "$TMPFILE"
+	if [ -s "$TMPFILE" ]; then
+		# Found a candidate file
+		check_tar_wildcards
+
+		# man page
+		# First, look for a man page based on the simple name of the tar file
+		BASENAME=$(basename "$sf" | sed -e 's/[^a-zA-Z0-9].*$//')
+		MATCHNAME=$(grep -iE "(^|/)$BASENAME(\.man|.[0-9])$" < "$TMPFILE" | head -1)
+		if [ -z "$MATCHNAME" ]; then
+			# Expand the attempt to find a matching man page based on the name
+			# of the tar file by allowing dashes
+			BASENAME=$(basename "$sf" | sed -n -e 's/^\([a-zA-Z0-9]\+\(-[a-zA-Z][a-zA-Z0-9]*\)*\).*$/\1/p')
+			MATCHNAME=$(grep -iE "(^|/)$BASENAME(\.man|.[0-9])$" < "$TMPFILE" | head -1)
+		fi
+		if [ -n "$MATCHNAME" ]; then
+			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			comment_man "$TMPFILE2"
+		fi
+		# Finally, try the first man page found
+		# Only look at the first matching man page since lexgrog wants only one
+		# and since some archives contain hundreds. The first one might not
+		# be the best match, unfortunately.
+		MATCHNAME=$(grep -E '(\.man|.[0-9])$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			comment_man "$TMPFILE2"
+		fi
+
+		# Linux Software Map
+		if [ -z "$COMMENT" ] && grep '\.lsm$' < "$TMPFILE" >/dev/null; then
+			gzip -dc -- "$1" | tar -xOf - $TAR_WILDCARDS \*.lsm > "$TMPFILE2"
+			comment_lsm "$TMPFILE2"
+		fi
+	fi
+	if [ -n "$TMPFILE2" ]; then
+		rm -f "$TMPFILE2"
+	fi
+	if [ -n "$TMPFILE" ]; then
+		rm -f "$TMPFILE"
 	fi
 }
 
