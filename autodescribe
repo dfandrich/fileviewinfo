@@ -835,7 +835,7 @@ comment_man () {
 
 # File type: md (Markdown text)
 comment_md () {
-	COMMENT=$(head -5 < "$1" | sed -n -e 's/^# //p' | trimspace)
+	COMMENT=$(head -5 < "$1" | sed -n -e 's/[ #]*$//' -e 's/^# //p' | trimspace)
 }
 
 # File type: mkv (Matroska video)
