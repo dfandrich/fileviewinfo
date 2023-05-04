@@ -1,0 +1,2 @@
+dnl old-style AC_INIT invocation
+AC_INIT(inc/libxxx.h.in)

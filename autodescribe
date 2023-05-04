@@ -516,7 +516,11 @@ comment_xhb () {
 
 # File type: ac (autoconf source code)
 comment_ac () {
-	COMMENT=$(sed -E -n 's/^[[:space:]]*AC_INIT\([[:space:]]*\[?([^],]+).*/\1/p' < "$1")
+	# Catch this style:
+	#   AC_INIT([package], [version], [address])
+	# but not this (old) style:
+	#   AC_INIT(inc/libxyz.h.in)
+	COMMENT=$(sed -E -n 's/^[[:space:]]*AC_INIT\([[:space:]]*\[?([^],]+).*,.*\)/\1/p' < "$1")
 }
 
 # File type: c (C source code)
