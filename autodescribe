@@ -408,7 +408,7 @@ comment_psfont () {
 }
 
 # File type: subject (news article or mail file)
-# File type: .patch git format-patch
+# File type: patch (git format-patch)
 comment_subject () {
 	COMMENT=$(sed -n 's/^Subject: *//ip' < "$1" | head -1)
 	if [ -z "$COMMENT" ] ; then
