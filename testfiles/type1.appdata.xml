@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application>
+    <id type="desktop">example.desktop</id>
+    <licence>CC0</licence>
+    <metadata_license>CC0-1.0</metadata_license>
+    <name>Appdata Name</name>
+    <summary>Appdata Summary</summary>
+    <description>
+        <!-- This comment should not be displayed by any
+             user-facing application
+        -->
+
+        <p> This ia a long description for this appdata entry.
+            It is long and windy.
+        </p> 
+        <p> 
+            It is also filled with unnecessary words.
+        </p>
+    </description>
+    <url type="homepage">https://example.com/</url>
+    <!-- This section is not available
+    <screenshots>
+        <screenshot type="default"></screenshot>
+    </screenshots>
+    -->
+    <updatecontact>nobody@example.com</updatecontact>
+</application>

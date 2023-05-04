@@ -577,19 +577,47 @@ comment_apk () {
 # File type: appdata (Appdata metainfo file)
 # requires: xmlstarlet
 comment_appdata () {
+	# First look for the name, localized if possible
 	# Get current locale language
 	L="$(get_lang_full)"
 	if [ -z "$L" ]; then
 		L=en  # English by default
 	fi
-	COMMENT=$(xmlstarlet sel  -t -v 'component/name[@xml:lang="'"$L"'"]' <"$1")
+	COMMENT=$(xmlstarlet sel  -t -v '(/application|/component)/name[@xml:lang="'"$L"'"]' <"$1")
 	if [ -z "$COMMENT" ]; then
 		# Try again with generic locale
 		L="$(get_lang_generic)"
-	    COMMENT=$(xmlstarlet sel  -t -v 'component/name[@xml:lang="'"$L"'"]' <"$1")
+	    COMMENT=$(xmlstarlet sel  -t -v '(/application|/component)/name[@xml:lang="'"$L"'"]' <"$1")
 		if [ -z "$COMMENT" ]; then
 			# Try again with the default name
-			COMMENT=$(xmlstarlet sel  -t -v 'component/name[not(@xml:lang)]' <"$1" | head -1)
+			COMMENT=$(xmlstarlet sel  -t -v '(/application|/component)/name[not(@xml:lang)]' <"$1" | head -1)
+		fi
+	fi
+	NAME="$COMMENT"
+
+	# Next look for the summary, localized if possible
+	# Get current locale language
+	L="$(get_lang_full)"
+	if [ -z "$L" ]; then
+		L=en  # English by default
+	fi
+	COMMENT=$(xmlstarlet sel  -t -v '(/application|/component)/summary[@xml:lang="'"$L"'"]' <"$1")
+	if [ -z "$COMMENT" ]; then
+		# Try again with generic locale
+		L="$(get_lang_generic)"
+	    COMMENT=$(xmlstarlet sel  -t -v '(/application|/component)/summary[@xml:lang="'"$L"'"]' <"$1")
+		if [ -z "$COMMENT" ]; then
+			# Try again with the default summary
+			COMMENT=$(xmlstarlet sel  -t -v '(/application|/component)/summary[not(@xml:lang)]' <"$1" | head -1)
+		fi
+	fi
+
+	# Now, use the right combination of more than one is found
+	if [ -n "$NAME" ]; then
+		if [ -n "$COMMENT" ]; then
+			COMMENT="$NAME, $COMMENT"
+		else
+			COMMENT="$NAME"
 		fi
 	fi
 }
