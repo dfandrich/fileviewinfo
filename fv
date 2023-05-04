@@ -410,7 +410,7 @@ for f in "$@" ; do
 		# See http://www.rpm.org/
 		# requires: rpm
 		*.rpm | *.spm)	archive_label Red Hat RPM package
-			rpm -qilvp -- "$f"
+			rpm -qlvp -- "$f"
 			;;
 
 		# (Obsolete format; from Red Hat Linux distributions < 4.0)
