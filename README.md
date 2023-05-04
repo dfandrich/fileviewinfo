@@ -63,8 +63,8 @@ Any differences between the expected and generated output will be displayed.
 If a needed external program is missing, the test will fail. Some test runs
 show "Not a known file type" or "No comment found" which is normal, since not
 all file types are supported by all programs being tested.  The test suite is
-sensitive to the locale and will not pass in some non-English locales due to
-some language-specific output, hence the LC_ALL setting above. The programs
+sensitive to the locale and will fail in some non-English locales due to some
+language-specific output, hence the LC_ALL setting above. The programs
 themselves should run fine in any locale, however.
 
 ## Development
