@@ -812,8 +812,9 @@ comment_jpeg () {
 
 # File type: first_line (first line of text file)
 comment_first_line () {
-	# Ignore completely blank lines and formatting lines consisting of all dashes, etc.
-	COMMENT=$(grep -v '^[-_=*:~[:space:]]*$' < "$1" | head -1)
+	# Ignore completely blank lines and formatting lines consisting of all
+	# dashes, ASCII art, etc.
+	COMMENT=$(grep -v '^[-_=*:~/\\|()<>[:space:]]*$' < "$1" | head -1 | trimspace)
 }
 
 # File type: html (HTML text)
@@ -1231,13 +1232,13 @@ for f in "$@" ; do
 			*.tex)
 				TYPE=tex
 				;;
-			*.texi)
+			*.texi | *.texinfo)
 				TYPE=texi
 				;;
 			*.tif | *.tiff)
 				TYPE=tiff
 				;;
-			*.txt | *.asc | *.rst)
+			*.txt | *.asc | *.rst | *README | *Readme | *ReadMe | *readme)
 				TYPE=first_line
 				;;
 			*.uue)
