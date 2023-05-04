@@ -57,8 +57,8 @@ check_tar_wildcards () {
 # Following are functions to extract descriptions for specific file types
 
 # File type: tgz (compressed tar archive)
-# Comment is taken from a man page file with name *.[0-9]
-# or from a Linux Software Map entry
+# Comments are taken from embedded files, such as man pages, Appdata files,
+# etc.
 # BUG: tar will often create empty directories, or directories containing
 # symbolic links matching *.[0-9] at least with GNU tar 1.11.2
 # BUG: tar will extract all files if path ends in a number, e.g. playmidi-2.3/foo
@@ -70,24 +70,67 @@ comment_tgz () {
 	TMPFILE2=$(mktemp)
 	# First, scan for all the possible embedded types we support. A list of all
 	# possible file types are scanned first so the file only needs to be
-	# decompressed a maximum of one more time to save time while also avoiding
-	# having lots of temporary files lying around at the same time.
-	gzip -dc -- "$1" | tar -tf - | grep -E '(\.man|\.[0-9]|\.lsm)$' > "$TMPFILE"
+	# decompressed a maximum of one more time (assuming a successful comment
+	# extraction) to save time while also avoiding having lots of temporary
+	# files lying around at the same time.
+	# Skip any readme files more than 2 levels down in the directory hierarchy.
+	# Sort files by distance from root, so files higher up will be used first
+	# where there is more than one. Files that appears to be in a documentation
+	# directory get a half-level boost. Because of this sorting, wildcards
+	# cannot be used to extract files because the extraction order is the order
+	# encountered in the file, not the order specified.
+	gzip -dc -- "$1" | tar -tf - | \
+		grep -E '(\.man|\.[0-9]|\.lsm|\.appdata\.xml|\.metainfo\.xml|\.desktop|configure\.ac|README\.md|Readme\.md|ReadMe\.md|readme\.md|README.rst|Readme.rst|ReadMe.rst|readme.rst|README|Readme|ReadMe|readme|README\.txt|Readme\.txt|ReadMe\.txt|readme\.txt|\.texi|\.texinfo)$' | \
+		awk 'BEGIN {FS="/"} {doc=match($0, "/(([Dd]oc)|[Mm]an|[Ii]nfo)"); print split($0, a)*2-!!doc "\t" $0;}' | \
+		sort -n | \
+		cut -f2- | \
+		grep -viE '^.*/.*/.*/.*readme(\.[a-z]*)?$' > "$TMPFILE"
+
 	if [ -s "$TMPFILE" ]; then
-		# Found a candidate file
-		check_tar_wildcards
+		# Found at least one a candidate file
+
+		# Try to find the base name of the tar ball, without version numbers
+		# and file extensions. This isn't always easy, so use two heuristics to
+		# find one shorter and one (possibly) longer candidate.
+		BASENAME1=$(basename "$sf" | sed -e 's/[^a-zA-Z0-9].*$//')
+		BASENAME2=$(basename "$sf" | sed -n -e 's/^\([a-zA-Z0-9]\+\(-[a-zA-Z][a-zA-Z0-9]*\)*\).*$/\1/p')
+
+		# Note: file types that do not tolerate concatenation with subsequent
+		# files (e.g. XML) must use MATCHNAME to extract only one single file
+		# instead of using wildcards (which is also bad given the reason
+		# above).
+
+		# Appdata file
+		MATCHNAME=$(grep -E '(\.appdata\.xml|\.metainfo\.xml)$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			comment_appdata "$TMPFILE2"
+		fi
+
+		# XDG desktop file
+		MATCHNAME=$(grep '\.desktop$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			comment_desktop "$TMPFILE2"
+		fi
+
+		# Linux Software Map
+		# This is basically obsolete these days but can be found in old
+		# archives.
+		MATCHNAME=$(grep '\.lsm$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			comment_lsm "$TMPFILE2"
+		fi
 
 		# man page
 		# First, look for a man page based on the simple name of the tar file
-		BASENAME=$(basename "$sf" | sed -e 's/[^a-zA-Z0-9].*$//')
-		MATCHNAME=$(grep -iE "(^|/)$BASENAME(\.man|.[0-9])$" < "$TMPFILE" | head -1)
-		if [ -z "$MATCHNAME" ]; then
-			# Expand the attempt to find a matching man page based on the name
-			# of the tar file by allowing dashes
-			BASENAME=$(basename "$sf" | sed -n -e 's/^\([a-zA-Z0-9]\+\(-[a-zA-Z][a-zA-Z0-9]*\)*\).*$/\1/p')
-			MATCHNAME=$(grep -iE "(^|/)$BASENAME(\.man|.[0-9])$" < "$TMPFILE" | head -1)
+		MATCHNAME=$(grep -iE "(^|/)$BASENAME1(\.man|.[0-9])$" < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -z "$MATCHNAME" ]; then
+			# Expand the attempt to find a matching man page
+			MATCHNAME=$(grep -iE "(^|/)$BASENAME2(\.man|.[0-9])$" < "$TMPFILE" | head -1)
 		fi
-		if [ -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
 			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
 			comment_man "$TMPFILE2"
 		fi
@@ -101,10 +144,52 @@ comment_tgz () {
 			comment_man "$TMPFILE2"
 		fi
 
-		# Linux Software Map
-		if [ -z "$COMMENT" ] && grep '\.lsm$' < "$TMPFILE" >/dev/null; then
-			gzip -dc -- "$1" | tar -xOf - $TAR_WILDCARDS \*.lsm > "$TMPFILE2"
-			comment_lsm "$TMPFILE2"
+		# TeXinfo pages
+		# First, look for a texinfo page based on the simple name of the tar
+		# file
+		MATCHNAME=$(grep -iE "(^|/)$BASENAME1\.texi(nfo)?$" < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -z "$MATCHNAME" ]; then
+			# Expand the attempt to find a matching texinfo page
+			MATCHNAME=$(grep -iE "(^|/)$BASENAME2\.texi(nfo)?$" < "$TMPFILE" | head -1)
+		fi
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			comment_texi "$TMPFILE2"
+		fi
+		# Finally, try any texinfo pages
+		# Note: this doesn't handle spaces in filenames
+		MATCHNAME=$(grep -E '\.texi(nfo)?$' < "$TMPFILE")
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			gzip -dc -- "$1" | tar -xOf - $MATCHNAME 2>/dev/null > "$TMPFILE2"
+			comment_texi "$TMPFILE2"
+		fi
+
+		# README.md file
+		MATCHNAME=$(grep -i 'README\.md$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
+			comment_md "$TMPFILE2"
+		fi
+
+		# README.rst file
+		MATCHNAME=$(grep -i 'README\.rst$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
+			comment_first_line "$TMPFILE2"
+		fi
+
+		# README file
+		MATCHNAME=$(grep -iE 'README(\.txt)?$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
+			comment_first_line "$TMPFILE2"
+		fi
+
+		# GNU autoconf
+		MATCHNAME=$(grep 'configure\.ac$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			comment_ac "$TMPFILE2"
 		fi
 	fi
 	if [ -n "$TMPFILE2" ]; then
