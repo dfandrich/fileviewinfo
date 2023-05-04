@@ -246,6 +246,7 @@ comment_cue () {
 
 # File type: desktop (XDG desktop entry file)
 comment_desktop () {
+	# First look for the name, localized if possible
 	# Get current locale language
 	L="$(get_lang_full_under)"
 	if [ -z "$L" ]; then
@@ -266,6 +267,40 @@ comment_desktop () {
 				# Finally, try the non-locale-dependent entry
 			    COMMENT=$(sed -n -e "s/^Name=//p" < "$1" | head -1)
 		    fi
+		fi
+	fi
+	NAME="$COMMENT"
+
+	# Next look for the comment, localized if possible
+	# Get current locale language
+	L="$(get_lang_full_under)"
+	if [ -z "$L" ]; then
+		L=en  # English by default
+	fi
+	COMMENT=$(sed -n -e "s/^Comment\[$L\]=//p" < "$1" | head -1)
+	if [ -z "$COMMENT" ]; then
+		# Try again with generic language locale
+		L="$(get_lang_generic)"
+	    COMMENT=$(sed -n -e "s/^Comment\[$L\]=//p" < "$1" | head -1)
+
+		if [ -z "$COMMENT" ]; then
+			# Try again with English
+			L=en
+			COMMENT=$(sed -n -e "s/^Comment\[$L\]=//p" < "$1" | head -1)
+
+		    if [ -z "$COMMENT" ]; then
+				# Finally, try the non-locale-dependent entry
+			    COMMENT=$(sed -n -e "s/^Comment=//p" < "$1" | head -1)
+		    fi
+		fi
+	fi
+
+	# Now, use the right combination of more than one is found
+	if [ -n "$NAME" ]; then
+		if [ -n "$COMMENT" ]; then
+			COMMENT="$NAME, $COMMENT"
+		else
+			COMMENT="$NAME"
 		fi
 	fi
 }
