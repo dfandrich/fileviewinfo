@@ -124,14 +124,14 @@ check_tar_wildcards () {
 
 
 for f in "$@" ; do
+	# "safe" filename guaranteed not to start with a dash
+	sf="`safefn "$f"`"
 	if [ X"$staticfiletype" = X"" ] ; then
-		filetype=`basename -- "$f"`
+		filetype=`basename "$sf"`
 	else
 		filetype="$staticfiletype"
 	fi
 	echo "$f":
-	# "safe" filename guaranteed not to start with a dash
-	sf="`safefn "$f"`"
 	case "$filetype" in
 		# See https://p7zip.sourceforge.net/
 		# requires: p7zip
@@ -226,7 +226,7 @@ for f in "$@" ; do
 		# See http://dar.linux.free.fr/
 		# requires: dar
 		# (Untested)
-		# May need `basename -- "`basename -- "$f"`"`
+		# May need `basename -- "`basename "$sf"`"`
 		*.dar)	archive_label Disk Archiver archive
 			dar -l -- "$f"
 			;;
@@ -374,7 +374,7 @@ for f in "$@" ; do
 		# (Don't know what kind of suffix this one uses)
 		# (Untested)
 		*.pkg)	archive_label 'SysV package (SCO UNIX, IRIX)'
-			pkginfo -d "`dirname -- "$f"`" -l "`basename -- "$f"`"
+			pkginfo -d "`dirname -- "$f"`" -l "`basename "$sf"`"
 			;;
 
 		# See http://en.pardus-wiki.org/Package-manager (defunct as of 2021)
@@ -688,7 +688,7 @@ EOF
 				FILEINFO=`env LC_ALL=C ls -l -- "$f"`
 				#FILESIZE=`echo "$FILEINFO" | cut -c 30-42`
 				FILESIZE=`echo "$FILEINFO" | awk '{print $5}'`
-				FILENAME=`basename -- "$f" .bz2`
+				FILENAME=`basename "$sf" .bz2`
 				#FILECRC=`od -A n -j 10 -N 4 -t x1 < "$f" | sed "s/ //g"`
 				FILECRC=`hexdump -e '4/1 "%02x" "\n"' -n 4 -s 10 < "$f"`
 				#FILECOMPRESS=`od -A n -j 3 -N 1 -t c "$f" | sed "s/ //g"`

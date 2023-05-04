@@ -123,14 +123,14 @@ check_tar_wildcards () {
 }
 
 for f in "$@" ; do
+	# "safe" filename guaranteed not to start with a dash
+	sf="`safefn "$f"`"
 	if [ X"$staticfiletype" = X"" ] ; then
-		filetype=`basename -- "$f"`
+		filetype=`basename "$sf"`
 	else
 		filetype="$staticfiletype"
 	fi
 	echo "$f":
-	# "safe" filename guaranteed not to start with a dash
-	sf="`safefn "$f"`"
 	case "$filetype" in
 
 		# requires: unzip, xmlstarlet

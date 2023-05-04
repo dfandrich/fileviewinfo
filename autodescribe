@@ -181,11 +181,13 @@ except pefile.PEFormatError:
 # good reason to separate them into individual handlers.
 # requires: calibre
 comment_ebook() {
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
 	COMMENT=$(ebook-meta -- "$1" | sed -n -e 's/^Title *: //p')
 	# ebook-meta falls back to the file name (without extension) as the title
 	# if no other title can be found. This isn't very useful here, so blank the
 	# comment if that happens.
-	BASENAME=$(basename -- "$1" | sed -e 's/\.[^.]*$//')
+	BASENAME=$(basename "$sf" | sed -e 's/\.[^.]*$//')
 	if [ "$COMMENT" = "$BASENAME" ]; then
 		COMMENT=""
 	fi
