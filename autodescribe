@@ -80,7 +80,7 @@ comment_tgz () {
 	# cannot be used to extract files because the extraction order is the order
 	# encountered in the file, not the order specified.
 	gzip -dc -- "$1" | tar -tf - | \
-		grep -E '(\.man|\.[0-9]|\.lsm|\.appdata\.xml|\.metainfo\.xml|\.desktop|configure\.ac|README\.md|Readme\.md|ReadMe\.md|readme\.md|README.rst|Readme.rst|ReadMe.rst|readme.rst|README|Readme|ReadMe|readme|README\.txt|Readme\.txt|ReadMe\.txt|readme\.txt|\.texi|\.texinfo)$' | \
+		grep -E '(\.man|\.[0-9]|\.lsm|\.appdata\.xml|\.metainfo\.xml|\.desktop|configure\.ac|README\.(adoc|md|rst|txt)|Readme\.(adoc|md|rst|txt)|ReadMe\.(adoc|md|rst|txt)|readme\.(adoc|md|rst|txt)|README|Readme|ReadMe|readme|\.texi|\.texinfo)$' | \
 		awk 'BEGIN {FS="/"} {doc=match($0, "/(([Dd]oc)|[Mm]an|[Ii]nfo)"); print split($0, a)*2-!!doc "\t" $0;}' | \
 		sort -n | \
 		cut -f2- | \
@@ -176,6 +176,13 @@ comment_tgz () {
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
 			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_first_line "$TMPFILE2"
+		fi
+
+		# README.adoc file
+		MATCHNAME=$(grep -i 'README\.adoc$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
+			comment_asciidoc "$TMPFILE2"
 		fi
 
 		# README file
@@ -563,6 +570,11 @@ comment_3mf () {
 # requires: xmlstarlet
 comment_abw () {
 	COMMENT=$(xmlstarlet sel -N a=http://www.abisource.com/awml.dtd -t -v "/a:abiword/a:metadata/a:m[@key='dc.title']" < "$1" 2>/dev/null)
+}
+
+# File type: asciidoc (AsciiDoc text)
+comment_asciidoc () {
+	COMMENT=$(head -10 < "$1" | sed -nE -e 's/[ =]*$//' -e 's/^=+ //p' | head -1 | trimspace)
 }
 
 # File type: amf (Additive Manufacturing File)
@@ -1075,6 +1087,9 @@ for f in "$@" ; do
 				;;
 			*.ac)
 				TYPE=ac
+				;;
+			*.adoc)
+				TYPE=asciidoc
 				;;
 			*.aiff)
 				TYPE=aiff
