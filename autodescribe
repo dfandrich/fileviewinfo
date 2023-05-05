@@ -14,6 +14,22 @@ trimspace () {
 	tr '\n' ' ' | tr -d '\015' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 }
 
+# Drop a comment if it's too generic and not descriptive of an archive.
+# It may be fine as a file description, however, so use this function only
+# in contexts that make sense.
+drop_useless_comment () {
+	# RCS Id
+	if [ -z "${1##\$Id:*}" ]; then
+		return
+	fi
+	# Strip uninteresting characters before comparison
+	BARE=$(echo "$1" | tr -d '.:=-' | trimspace)
+	if echo "$BARE" | grep -Ei '^(about|background|contents|description|example|general information|install|installation|instructions|intro|introduction|module|name|overview|project|readme|status|summary|synopsis|todo|tools|usage|usage guide)$' >/dev/null; then
+		return
+	fi
+	echo "$1"
+}
+
 # Return the full language locale with dashes instead of underscores
 # This might return a locale with or without a specific country.
 get_lang_full () {
@@ -170,6 +186,8 @@ comment_tgz () {
 			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_md "$TMPFILE2"
 		fi
+		# Drop the comment if it's not useful in this context
+		COMMENT=$(drop_useless_comment "$COMMENT")
 
 		# README.rst file
 		MATCHNAME=$(grep -i 'README\.rst$' < "$TMPFILE" | head -1)
@@ -177,6 +195,7 @@ comment_tgz () {
 			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_first_line "$TMPFILE2"
 		fi
+		COMMENT=$(drop_useless_comment "$COMMENT")
 
 		# README.adoc file
 		MATCHNAME=$(grep -i 'README\.adoc$' < "$TMPFILE" | head -1)
@@ -184,6 +203,7 @@ comment_tgz () {
 			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_asciidoc "$TMPFILE2"
 		fi
+		COMMENT=$(drop_useless_comment "$COMMENT")
 
 		# README file
 		MATCHNAME=$(grep -iE 'README(\.txt)?$' < "$TMPFILE" | head -1)
@@ -191,6 +211,7 @@ comment_tgz () {
 			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_first_line "$TMPFILE2"
 		fi
+		COMMENT=$(drop_useless_comment "$COMMENT")
 
 		# GNU autoconf
 		MATCHNAME=$(grep 'configure\.ac$' < "$TMPFILE" | head -1)
@@ -826,7 +847,7 @@ comment_jpeg () {
 comment_first_line () {
 	# Ignore completely blank lines and formatting lines consisting of all
 	# dashes, ASCII art, etc.
-	COMMENT=$(grep -v '^[-_=*:~/\\|()<>[:space:]]*$' < "$1" | head -1 | trimspace)
+	COMMENT=$(grep -v '^[-_=*#:~/\\|()<>[:space:]]*$' < "$1" | head -1 | trimspace)
 }
 
 # File type: html (HTML text)
