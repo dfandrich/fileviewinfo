@@ -435,6 +435,12 @@ comment_psfont () {
 	fi
 }
 
+# File type: rss (Really Simple Syndication)
+# requires: xmlstarlet
+comment_rss () {
+	COMMENT=$(xmlstarlet sel -t -v '/rss/channel/title' < "$1")
+}
+
 # File type: subject (news article or mail file)
 # File type: patch (git format-patch)
 comment_subject () {
@@ -1246,6 +1252,8 @@ for f in "$@" ; do
 			*.ps)	TYPE=ps
 				;;
 			*.py)	TYPE=py
+				;;
+			*.rss)	TYPE=rss
 				;;
 			*.sla)	TYPE=sla
 				;;
