@@ -1,0 +1,10 @@
+[Flatpak Ref]
+Name=org.example.flatpakexample
+Branch=stable
+Title=Flatpakref Title
+IsRuntime=false
+Url=https://dl.flathub.org/repo/
+SuggestRemoteName=flathub
+GPGKey=notavalidgpgkeybutthisiswhereitwouldgo
+RuntimeRepo=https://dl.flathub.org/repo/flathub.flatpakrepo
+

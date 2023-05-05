@@ -760,6 +760,11 @@ comment_flac () {
 	fi
 }
 
+# File type: flatpakref (Flatpak Reference File)
+comment_flatpakref () {
+	COMMENT=$(sed -n 's/^Title= *//p' < "$1" | head -1)
+}
+
 # File type: fodf (Open Document Format flat file)
 # requires: xmlstarlet
 comment_fodf () {
@@ -1162,6 +1167,8 @@ for f in "$@" ; do
 				TYPE=exe
 				;;
 			*.flac)	TYPE=flac
+				;;
+			*.flatpakref)	TYPE=flatpakref
 				;;
 			*.fodt | *.fods | *.fodp | *.fodg)
 				TYPE=fodf
