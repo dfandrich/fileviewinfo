@@ -4,6 +4,12 @@
 # Copyright (c) 2023 Dan Fandrich <dan@coneharvesters.com>
 # Licensed under the MIT license (see LICENSE).
 
+if [ -n "$ZSH_VERSION" ]; then
+	# This is needed to make zsh work like the other shells and split arguments
+	# in environment variables, which is need for $DECOMPRESS
+	setopt shwordsplit
+fi
+
 # Print a shell-quoted version of the first argument
 shquote () {
 	printf '%s' "$1" | awk -v q="'" '{gsub(q, q "\\" q q, $0); printf "%s", q $0 q;}'
@@ -72,16 +78,19 @@ check_tar_wildcards () {
 
 # Following are functions to extract descriptions for specific file types
 
-# File type: tgz (compressed tar archive)
-# Comments are taken from embedded files, such as man pages, Appdata files,
-# etc.
+# This is a generic tar comment extractor.  Comments are taken from embedded
+# files, such as man pages, Appdata files, etc. The first argument is the
+# file name, as normal, but the second argument is a command to decompress
+# the tar archive and extract it to stdout.
+#
 # BUG: tar will often create empty directories, or directories containing
 # symbolic links matching *.[0-9] at least with GNU tar 1.11.2
 # BUG: tar will extract all files if path ends in a number, e.g. playmidi-2.3/foo
-# requires: tar, gzip, man-db
-comment_tgz () {
+# requires: tar, gzip, man-db, xmlstarlet
+get_comment_compressed_tar () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
+	DECOMPRESS="$2"
 	TMPFILE=$(mktemp)
 	TMPFILE2=$(mktemp)
 	# First, scan for all the possible embedded types we support. A list of all
@@ -95,7 +104,7 @@ comment_tgz () {
 	# directory get a half-level boost. Because of this sorting, wildcards
 	# cannot be used to extract files because the extraction order is the order
 	# encountered in the file, not the order specified.
-	gzip -dc -- "$1" | tar -tf - | \
+	$DECOMPRESS "$1" | tar -tf - | \
 		grep -E '(\.man|\.[0-9]|\.lsm|\.appdata\.xml|\.metainfo\.xml|\.desktop|configure\.ac|README\.(adoc|md|rst|txt)|Readme\.(adoc|md|rst|txt)|ReadMe\.(adoc|md|rst|txt)|readme\.(adoc|md|rst|txt)|README|Readme|ReadMe|readme|\.texi|\.texinfo)$' | \
 		awk 'BEGIN {FS="/"} {doc=match($0, "/(([Dd]oc)|[Mm]an|[Ii]nfo)"); print split($0, a)*2-!!doc "\t" $0;}' | \
 		sort -n | \
@@ -119,14 +128,14 @@ comment_tgz () {
 		# Appdata file
 		MATCHNAME=$(grep -E '(\.appdata\.xml|\.metainfo\.xml)$' < "$TMPFILE" | head -1)
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
-			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
 			comment_appdata "$TMPFILE2"
 		fi
 
 		# XDG desktop file
 		MATCHNAME=$(grep '\.desktop$' < "$TMPFILE" | head -1)
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
-			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
 			comment_desktop "$TMPFILE2"
 		fi
 
@@ -135,7 +144,7 @@ comment_tgz () {
 		# archives.
 		MATCHNAME=$(grep '\.lsm$' < "$TMPFILE" | head -1)
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
-			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
 			comment_lsm "$TMPFILE2"
 		fi
 
@@ -147,7 +156,7 @@ comment_tgz () {
 			MATCHNAME=$(grep -iE "(^|/)$BASENAME2(\.man|.[0-9])$" < "$TMPFILE" | head -1)
 		fi
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
-			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
 			comment_man "$TMPFILE2"
 		fi
 		# Finally, try the first man page found
@@ -156,7 +165,7 @@ comment_tgz () {
 		# be the best match, unfortunately.
 		MATCHNAME=$(grep -E '(\.man|.[0-9])$' < "$TMPFILE" | head -1)
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
-			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
 			comment_man "$TMPFILE2"
 		fi
 
@@ -169,21 +178,21 @@ comment_tgz () {
 			MATCHNAME=$(grep -iE "(^|/)$BASENAME2\.texi(nfo)?$" < "$TMPFILE" | head -1)
 		fi
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
-			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
 			comment_texi "$TMPFILE2"
 		fi
 		# Finally, try any texinfo pages
 		# Note: this doesn't handle spaces in filenames
 		MATCHNAME=$(grep -E '\.texi(nfo)?$' < "$TMPFILE")
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
-			gzip -dc -- "$1" | tar -xOf - $MATCHNAME 2>/dev/null > "$TMPFILE2"
+			$DECOMPRESS "$1" | tar -xOf - $MATCHNAME 2>/dev/null > "$TMPFILE2"
 			comment_texi "$TMPFILE2"
 		fi
 
 		# README.md file
 		MATCHNAME=$(grep -i 'README\.md$' < "$TMPFILE" | head -1)
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
-			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_md "$TMPFILE2"
 		fi
 		# Drop the comment if it's not useful in this context
@@ -192,7 +201,7 @@ comment_tgz () {
 		# README.rst file
 		MATCHNAME=$(grep -i 'README\.rst$' < "$TMPFILE" | head -1)
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
-			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_first_line "$TMPFILE2"
 		fi
 		COMMENT=$(drop_useless_comment "$COMMENT")
@@ -200,7 +209,7 @@ comment_tgz () {
 		# README.adoc file
 		MATCHNAME=$(grep -i 'README\.adoc$' < "$TMPFILE" | head -1)
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
-			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_asciidoc "$TMPFILE2"
 		fi
 		COMMENT=$(drop_useless_comment "$COMMENT")
@@ -208,7 +217,7 @@ comment_tgz () {
 		# README file
 		MATCHNAME=$(grep -iE 'README(\.txt)?$' < "$TMPFILE" | head -1)
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
-			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_first_line "$TMPFILE2"
 		fi
 		COMMENT=$(drop_useless_comment "$COMMENT")
@@ -216,7 +225,7 @@ comment_tgz () {
 		# GNU autoconf
 		MATCHNAME=$(grep 'configure\.ac$' < "$TMPFILE" | head -1)
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
-			gzip -dc -- "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
 			comment_ac "$TMPFILE2"
 		fi
 	fi
@@ -227,6 +236,14 @@ comment_tgz () {
 		rm -f "$TMPFILE"
 	fi
 }
+
+# File type: tgz (compressed tar archive)
+# Comments are taken from embedded files.
+# requires: tar, gzip, man-db, xmlstarlet
+comment_tgz () {
+	get_comment_compressed_tar "$1" 'gzip -dc --'
+}
+
 
 # File type: lzh (lzh/lha archive with desc.sdi comment)
 # requires: lha || lhasa
