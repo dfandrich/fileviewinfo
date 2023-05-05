@@ -83,9 +83,10 @@ check_tar_wildcards () {
 # file name, as normal, but the second argument is a command to decompress
 # the tar archive and extract it to stdout.
 #
-# BUG: tar will often create empty directories, or directories containing
-# symbolic links matching *.[0-9] at least with GNU tar 1.11.2
-# BUG: tar will extract all files if path ends in a number, e.g. playmidi-2.3/foo
+# BUG: GNU tar will create empty directories, or directories containing
+# symbolic links between ver. 1.11.2 until 1.33 (appears fixed in 1.34)
+# BUG: GNU tar will extract all files if path ends in a number, e.g.
+# playmidi-2.3/foo
 # requires: tar, gzip, man-db, xmlstarlet
 get_comment_compressed_tar () {
 	# "safe" filename guaranteed not to start with a dash
@@ -237,11 +238,46 @@ get_comment_compressed_tar () {
 	fi
 }
 
+# File type: tbz2 (bzip2-compressed tar archive)
+# Comments are taken from embedded files.
+# requires: tar, bzip2, man-db, xmlstarlet
+comment_tbz2 () {
+	get_comment_compressed_tar "$1" 'bzip2 -dc --'
+}
+
 # File type: tgz (compressed tar archive)
 # Comments are taken from embedded files.
 # requires: tar, gzip, man-db, xmlstarlet
 comment_tgz () {
 	get_comment_compressed_tar "$1" 'gzip -dc --'
+}
+
+# File type: tlzip (lzip-compressed tar archive)
+# Comments are taken from embedded files.
+# requires: tar, lzip, man-db, xmlstarlet
+comment_tlzip () {
+	get_comment_compressed_tar "$1" 'lzip -dc --'
+}
+
+# File type: tlzma (lzma-compressed tar archive)
+# Comments are taken from embedded files.
+# requires: tar, lzma, man-db, xmlstarlet
+comment_tlzma () {
+	get_comment_compressed_tar "$1" 'lzma -dc --'
+}
+
+# File type: txz (xzip-compressed tar archive)
+# Comments are taken from embedded files.
+# requires: tar, xz, man-db, xmlstarlet
+comment_txz () {
+	get_comment_compressed_tar "$1" 'xz -dc --'
+}
+
+# File type: tzst (zstd-compressed tar archive)
+# Comments are taken from embedded files.
+# requires: tar, zstd, man-db, xmlstarlet
+comment_tzst () {
+	get_comment_compressed_tar "$1" 'zstd -dc --'
 }
 
 
@@ -1291,8 +1327,23 @@ for f in "$@" ; do
 				;;
 			*.svgz)	TYPE=svgz
 				;;
-			*.tar.gz | *.tar.Z | *.tar.z | *.tgz)
+			*.tar.bz2 | *.tbz | *.tbz2)
+				TYPE=tbz2
+				;;
+			*.tar.gz | *.tar.Z | *.tar.z | *.tgz | *.taz)
 				TYPE=tgz
+				;;
+			*.tlz | *.tar.lzma)
+				TYPE=tlzma
+				;;
+			*.tar.lz)
+				TYPE=tlzip
+				;;
+			*.tar.xz | *.txz)
+				TYPE=txz
+				;;
+			*.tar.zst)
+				TYPE=tzst
 				;;
 			*.tc)
 				TYPE=tellico
