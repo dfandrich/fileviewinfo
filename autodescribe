@@ -30,7 +30,7 @@ drop_useless_comment () {
 	fi
 	# Strip uninteresting characters before comparison
 	BARE=$(echo "$1" | tr -d '.:=-' | trimspace)
-	if echo "$BARE" | grep -Ei '^(about|background|contents|description|example|general information|install|installation|instructions|intro|introduction|module|name|overview|project|readme|status|summary|synopsis|todo|tools|usage|usage guide)$' >/dev/null; then
+	if echo "$BARE" | grep -Ei '^(about|background|contents|description|example|general information|install|installation|instructions|intro|introduction|module|name|overview|project|readme|readme\.txt|status|summary|synopsis|This is a Bazaar control directory|todo|tools|usage|usage guide)$' >/dev/null; then
 		return
 	fi
 	echo "$1"
@@ -102,15 +102,16 @@ get_comment_compressed_tar () {
 	# Skip any readme files more than 2 levels down in the directory hierarchy.
 	# Sort files by distance from root, so files higher up will be used first
 	# where there is more than one. Files that appears to be in a documentation
-	# directory get a half-level boost. Because of this sorting, wildcards
-	# cannot be used to extract files because the extraction order is the order
-	# encountered in the file, not the order specified.
+	# directory get a half-level boost and those that appear to be in a dotted
+	# (hidden) directory get a full level demotion. Because of this sorting,
+	# wildcards cannot be used to extract files because the extraction order is
+	# the order encountered in the file, not the order specified.
 	$DECOMPRESS "$1" | tar -tf - | \
 		grep -E '(\.man|\.[0-9]|\.lsm|\.appdata\.xml|\.metainfo\.xml|\.desktop|configure\.ac|README\.(adoc|md|rst|txt)|Readme\.(adoc|md|rst|txt)|ReadMe\.(adoc|md|rst|txt)|readme\.(adoc|md|rst|txt)|README|Readme|ReadMe|readme|\.texi|\.texinfo)$' | \
-		awk 'BEGIN {FS="/"} {doc=match($0, "/(([Dd]oc)|[Mm]an|[Ii]nfo)"); print split($0, a)*2-!!doc "\t" $0;}' | \
-		sort -n | \
-		cut -f2- | \
-		grep -viE '^.*/.*/.*/.*readme(\.[a-z]*)?$' > "$TMPFILE"
+		awk 'BEGIN {FS="/"} {doc=!!match($0, "/(([Dd]oc)|[Mm]an|[Ii]nfo)"); dot=!!index($0, "/."); print split($0, a)*2-doc+2*dot "\t" $0;}' | \
+	sort -n | \
+	cut -f2- | \
+	grep -viE '^.*/.*/.*/.*readme(\.[a-z]*)?$' > "$TMPFILE"
 
 	if [ -s "$TMPFILE" ]; then
 		# Found at least one a candidate file
