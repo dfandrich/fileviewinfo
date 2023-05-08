@@ -47,6 +47,7 @@ check: check-autodescribe check-automtime check-fv check-fvi
 
 check-autodescribe:
 	$(SHELL) ./autodescribe testfiles/* >test-autodescribe.log
+	$(SHELL) ./autodescribe -t cmake testfiles/exttype1.cmake >>test-autodescribe.log
 	diff test-autodescribe-expected test-autodescribe.log
 
 check-automtime:

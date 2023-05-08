@@ -107,7 +107,7 @@ get_comment_compressed_tar () {
 	# wildcards cannot be used to extract files because the extraction order is
 	# the order encountered in the file, not the order specified.
 	$DECOMPRESS "$1" | tar -tf - | \
-		grep -E '(\.man|\.[0-9]|\.lsm|\.appdata\.xml|\.metainfo\.xml|\.desktop|configure\.ac|README\.(adoc|md|rst|txt)|Readme\.(adoc|md|rst|txt)|ReadMe\.(adoc|md|rst|txt)|readme\.(adoc|md|rst|txt)|README|Readme|ReadMe|readme|\.texi|\.texinfo)$' | \
+		grep -E '(\.man|\.[0-9]|\.lsm|\.appdata\.xml|\.metainfo\.xml|\.desktop|configure\.ac|README\.(adoc|md|rst|txt)|Readme\.(adoc|md|rst|txt)|ReadMe\.(adoc|md|rst|txt)|readme\.(adoc|md|rst|txt)|README|Readme|ReadMe|readme|\.texi|\.texinfo|CMakeLists\.txt)$' | \
 		awk 'BEGIN {FS="/"} {doc=!!match($0, "/(([Dd]oc)|[Mm]an|[Ii]nfo)"); dot=!!index($0, "/."); print split($0, a)*2-doc+2*dot "\t" $0;}' | \
 	sort -n | \
 	cut -f2- | \
@@ -230,6 +230,13 @@ get_comment_compressed_tar () {
 			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
 			comment_ac "$TMPFILE2"
 		fi
+
+		# CMake
+		MATCHNAME=$(grep 'CMakeLists\.txt$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			comment_cmake "$TMPFILE2"
+		fi
 	fi
 	if [ -n "$TMPFILE2" ]; then
 		rm -f "$TMPFILE2"
@@ -319,6 +326,11 @@ comment_zoo () {
 # requires: rpm
 comment_rpm () {
 	COMMENT=$(rpm -qp --queryformat '%{SUMMARY}' -- "$1")
+}
+
+# File type: cmake (CMake build file)
+comment_cmake () {
+	COMMENT=$(sed -nE -e 's/^[[:space:]]*[Pp][Rr][Oo][Jj][Ee][Cc][Tt][[:space:]]*\([ "'"'"']*([^"'"'"']*)[ "'"'"']*\)[[:space:]]*(#.*)?$/\1/p' < "$1" | trimspace)
 }
 
 # File type: cue (CD cue index file)
@@ -1205,6 +1217,8 @@ for f in "$@" ; do
 				;;
 			*.c | *.h)
 				TYPE=c
+				;;
+			*CMakeLists.txt)	TYPE=cmake
 				;;
 			*.cue)	TYPE=cue
 				;;

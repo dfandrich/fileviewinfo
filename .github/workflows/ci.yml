@@ -139,13 +139,14 @@ jobs:
         # file names are properly escaped when passed in to programs.
         # This is fairly brittle as it requires abusing the test files and
         # requires duplicating information from within the makefile.
-        mmv 'testfiles/type*' 'testfiles/-h-type#1'
-        sed -i -e 's,testfiles/type,-h-type,' test-*-expected testfiles/*
+        mmv 'testfiles/*type*' 'testfiles/-h-#1type#2'
+        sed -i -Ee 's,testfiles/((ext)?type),-h-\1,' test-*-expected
         sed -i -e 's, type, -h-type,' test-fv-expected
     - name: 'Run tests with dash filenames'
       run: |
         cd testfiles
         PATH="$PWD/../tb:$PATH" ../autodescribe * >../test-autodescribe.log
+        PATH="$PWD/../tb:$PATH" ../autodescribe -t cmake *exttype1.cmake >>../test-autodescribe.log
         PATH="$PWD/../tb:$PATH" TZ=UTC ../automtime * >../test-automtime.log
         PATH="$PWD/../tb:$PATH" ../fv *.{bz2,jffs2,rz,shar,uue} >../test-fv.log
         PATH="$PWD/../tb:$PATH" ../fvi *.{3mf,7z,amf,deb,egg,class,gmo,po,stl,tc,wacz,warc.gz,whl} >../test-fvi.log
