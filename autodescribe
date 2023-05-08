@@ -457,6 +457,10 @@ comment_lsm () {
 # requires: poppler
 comment_pdf () {
 	COMMENT=$(pdfinfo -- "$1" | sed -E -n -e 's/^(Title|Subject|Author):[[:space:]]*//p' | head -1)
+	if echo "$COMMENT" | grep -iE '^untitled(-[0-9]*)?$' >/dev/null; then
+		# Drop this common but useless comment
+		COMMENT=""
+	fi
 }
 
 # File type: png (PNG image)
