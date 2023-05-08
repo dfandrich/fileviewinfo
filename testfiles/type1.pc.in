@@ -1,0 +1,6 @@
+# This is a pkg-config file template
+# Released to the public domain
+Name: @PACKAGENAMEVARIABLE@
+Description: The description of the package with no template substitutions
+Version: 0.0.1
+Libs: -L/usr/local/nothing -lpkg-config-name

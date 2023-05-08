@@ -48,6 +48,8 @@
 'testfiles/type1.pas' 'Pascal typical comment Not Copyright (C) 2021. Typical boilerplate goes here.'
 'testfiles/type1.patch' 'Patch subject'
 'testfiles/type1.pbm' 'PBM comment'
+'testfiles/type1.pc' 'pkg-config Package Name, The description of the package'
+'testfiles/type1.pc.in' 'The description of the package with no template substitutions'
 'testfiles/type1.pcapng' 'PCAP capture comment'
 'testfiles/type1.pdf' 'PDF Title'
 'testfiles/type1.pgm' 'PGM comment'

@@ -1,0 +1,14 @@
+# This is a pkg-config file
+# Released to the public domain
+#
+prefix=/usr/local
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+extra_nonstandard_variable="This line might exist"
+
+Name: pkg-config Package Name
+URL: https://example.com/
+Description: The description of the package
+Version: 8.0.1-DEV
+Libs: -L${libdir} -lpkg-config-name
+Libs.private: -lm -lpkg-config-name

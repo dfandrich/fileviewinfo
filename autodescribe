@@ -107,7 +107,7 @@ get_comment_compressed_tar () {
 	# wildcards cannot be used to extract files because the extraction order is
 	# the order encountered in the file, not the order specified.
 	$DECOMPRESS "$1" | tar -tf - | \
-		grep -E '(\.man|\.[0-9]|\.lsm|\.appdata\.xml|\.metainfo\.xml|\.desktop|configure\.ac|README\.(adoc|md|rst|txt)|Readme\.(adoc|md|rst|txt)|ReadMe\.(adoc|md|rst|txt)|readme\.(adoc|md|rst|txt)|README|Readme|ReadMe|readme|\.texi|\.texinfo|CMakeLists\.txt)$' | \
+		grep -E '(\.man|\.[0-9]|\.lsm|\.appdata\.xml|\.metainfo\.xml|\.desktop|configure\.ac|README\.(adoc|md|rst|txt)|Readme\.(adoc|md|rst|txt)|ReadMe\.(adoc|md|rst|txt)|readme\.(adoc|md|rst|txt)|README|Readme|ReadMe|readme|\.texi|\.texinfo|CMakeLists\.txt|\.pc|\.pc\.in)$' | \
 		awk 'BEGIN {FS="/"} {doc=!!match($0, "/(([Dd]oc)|[Mm]an|[Ii]nfo)"); dot=!!index($0, "/."); print split($0, a)*2-doc+2*dot "\t" $0;}' | \
 	sort -n | \
 	cut -f2- | \
@@ -189,6 +189,20 @@ get_comment_compressed_tar () {
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | tar -xOf - $MATCHNAME 2>/dev/null > "$TMPFILE2"
 			comment_texi "$TMPFILE2"
+		fi
+
+		# pkg-config file
+		MATCHNAME=$(grep -i '\.pc$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
+			comment_pc "$TMPFILE2"
+		fi
+
+		# pkg-config template file
+		MATCHNAME=$(grep -i '\.pc\.in$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
+			comment_pctmpl "$TMPFILE2"
 		fi
 
 		# README.md file
@@ -389,7 +403,7 @@ comment_desktop () {
 		fi
 	fi
 
-	# Now, use the right combination of more than one is found
+	# Now, use the right combination if more than one is found
 	if [ -n "$NAME" ]; then
 		if [ -n "$COMMENT" ]; then
 			COMMENT="$NAME, $COMMENT"
@@ -463,6 +477,60 @@ comment_kra () {
 comment_lsm () {
 	# Title can probably be multiline, but we don't bother
 	COMMENT=$(sed -n 's/^Title: *//p' < "$1" | head -1)
+}
+
+# File type: pc (pkg-config library file)
+# If a shell variable substitution is noted, then that field is ignored.
+comment_pc () {
+	# First look for the name
+	COMMENT=$(sed -n 's/^Name: *//p' < "$1" | head -1)
+	if echo "$COMMENT" | grep '\$' >/dev/null; then
+		COMMENT=
+	fi
+	NAME="$COMMENT"
+
+	# Next look for the description
+	COMMENT=$(sed -n 's/^Description: *//p' < "$1" | head -1)
+	if echo "$COMMENT" | grep '\$' >/dev/null; then
+		COMMENT=
+	fi
+
+	# Now, use the right combination if more than one is found
+	if [ -n "$NAME" ]; then
+		if [ -n "$COMMENT" ]; then
+			COMMENT="$NAME, $COMMENT"
+		else
+			COMMENT="$NAME"
+		fi
+	fi
+}
+
+# This is the autoconf-style templatized version of a .pc file.
+# It works the same as a normal pkg-config file except if a template
+# substitution is noted, then that field is ignored.
+# File type: pctmpl (pkg-config library file template)
+comment_pctmpl () {
+	# First look for the name
+	COMMENT=$(sed -n 's/^Name: *//p' < "$1" | head -1)
+	if echo "$COMMENT" | grep '[$@]' >/dev/null; then
+		COMMENT=
+	fi
+	NAME="$COMMENT"
+
+	# Next look for the description
+	COMMENT=$(sed -n 's/^Description: *//p' < "$1" | head -1)
+	if echo "$COMMENT" | grep '[$@]' >/dev/null; then
+		COMMENT=
+	fi
+
+	# Now, use the right combination if more than one is found
+	if [ -n "$NAME" ]; then
+		if [ -n "$COMMENT" ]; then
+			COMMENT="$NAME, $COMMENT"
+		else
+			COMMENT="$NAME"
+		fi
+	fi
 }
 
 # File type: pdf (Portable Document Format)
@@ -760,7 +828,7 @@ comment_appdata () {
 		fi
 	fi
 
-	# Now, use the right combination of more than one is found
+	# Now, use the right combination if more than one is found
 	if [ -n "$NAME" ]; then
 		if [ -n "$COMMENT" ]; then
 			COMMENT="$NAME, $COMMENT"
@@ -1313,6 +1381,12 @@ for f in "$@" ; do
 				;;
 			*.pbm | *.pgm | *.ppm | *.pnm)
 				TYPE=pnm
+				;;
+			*.pc)
+				TYPE=pc
+				;;
+			*.pc.in)
+				TYPE=pctmpl
 				;;
 			*.pcap | *.pcapng) TYPE=pcap
 				;;
