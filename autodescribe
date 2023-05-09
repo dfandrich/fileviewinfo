@@ -976,19 +976,19 @@ comment_jar () {
 comment_jpeg () {
 	COMMENT=$(rdjpgcom < "$1")
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=0 --tag=ImageDescription -m -- "$1" 2>/dev/null)
+		COMMENT=$(exif --ifd=0 --tag=ImageDescription -m -- "$1" 2>/dev/null | trimspace)
 	fi
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=0 --tag=Artist -m -- "$1" 2>/dev/null)
+		COMMENT=$(exif --ifd=0 --tag=Artist -m -- "$1" 2>/dev/null | trimspace)
 	fi
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=0 --tag=XP_Author -m -- "$1" 2>/dev/null)
+		COMMENT=$(exif --ifd=0 --tag=XP_Author -m -- "$1" 2>/dev/null | trimspace)
 	fi
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=0 --tag=Copyright -m -- "$1" 2>/dev/null)
+		COMMENT=$(exif --ifd=0 --tag=Copyright -m -- "$1" 2>/dev/null | trimspace)
 	fi
 	if [ -z "$COMMENT" ] ; then
-		COMMENT=$(exif --ifd=EXIF --tag=UserComment -m -- "$1" 2>/dev/null)
+		COMMENT=$(exif --ifd=EXIF --tag=UserComment -m -- "$1" 2>/dev/null | trimspace)
 	fi
 }
 
