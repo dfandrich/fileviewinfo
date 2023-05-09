@@ -1406,7 +1406,7 @@ for f in "$@" ; do
 				;;
 			*.py)	TYPE=py
 				;;
-			*.rss)	TYPE=rss
+			*.rss | *.atom)	TYPE=rss
 				;;
 			*.sla)	TYPE=sla
 				;;
