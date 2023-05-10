@@ -1,0 +1,30 @@
+SPDXVersion: SPDX-2.2
+DataLicense: CC0-1.0
+SPDXID: SPDXRef-DOCUMENT
+DocumentName: app-sources
+DocumentNamespace: http://spdx.org/spdxdocs/zephyr-1a24df00-09aa-40cf-bcee-3fabb3315d62/app
+Creator: Tool: Zephyr SPDX builder
+Created: 2023-05-08T12:32:02Z
+
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-app-sources
+
+##### Package: app-sources
+
+PackageName: app-sources
+SPDXID: SPDXRef-app-sources
+PackageDownloadLocation: NOASSERTION
+PackageLicenseConcluded: Apache-2.0
+PackageLicenseDeclared: NOASSERTION
+PackageCopyrightText: NOASSERTION
+PackageLicenseInfoFromFiles: Apache-2.0
+FilesAnalyzed: true
+PackageVerificationCode: b260382e0576efa14510a7d8f9d9d893f07364cc
+
+FileName: ./src/main.c
+SPDXID: SPDXRef-File-main.c
+FileChecksum: SHA1: 2d7b28f516e272ae9fbb5a94bfa1bcac2c073c87
+FileChecksum: SHA256: b90c2955255bc2554be765783fa9e0e05b3d7e8913f0befbf62aee4b6acc7b83
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: NOASSERTION
+

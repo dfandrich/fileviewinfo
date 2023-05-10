@@ -610,6 +610,13 @@ comment_snap () {
 	COMMENT=$(unsquashfs -cat "$sf" meta/snap.yaml | sed -n 's/^summary: //p')
 }
 
+# File type: spdx (Software Package Data Exchange)
+# See https://spdx.dev/
+comment_spdx () {
+	# This works for SPDX 2.X but may not for SPDX 3.X (once it's finalized)
+	COMMENT=$(sed -n 's/^DocumentName: *//p' < "$1" | head -1)
+}
+
 # File type: stl (STL model file)
 comment_stl () {
 	# Detect ASCII or binary format
@@ -1413,6 +1420,8 @@ for f in "$@" ; do
 			*.slob)	TYPE=slob
 				;;
 			*.snap)	TYPE=snap
+				;;
+			*.spdx)	TYPE=spdx
 				;;
 			*.stl)	TYPE=stl
 				;;
