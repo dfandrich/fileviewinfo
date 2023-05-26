@@ -249,7 +249,7 @@ for f in "$@" ; do
 			FVTMPDIR="`mktemp -d`"
 			dmg2img "$sf" "$FVTMPDIR/image.img"
 			DMGDEVICE="`sudo kpartx -asrv "$FVTMPDIR/image.img" | awk '/^add map/ {print "/dev/mapper/" $3}'`"
-			if [ -z "$FVTMPDIR" -o -z "$FVTMPDIR" ] ; then
+			if [ -z "$FVTMPDIR" -o -z "$DMGDEVICE" ] ; then
 				echo "Error: cannot manipulate DMG file; are dmg2img and kpartx installed?"
 				# Indicate that an error has occurred
 				false
