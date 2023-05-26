@@ -384,6 +384,18 @@ type1.deb:
 	rm type1-0.0.1/*
 	cd type1-0.0.1 && DEBEMAIL="your@example.com" DEBFULLNAME="Fake Maintainer" dh_make -y -i -c custom --copyrightfile ../../license -f ../type1-0.0.1.tar.gz && sed -i -e '/^Description:/{i\Description: Deb package description' -e 'i\ Long deb package description' -e '}' -e '/^Description:/,$$d' debian/control && dpkg-buildpackage -d
 
+# It's best to use a version of dar <= 2.7.0 to create this file to avoid test
+# failures due to an archive created by a too-new version of dar.
+type1.1.dar: foo
+	# sleep to give files & dirs slightly different times
+	sleep 2
+	mkdir -p directory.tmp/dir
+	mv foo directory.tmp
+	sleep 2
+	echo bar > directory.tmp/dir/bar
+	touch -d '2020-12-23 04:05:06' directory.tmp/dir/bar
+	cd directory.tmp && dar -w --user-comment="DAR comment" -c ../type1
+
 # The following files are pretty huge compared to others so they aren't
 # included in the repository but can be generated here if needed.
 

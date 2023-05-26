@@ -224,11 +224,9 @@ for f in "$@" ; do
 			;;
 
 		# See http://dar.linux.free.fr/
-		# requires: dar
-		# (Untested)
-		# May need `basename -- "`basename "$sf"`"`
+		# requires: dar >= 2.7.0
 		*.dar)	archive_label Disk Archiver archive
-			dar -l -- "$f"
+			dar -Q -ay -alist-ea -l "$f"
 			;;
 
 		# requires: binutils, gzip, tar, xz, zstd

@@ -1,4 +1,5 @@
 'testfiles/type1.1' 'fileviewinfotest - man page name'
+'testfiles/type1.1.dar' 'DAR comment'
 'testfiles/type1.3mf' '3MF title'
 'testfiles/type1.abw' 'AbiWord Title'
 'testfiles/type1.ac' 'autoconf package name'

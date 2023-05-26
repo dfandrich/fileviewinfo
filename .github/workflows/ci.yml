@@ -29,6 +29,7 @@ jobs:
         cabextract
         calibre
         cpio
+        dar
         exif
         exiftool
         ffmpeg
@@ -89,7 +90,7 @@ jobs:
         sudo install -m0755 -D /usr/lib/unrar -t /usr/local/bin
         python3 -m pip install https://github.com/itkach/slob/archive/master.zip
     - name: 'Patch tests'
-      # lhasa isn't a perfect substitute for lha until post-v0.3.1
+      # lhasa isn't a perfect substitute for lha until v0.4.0
       run: sed -i '/type1.lzh/d' test-automtime-expected
     - name: 'Run tests'
       run: make check -k

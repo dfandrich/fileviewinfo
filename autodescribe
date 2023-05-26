@@ -872,6 +872,13 @@ comment_avi () {
 	fi
 }
 
+# File type: dar (Disk Archiver archive)
+# See http://dar.linux.free.fr/
+# requires: dar >= 2.7.0
+comment_dar () {
+	COMMENT=$(LC_ALL=C dar -Q -aheader -l "$1" 2>/dev/null | sed -n -e 's/^User comment *: *//p')
+}
+
 # File type: deb (Debian package)
 # requires: binutils, gzip, tar, xz, zstd
 comment_deb () {
@@ -1296,6 +1303,8 @@ for f in "$@" ; do
 			*CMakeLists.txt)	TYPE=cmake
 				;;
 			*.cue)	TYPE=cue
+				;;
+			*.dar) TYPE=dar
 				;;
 			# Many DocBooks just use the .xml extension which is too generic
 			*.dbk) TYPE=docbook
