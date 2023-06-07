@@ -336,6 +336,12 @@ comment_zoo () {
 	fi
 }
 
+# File type: plist (Apple property list)
+# requires: xmlstarlet
+comment_plist () {
+	COMMENT=$(xmlstarlet sel -t -m "/plist/dict/key[text()='CFBundleDisplayName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[text()='CFBundleName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[text()='CFBundleGetInfoString'][1]" -v "following-sibling::string[1]" -nl < "$1" 2>/dev/null | head -1)
+}
+
 # File type: rpm (rpm package)
 # requires: rpm
 comment_rpm () {
@@ -1408,6 +1414,9 @@ for f in "$@" ; do
 				;;
 			*.pfa | *.gsf)
 				TYPE=psfont
+				;;
+			*.plist)
+				TYPE=plist
 				;;
 			*.rpm)
 				TYPE=rpm
