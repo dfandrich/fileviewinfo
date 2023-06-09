@@ -225,6 +225,7 @@ type1.squashfs: foo
 	mksquashfs foo "$@" -nopad -all-root -no-exports
 
 # With volume ID
+# isoinfo 3.02 complains about corruption if cdrkit 1.1.11 is used for this
 type1.iso: foo
 	mkdir directory.tmp
 	cp foo directory.tmp
@@ -232,6 +233,7 @@ type1.iso: foo
 	rm -r directory.tmp
 
 # No volume ID
+# isoinfo 3.02 complains about corruption if cdrkit 1.1.11 is used for this
 type2.iso: foo
 	mkdir directory.tmp
 	cp foo directory.tmp
