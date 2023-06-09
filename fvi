@@ -35,10 +35,10 @@ usage () {
 	echo 'Displays metadata for many file types.'
 	echo ''
 	echo 'Usage: fvi [-v] [-?] [-h] [-l] [-t type] file1 [ file2 ... ]'
-	echo '  -v     Show verbose output (more than once for more verbosity)'
-	echo '  -h,-?  Show this help'
-	echo '  -l     List supported file extensions (or file types with -v)'
-	echo '  -t     Treat the files as having the specified file extension'
+	echo '  -v     show verbose output (more than once for more verbosity)'
+	echo '  -h, -? show this help'
+	echo '  -l     list supported file extensions (or file types with -v)'
+	echo '  -t     treat the files as having the specified file extension'
 	exit 3
 }
 

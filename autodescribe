@@ -1216,14 +1216,15 @@ comment_pnm () {
 
 ###########################
 
-if [ $# -eq 0 ] ; then
+if [ $# -eq 0 -o "$1" = "-h" -o "$1" = "-?" ] ; then
 	echo 'autodescribe ver. 5-dev'
-	echo 'Usage: autodescribe [-l] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
+	echo 'Usage: autodescribe [-?] [-h] [-l] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
 	echo 'Extracts comments from files'
 	echo '  -e cmd   command to run once for each file with args: comment file'
 	echo '             e.g. "setfattr -n user.xdg.comment -v"'
-	echo '  -l         list supported file types'
-	echo '  -q         quiet output'
+	echo '  -h, -?   show this help'
+	echo '  -l       list supported file types'
+	echo '  -q       quiet output'
 	echo '  -t type  where type is one of the names shown with -l'
 	exit 1
 fi

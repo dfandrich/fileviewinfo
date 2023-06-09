@@ -817,15 +817,16 @@ mtime_zpaq () {
 
 ###########################
 
-if [ $# -eq 0 ] ; then
+if [ $# -eq 0 -o "$1" = "-h" -o "$1" = "-?" ] ; then
 	echo 'automtime ver. 5-dev'
-	echo 'Usage: automtime [-l] [-m] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
+	echo 'Usage: automtime [-?] [-h] [-l] [-m] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
 	echo 'Extracts modification from internal file metadata'
 	echo '  -e cmd   command to run once for each file with args: mtime file'
 	echo '             e.g. "touch -d"'
-	echo '  -l         list supported file types'
-	echo '  -m         set mtime of file to internal file mtime metadata'
-	echo '  -q         quiet output'
+	echo '  -h, -?   show this help'
+	echo '  -l       list supported file types'
+	echo '  -m       set mtime of file to internal file mtime metadata'
+	echo '  -q       quiet output'
 	echo '  -t type  where type is one of the names shown with -l'
 	exit 1
 fi
