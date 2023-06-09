@@ -923,7 +923,7 @@ comment_gcode () {
 	COMMENT=$(sed -n -E -e 's/^; printing object ([^ ]+).*$/\1/p' -e 's/^;MESH://p' -e 's/^[^;(]*\<[Oo][0-9]+ *\(([^)]+)\).*$/\1/p' < "$1" | head -1 | trimspace)
 	if [ -z "$COMMENT" ] ; then
 		# Supports CamBam http://www.cambam.co.uk/
-		COMMENT=$(sed -E -n -e '/Made using CamBam/{n;s/^\( *([^ ]+).*$/\1/p}'  < "$1")
+		COMMENT=$(sed -E -n -e '/Made using CamBam/{n;s/^\( *([^ ]+).*$/\1/p' -e '}'  < "$1")
 	fi
 	if [ -z "$COMMENT" ] ; then
 		# PyCAM https://pycam.sourceforge.net/
@@ -1163,7 +1163,7 @@ comment_wacz () {
 # File type: warcgz (Compressed Web Archive Collection file)
 comment_warcgz () {
 	# Look for the isPartOf header only in the first data section
-	COMMENT=$(gzip -dc < "$1" | tr -d '\015' | sed -E -n -e '/^WARC\/1\.[0-9]+$/,/^$/d' -e '1,/^$/s/^isPartOf: *//p' | head -1)
+	COMMENT=$(gzip -dc < "$1" | tr -d '\015' | sed -E -e '/^WARC\/1\.[0-9]+$/,/^$/d' | sed -E -n -e '1,/^$/s/^isPartOf: *//p' | head -1)
 }
 
 # File type: xbm (X bitmap image)

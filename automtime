@@ -477,7 +477,7 @@ mtime_patch () {
 		# The real raw time from diff is usually like:
 		# 2023-04-01 13:18:48.718247759 -0700
 		# but is sometimes not supplied at all.
-		RAWTIME=$(sed -nE -e 's/^\+\+\+ .*\t([^(])/\1/p' < "$1" | tr '\n' '\0' | xargs -0 -n1 "$AUTOMTIME" --epoch_time | sort -n | tail -1)
+		RAWTIME=$(sed -nE -e "s/^\+\+\+ .*$(printf '\t')([^(])/\1/p" < "$1" | tr '\n' '\0' | xargs -0 -n1 "$AUTOMTIME" --epoch_time | sort -n | tail -1)
 		# $RAWTIME is like 1234567890
 		TIME=$(normalize_time_tz "@$RAWTIME")
 	else
