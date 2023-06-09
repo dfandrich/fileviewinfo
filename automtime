@@ -119,7 +119,7 @@ safefn () {
 # requires: p7zip
 mtime_7zip () {
 	# The mtime is considered to be the latest file time in the archive.
-	RAWTIME="$(7za l -slt -- "$1" | sed -E -n -e 's/^Modified = //p' | sort -n | tail -1)"
+	RAWTIME="$(7za l -slt -- "$1" | sed -E -n -e 's/^Modified = //p' | sort -d | tail -1)"
 	# $RAWTIME is like 2021-10-14 12:48:03
 	TIME="$RAWTIME"
 }
@@ -189,7 +189,7 @@ mtime_cab () {
 	# The date format can not, unfortunately, be easily sorted as-is, so it
 	# is converted, sorted and only the most recent is used.
 	# The real raw time from cabextract is like: 18.02.2021 17:10:92
-	RAWTIME="$(cabextract -l -- "$1" | sed -e '1,/^-----------/d' -e '/^$/,$d' | awk '{print $3 " " $4}' | sed -E -e 's/^([0-3][0-9])\.([01][0-9])\.([12][0-9][0-9][0-9])/\3-\2-\1/' | sort -n | tail -1)"
+	RAWTIME="$(cabextract -l -- "$1" | sed -e '1,/^-----------/d' -e '/^$/,$d' | awk '{print $3 " " $4}' | sed -E -e 's/^([0-3][0-9])\.([01][0-9])\.([12][0-9][0-9][0-9])/\3-\2-\1/' | sort -d | tail -1)"
 	# $RAWTIME is like 2002-03-04 05:06:07
 	TIME="$RAWTIME"
 }
@@ -304,7 +304,7 @@ EOF
 # File type: ics (iCalendar file)
 mtime_ics () {
 	# The most recent date stamp or last-modified entry in the file is used
-	RAWTIME=$(sed -E -n -e '/^(LAST-MODIFIED|DTSTAMP):/s/^[^:]+: *//p' < "$1" | sort -n | tail -1)
+	RAWTIME=$(sed -E -n -e '/^(LAST-MODIFIED|DTSTAMP):/s/^[^:]+: *//p' < "$1" | sort -d | tail -1)
 	# $RAWTIME is like 20180213T070722Z
 	# Make it look like ISO-8601, then convert
 	RAWTIME=$(echo "$RAWTIME" | sed -E -e 's/([12][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9])T([0-2][0-9])([0-9][0-9])([0-9][0-9])/\1-\2-\3T\4:\5:\6/')
@@ -411,7 +411,7 @@ mtime_lzh () {
 	# File name lines are interleaved with metadata lines, so the complicated
 	# sed expression is needed to find the metadata lines and weed out the file
 	# names.
-	RAWTIME="$(lha -vv "$sf" | sed -E -n -e 's/^[-rwxs]{10} *[0-9/]+ *[0-9]+ *[0-9]+ *[0-9.%]* *..... *[0-9a-f]{4} ([12][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-2][0-9]:[0-9][0-9]:[0-9][0-9]).*$/\1/p' | sort -n | tail -1)"
+	RAWTIME="$(lha -vv "$sf" | sed -E -n -e 's/^[-rwxs]{10} *[0-9/]+ *[0-9]+ *[0-9]+ *[0-9.%]* *..... *[0-9a-f]{4} ([12][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-2][0-9]:[0-9][0-9]:[0-9][0-9]).*$/\1/p' | sort -d | tail -1)"
 	# $RAWTIME is like 2021-10-14 23:09:47
 	TIME="$RAWTIME"
 }
@@ -420,7 +420,7 @@ mtime_lzh () {
 # requires lzop
 mtime_lzo () {
 	# The mtime is considered to be the latest file time in the archive.
-	RAWTIME=$(lzop -lvv -- "$1" | awk '{print $2 " " $3}' | sort -n | tail -1)
+	RAWTIME=$(lzop -lvv -- "$1" | awk '{print $2 " " $3}' | sort -d | tail -1)
 	# $RAWTIME is like 2021-10-11 20:50:26
 	# The time is stored absolute, but is displayed in the local time zone
 	TIME="$RAWTIME"
@@ -429,7 +429,7 @@ mtime_lzo () {
 # File type: appdata (Appdata metainfo file)
 # requires: xmlstarlet
 mtime_appdata () {
-	RAWTIME=$(xmlstarlet sel -t -v '/component/releases/release/@date' < "$1" | sort -n | tail -1)
+	RAWTIME=$(xmlstarlet sel -t -v '/component/releases/release/@date' < "$1" | sort -d | tail -1)
 	# $RAWTIME is like 2021-10-11
 	TIME="$RAWTIME"
 }
@@ -493,7 +493,7 @@ mtime_pcap () {
 	RAWTIME=$(capinfos -- "$1" | sed -n -e 's/^Last packet time: *//p')
 	if [ -z "$RAWTIME" ]; then
 		# In case capinfos isn't available, use the slower tshark instead
-		RAWTIME=$(tshark -t ad -r "$1" | awk '{print $2 " " $3}' | uniq | sort -n | tail -1)
+		RAWTIME=$(tshark -t ad -r "$1" | awk '{print $2 " " $3}' | uniq | sort -d | tail -1)
 	fi
 	# $RAWTIME is like 2022-07-05 13:41:26.333333
 	# The time is stored absolute, but is displayed in the local time zone
@@ -533,7 +533,7 @@ mtime_rar () {
 	# The time is displayed like 08:45:32,000000000 but it's not clear if the
 	# portion after the comma is sub-second time or something completely
 	# different, so it's just ignored
-	RAWTIME="$(unrar lta -idc -- "$1" | sed -E -n -e 's/^ *mtime: *//' -e 's/,.*$//p' | sort -n | tail -1)"
+	RAWTIME="$(unrar lta -idc -- "$1" | sed -E -n -e 's/^ *mtime: *//' -e 's/,.*$//p' | sort -d | tail -1)"
 	# $RAWTIME is like 2021-10-13 08:45:32
 	TIME="$RAWTIME"
 }
@@ -620,7 +620,7 @@ mtime_svg () {
 mtime_tar () {
 	# The mtime is considered to be the latest file time in the archive.
 	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(tar tvf - <"$1" | awk '{print $4 " " $5}' | sort -n | tail -1)
+	RAWTIME=$(tar tvf - <"$1" | awk '{print $4 " " $5}' | sort -d | tail -1)
 	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
 	# The time is stored absolute, but is displayed in the local time zone
 	TIME="$RAWTIME"
@@ -631,7 +631,7 @@ mtime_tar () {
 mtime_tbz () {
 	# The mtime is considered to be the latest file time in the archive.
 	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(bzip2 -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -n | tail -1)
+	RAWTIME=$(bzip2 -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1)
 	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
 	# The time is stored absolute, but is displayed in the local time zone
 	TIME="$RAWTIME"
@@ -642,7 +642,7 @@ mtime_tbz () {
 mtime_tgz () {
 	# The mtime is considered to be the latest file time in the archive.
 	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(gzip -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -n | tail -1)
+	RAWTIME=$(gzip -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1)
 	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
 	# The time is stored absolute, but is displayed in the local time zone
 	TIME="$RAWTIME"
@@ -653,7 +653,7 @@ mtime_tgz () {
 mtime_tlz () {
 	# The mtime is considered to be the latest file time in the archive.
 	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(lzma -dc -- "$1" | tar tvf - | awk '{print $4 " " $5}' | sort -n | tail -1)
+	RAWTIME=$(lzma -dc -- "$1" | tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1)
 	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
 	# The time is stored absolute, but is displayed in the local time zone
 	TIME="$RAWTIME"
@@ -664,7 +664,7 @@ mtime_tlz () {
 mtime_tlzip () {
 	# The mtime is considered to be the latest file time in the archive.
 	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(lzip -dc -- "$1" | tar tvf - | awk '{print $4 " " $5}' | sort -n | tail -1)
+	RAWTIME=$(lzip -dc -- "$1" | tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1)
 	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
 	# The time is stored absolute, but is displayed in the local time zone
 	TIME="$RAWTIME"
@@ -675,7 +675,7 @@ mtime_tlzip () {
 mtime_txz () {
 	# The mtime is considered to be the latest file time in the archive.
 	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(xz -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -n | tail -1)
+	RAWTIME=$(xz -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1)
 	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
 	# The time is stored absolute, but is displayed in the local time zone
 	TIME="$RAWTIME"
@@ -686,7 +686,7 @@ mtime_txz () {
 mtime_tzst () {
 	# The mtime is considered to be the latest file time in the archive.
 	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(zstd -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -n | tail -1)
+	RAWTIME=$(zstd -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1)
 	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
 	# The time is stored absolute, but is displayed in the local time zone
 	TIME="$RAWTIME"
@@ -712,7 +712,7 @@ mtime_tiff () {
 mtime_otf () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
-	RAWTIME=$(ftdump "$sf" | sed -n -e 's/^ *modified: *//p' | sort -n | tail -1)
+	RAWTIME=$(ftdump "$sf" | sed -n -e 's/^ *modified: *//p' | sort -d | tail -1)
 	# $RAWTIME is like 2021-10-17
 	TIME="$RAWTIME"
 }
@@ -721,7 +721,7 @@ mtime_otf () {
 # requires: xmlstarlet
 mtime_gpx () {
 	# The most recent date stamp or last-modified entry in the file is used
-	RAWTIME=$(xmlstarlet sel -N g=http://www.topografix.com/GPX/1/1 -N g0=http://www.topografix.com/GPX/1/0 -N m=http://www.topografix.com/GPX/gpx_modified/0/1 -t -v '/g:gpx/g:trk/g:trkseg/g:trkpt/g:time' -n -v '/g0:gpx/g0:trk/g0:trkseg/g0:trkpt/g0:time' -n -v '/g0:gpx/g0:time' -n -v '/g:gpx/g:metadata/g:time' -n -v '/g:gpx/g:metadata/g:extensions/m:time' -n -v '/g:gpx/g:wpt/g:time' -n -v '/g0:gpx/g0:wpt/g0:time' -n < "$1" | sort -n | tail -1)
+	RAWTIME=$(xmlstarlet sel -N g=http://www.topografix.com/GPX/1/1 -N g0=http://www.topografix.com/GPX/1/0 -N m=http://www.topografix.com/GPX/gpx_modified/0/1 -t -v '/g:gpx/g:trk/g:trkseg/g:trkpt/g:time' -n -v '/g0:gpx/g0:trk/g0:trkseg/g0:trkpt/g0:time' -n -v '/g0:gpx/g0:time' -n -v '/g:gpx/g:metadata/g:time' -n -v '/g:gpx/g:metadata/g:extensions/m:time' -n -v '/g:gpx/g:wpt/g:time' -n -v '/g0:gpx/g0:wpt/g0:time' -n < "$1" | sort -d | tail -1)
 	# $RAWTIME is like 2022-10-01T23:43:05Z
 	TIME=$(normalize_iso_time "$RAWTIME")
 }
@@ -740,7 +740,7 @@ mtime_ipk () {
 # File type: warcgz (Compressed Web Archive Collection file)
 mtime_warcgz () {
 	# Look for the WARC-Date: lines only within the WARC header sections
-	RAWTIME=$(gzip -dc < "$1" | tr -d '\015' | sed -E -n -e '/^WARC\/1\.[0-9]+$/,/^$/s/^WARC-Date: *//p' | sort -n | tail -1)
+	RAWTIME=$(gzip -dc < "$1" | tr -d '\015' | sed -E -n -e '/^WARC\/1\.[0-9]+$/,/^$/s/^WARC-Date: *//p' | sort -d | tail -1)
 	# $RAWTIME is like 2022-05-27T13:75:25.812Z
 	TIME=$(normalize_iso_time "$RAWTIME")
 }
@@ -761,7 +761,7 @@ mtime_xcf () {
 	# gimp's Scheme interpreter displays some logging info before and after the
 	# desired output, so use sed to delete it to leave only XML.
 	METADATA=$(echo '((display "\nMETADATA-START\n") (let ((img (car (gimp-file-load 1 "'"$1"'" "file")))) (display (car (gimp-image-get-metadata img))) (gimp-image-delete img)) (gimp-quit TRUE))' | gimp -n -i -d -f -s -g /dev/null --stack-trace-mode=never -b -  2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
-	RAWTIME=$(echo "$METADATA" | xmlstarlet sel -t -v  "/metadata/tag[starts-with(@name, 'Xmp.xmpMM.History[') and contains(@name, '/stEvt:when')]" | sed 's/lang="x-default" *//' | sort -n | tail -1)
+	RAWTIME=$(echo "$METADATA" | xmlstarlet sel -t -v  "/metadata/tag[starts-with(@name, 'Xmp.xmpMM.History[') and contains(@name, '/stEvt:when')]" | sed 's/lang="x-default" *//' | sort -d | tail -1)
 	# $RAWTIME is like 2022-02-23T22:50:48-08:00
 	TIME="$(normalize_iso_time "$RAWTIME")"
 	if [ -z "$TIME" ]; then
@@ -777,7 +777,7 @@ mtime_xcf () {
 mtime_xcf_exiftool () {
 	# The mtime is considered to be the most recent stored event, which is
 	# generally a "save" event (which makes sense).
-	RAWTIME=$(exiftool -X -XML:* -a -- "$1" | xmlstarlet sel -N rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' -N XML=http://ns.exiftool.ca/XML/XML/1.0/ -t -v "/rdf:RDF/rdf:Description/XML:MetadataTagName[starts-with(text(), 'Xmp.xmpMM.History[') and contains(text(), ']/stEvt:when')]//following::XML:MetadataTag[1]" | sort -n | tail -1)
+	RAWTIME=$(exiftool -X -XML:* -a -- "$1" | xmlstarlet sel -N rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' -N XML=http://ns.exiftool.ca/XML/XML/1.0/ -t -v "/rdf:RDF/rdf:Description/XML:MetadataTagName[starts-with(text(), 'Xmp.xmpMM.History[') and contains(text(), ']/stEvt:when')]//following::XML:MetadataTag[1]" | sort -d | tail -1)
 	# $RAWTIME is like 2022:02:23 22:50:48-08:00
 	TIME=$(echo "$RAWTIME" | sed -E -e 's/^([0-9][0-9][0-9][0-9]):([0-9][0-9]):/\1-\2-/' -e 's/([-+][0-9][0-9])(:)?([0-9][0-9])$/ \1\3/')
 }
@@ -810,7 +810,7 @@ mtime_zpaq () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
 	# The mtime is considered to be the latest file time in the archive.
-	RAWTIME=$(zpaq l "$sf" 2>/dev/null | sed -E -n -e 's/^- ([12][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-2][0-9]:[0-9][0-9]:[0-9][0-9]).*$/\1/p' | sort -n | tail -1)
+	RAWTIME=$(zpaq l "$sf" 2>/dev/null | sed -E -n -e 's/^- ([12][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-2][0-9]:[0-9][0-9]:[0-9][0-9]).*$/\1/p' | sort -d | tail -1)
 	# $RAWTIME is like 2021-10-14 18:40:56
 	TIME="$RAWTIME"
 }
