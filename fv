@@ -381,7 +381,7 @@ for f in "$@" ; do
 			unzip -pq "$sf" install.tar.lzma | lzma -dc | tar -tvf -
 			;;
 
-		# See http://mattmahoney.net/dc/
+		# See https://mattmahoney.net/dc/
 		# See https://sourceforge.net/projects/kgbarchiver/
 		# Also KGB archive .kgb
 		*.pq6 | *.kgb)	archive_label PAQ6 compressed archive
@@ -654,7 +654,7 @@ EOF
 			zoo -list "$sf"
 			;;
 
-		# See http://mattmahoney.net/dc/zpaq.html
+		# See https://mattmahoney.net/dc/zpaq.html
 		# requires: zpaq
 		*.zpaq)	archive_label ZPAQ compressed archive
 			zpaq l "$sf"
