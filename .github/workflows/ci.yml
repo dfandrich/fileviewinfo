@@ -164,3 +164,93 @@ jobs:
       run: make dist
     - name: 'Test distclean'
       run: make distclean
+
+
+  build-opensuse:
+    runs-on: ubuntu-latest
+    container: opensuse/tumbleweed
+    steps:
+    - uses: actions/checkout@v3
+    - name: 'Install deps'
+      run: >
+        zypper --non-interactive refresh &&
+        zypper --non-interactive in --no-recommends -y
+        7zip
+        allegro44-tools
+        arj
+        binutils
+        cabextract
+        calibre
+        cpio
+        dar
+        exif
+        exiftool
+        ffmpeg
+        file
+        flac
+        ftdump
+        gettext-tools
+        gifsicle
+        gimp
+        id3lib-examples
+        java-19-openjdk-devel
+        jq
+        lhasa
+        libjpeg-turbo
+        lzop
+        man
+        mkisofs
+        mkvtoolnix
+        mtd-utils
+        netpbm
+        python310-pefile
+        python310-pip
+        python310-PyICU
+        python310-vobject
+        squashfs
+        tiff
+        unrar
+        unzip
+        vorbis-tools
+        wireshark
+        xmlstarlet
+        zpaq
+        zstd
+        make groff busybox
+    - name: 'Install contrib'
+    # nbase is only available in a contrib repo on OBS
+    # nbase-tail and nbase-ls are completely broken in 9.1.0.2-8.39; don't
+    # install them
+      run: |
+        zypper --non-interactive addrepo https://download.opensuse.org/repositories/home:cheusov/openSUSE_Tumbleweed/home:cheusov.repo
+        zypper --non-interactive --gpg-auto-import-keys refresh
+        zypper --non-interactive se nbase- | cut -d '|' -f 2 | awk '/nbase-/ {print $1}' | grep --text -vE 'debuginfo|-tail|-ls' | xargs zypper --non-interactive in --no-recommends -y
+    - name: 'Install extras'
+    # A few packages need newer versions to work properly, so install them
+    # separately.
+      run: |
+        curl -LsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all \
+            https://mirrors.kernel.org/mageia/distrib/9/x86_64/media/core/release/lib64png12_0-1.2.59-3.mga9.x86_64.rpm \
+            https://mirrors.kernel.org/mageia/distrib/9/x86_64/media/core/release/pngtools-0.4-9.mga9.x86_64.rpm
+        test "$(sha256sum lib64png12_0-1.2.59-3.mga9.x86_64.rpm)" = "5930a4f9864258b0b5fc18059d8aead64ae693991df2eb3751e1d9f3836ca79e  lib64png12_0-1.2.59-3.mga9.x86_64.rpm"
+        test "$(sha256sum pngtools-0.4-9.mga9.x86_64.rpm)" = "379f44b1c95d25358eb014c03835a4b4991c6c364a509c63780e587e70d5744b  pngtools-0.4-9.mga9.x86_64.rpm"
+        rpm -ivh lib64png12_0-1.2.59-3.mga9.x86_64.rpm pngtools-0.4-9.mga9.x86_64.rpm
+        python3 -m pip install https://github.com/itkach/slob/archive/master.zip
+    - name: 'Patch tests'
+      run: |
+        # 7zip 22.01 displays seconds to 7 decimal places
+        sed -i \
+          -e 's/2021-10-14 20:48:03/2021-10-14 20:48:03.0000000/' \
+          test-automtime-expected
+    - name: 'Run tests'
+      run: make check -k
+    - name: 'Run tests with hush'
+      run: make check -k SHELL='busybox hush'
+    - name: 'Run tests using nbase'
+      run: PATH="/usr/libexec/nbase/bin:$PATH" make check -k
+    - name: 'Test installation'
+      run: make install prefix="$PWD/install"
+    - name: 'Test dist'
+      run: make dist
+    - name: 'Test distclean'
+      run: make distclean
