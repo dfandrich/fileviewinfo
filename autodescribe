@@ -61,21 +61,6 @@ safefn () {
 	esac
 }
 
-# Check if 'tar' needs the --wildcards option for globbing
-# Set the TAR_WILDCARDS environment variable with the appropriate option
-TAR_WILDCARDS=
-checked_tar_wildcards=
-check_tar_wildcards () {
-	if [ -n "$checked_tar_wildcards" ]; then
-		# We've already done the check
-		return
-	fi
-	if tar --help 2>&1 | grep '[-]-wildcards' >/dev/null; then
-		TAR_WILDCARDS=--wildcards
-	fi
-	checked_tar_wildcards=yes
-}
-
 # Following are functions to extract descriptions for specific file types
 
 # This is a generic tar comment extractor.  Comments are taken from embedded
