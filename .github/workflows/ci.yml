@@ -224,7 +224,7 @@ jobs:
       run: |
         zypper --non-interactive addrepo https://download.opensuse.org/repositories/home:cheusov/openSUSE_Tumbleweed/home:cheusov.repo
         zypper --non-interactive --gpg-auto-import-keys refresh
-        zypper --non-interactive se nbase- | cut -d '|' -f 2 | awk '/nbase-/ {print $1}' | grep --text -vE 'debuginfo|-tail|-ls' | xargs zypper --non-interactive in --no-recommends -y
+        zypper --non-interactive --xmlout search --case-sensitive nbase- | xmlstarlet sel -t -v "/stream/search-result/solvable-list/solvable[not(contains(@name,'debuginfo') or contains(@name,'-tail') or contains(@name,'-ls'))]/@name" -nl | xargs zypper --non-interactive in --no-recommends -y
     - name: 'Install extras'
     # A few packages need newer versions to work properly, so install them
     # separately.
