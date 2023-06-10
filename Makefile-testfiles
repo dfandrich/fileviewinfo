@@ -126,7 +126,7 @@ type1.tar: foo
 	tar -cvf "$@" --owner=root --group=root -b 1 foo
 
 type1.cpio: foo
-	cpio -o --owner=root:root <<< foo > "$@"
+	cpio -o --owner=root:root -H newc <<< foo > "$@"
 
 type1.tgz: foo foo.1
 	mkdir directory
