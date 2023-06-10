@@ -210,17 +210,17 @@ for f in "$@" ; do
 		# requires: cpio, gzip
 		*.cpio.gz | *.cpio.Z | *.cpio.z | *.cgz)	
 			archive_label compressed cpio archive
-			gzip -dc -- "$f" | cpio -t -v
+			gzip -dc -- "$f" | cpio -itv
 			;;
 
 		# requires: cpio, bzip2
 		*.cpio.bz2)	archive_label bzip2-compressed cpio archive
-			bzip2 -dc -- "$f" | cpio -t -v
+			bzip2 -dc -- "$f" | cpio -itv
 			;;
 
 		# requires: cpio
 		*.cpio)	archive_label cpio archive
-			cpio -t -v < "$f"
+			cpio -itv < "$f"
 			;;
 
 		# See http://dar.linux.free.fr/
@@ -415,7 +415,7 @@ for f in "$@" ; do
 		# See https://www.redhat.com/
 		# requires: tar, cpio, gzip
 		*.rpp)	archive_label Red Hat RPP package
-			tar xOf - cpio-archive.gz < "$f" | gzip -dc | cpio -t -v
+			tar xOf - cpio-archive.gz < "$f" | gzip -dc | cpio -itv
 			;;
 
 		# See https://rzip.samba.org/
@@ -563,7 +563,7 @@ EOF
 		# See https://www.denx.de/wiki/U-Boot/
 		# requires: coreutils, cpio, gzip
 		*.uRamdisk)	archive_label U-boot ramdisk image
-			tail -c +65 < "$f" | gzip -dc | cpio -t -v
+			tail -c +65 < "$f" | gzip -dc | cpio -itv
 			;;
 
 		# See https://jmtd.net/doom/
