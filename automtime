@@ -194,6 +194,32 @@ mtime_cab () {
 	TIME="$RAWTIME"
 }
 
+# File type: cpio (CPIO Archive)
+# requires: busybox
+# Busybox is the only program I found that always returned both the date and
+# time of each file in the archive, and did so in a consistent format that is
+# easy to parse.
+mtime_cpio () {
+	# The mtime is considered to be the latest file time in the archive.
+	RAWTIME=$(busybox cpio -itv <"$1" | awk '{print $4 " " $5}' | sort -d | tail -1)
+	# $RAWTIME is like 21-10-13 01:34:12
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME="$RAWTIME"
+}
+
+# File type: cpiogz (gzip-compressed CPIO Archive)
+# requires: busybox, gzip
+# Busybox is the only program I found that always returned both the date and
+# time of each file in the archive, and did so in a consistent format that is
+# easy to parse.
+mtime_cpiogz () {
+	# The mtime is considered to be the latest file time in the archive.
+	RAWTIME=$(gzip -dc -- "$1" | busybox cpio -itv | awk '{print $4 " " $5}' | sort -d | tail -1)
+	# $RAWTIME is like 21-10-13 01:34:12
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME="$RAWTIME"
+}
+
 # File type: dar (Disk Archiver archive)
 # See http://dar.linux.free.fr/
 # requires: dar >= 2.7.0, xmlstarlet
@@ -910,6 +936,13 @@ for f in "$@" ; do
 
 			*.cab | *.msi | *.onepkg)
 				TYPE=cab
+				;;
+
+			*.cpio) TYPE=cpio
+				;;
+
+		    *.cpio.gz | *.cpio.Z | *.cpio.z | *.cgz)	
+				TYPE=cpiogz
 				;;
 
 			*.dar) TYPE=dar
