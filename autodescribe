@@ -1006,7 +1006,7 @@ comment_first_line () {
 
 # File type: html (HTML text)
 comment_html () {
-	COMMENT=$(sed -n 's,^.*<[tT][iI][tT][lL][eE]>\(.*\)</.*$,\1,p' < "$1" | head -1)
+	COMMENT=$(sed -n 's,^.*<[tT][iI][tT][lL][eE]\>[^>]*>\(.*\)</.*$,\1,p' < "$1" | head -1)
 }
 
 # File type: kdenlive (Kdenlive file)
