@@ -398,6 +398,9 @@ type1.1.dar: foo
 	touch -d '2020-12-23 04:05:06' directory.tmp/dir/bar
 	cd directory.tmp && dar -w --user-comment="DAR comment" -c ../type1
 
+type1.zoo: foo
+	printf "Zoo archive comment\nSecond line of comment\n/END\n" | zoo aC type1.zoo foo
+
 # The following files are pretty huge compared to others so they aren't
 # included in the repository but can be generated here if needed.
 

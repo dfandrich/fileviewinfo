@@ -649,9 +649,9 @@ EOF
 			unzip -v "$sf"
 			;;
 
-		# requires: zoo
+		# requires: unzoo || zoo
 		*.zoo)	archive_label ZOO archive
-			zoo -list "$sf"
+			unzoo -l "$sf" || zoo -list "$sf"
 			;;
 
 		# See https://mattmahoney.net/dc/zpaq.html

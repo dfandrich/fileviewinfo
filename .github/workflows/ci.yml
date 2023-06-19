@@ -80,12 +80,16 @@ jobs:
             http://azure.archive.ubuntu.com/ubuntu/pool/universe/p/pngtools/pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb \
             http://azure.archive.ubuntu.com/ubuntu/pool/universe/n/netpbm-free/netpbm_11.01.00-2build1_amd64.deb \
             http://azure.archive.ubuntu.com/ubuntu/pool/universe/n/netpbm-free/libnetpbm11_11.01.00-2build1_amd64.deb \
-            http://azure.archive.ubuntu.com/ubuntu/pool/universe/r/rust-coreutils/rust-coreutils_0.0.17-2_amd64.deb
-        test "$(sha256sum pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb)" = "1c7490f01a64af135d6341b8e5a9ab2fc94dcfe99131882cef1e623739bfadc6  pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb"
-        test "$(sha256sum netpbm_11.01.00-2build1_amd64.deb)" = "ee102926ef4289c0830092447d650a58a48a0d136cab268af52b55d81d6485ce  netpbm_11.01.00-2build1_amd64.deb"
-        test "$(sha256sum libnetpbm11_11.01.00-2build1_amd64.deb)" = "d690a886c1ff250ebca438d7fa64f0a6f9f56a1543c312b503ed3209a56efda3  libnetpbm11_11.01.00-2build1_amd64.deb"
-        test "$(sha256sum rust-coreutils_0.0.17-2_amd64.deb)" = "f34842f12753527bdc7fac8595dc91e9aede0296348dd556614a3580811e4a06  rust-coreutils_0.0.17-2_amd64.deb"
-        sudo dpkg -i pngtools*.deb netpbm*.deb libnetpbm*.deb rust-coreutils*.deb || true Ignore missing dependency errors--they are not needed for our tests
+            http://azure.archive.ubuntu.com/ubuntu/pool/universe/r/rust-coreutils/rust-coreutils_0.0.17-2_amd64.deb \
+            http://azure.archive.ubuntu.com/ubuntu/pool/universe/z/zoo/zoo_2.10-28_amd64.deb
+        sha256sum -c <<EOF
+        d690a886c1ff250ebca438d7fa64f0a6f9f56a1543c312b503ed3209a56efda3  libnetpbm11_11.01.00-2build1_amd64.deb
+        ee102926ef4289c0830092447d650a58a48a0d136cab268af52b55d81d6485ce  netpbm_11.01.00-2build1_amd64.deb
+        1c7490f01a64af135d6341b8e5a9ab2fc94dcfe99131882cef1e623739bfadc6  pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb
+        f34842f12753527bdc7fac8595dc91e9aede0296348dd556614a3580811e4a06  rust-coreutils_0.0.17-2_amd64.deb
+        953f4f94095ef3813dfd30c8977475c834363aaabce15ab85ac5195e52fd816a  zoo_2.10-28_amd64.deb
+        EOF
+        sudo dpkg -i pngtools*.deb netpbm*.deb libnetpbm*.deb rust-coreutils*.deb zoo_2.10-28_amd64.deb || true Ignore missing dependency errors--they are not needed for our tests
         # unrar isn't installed in /usr/bin for some reason
         sudo install -m0755 -D /usr/lib/unrar -t /usr/local/bin
         python3 -m pip install https://github.com/itkach/slob/archive/master.zip
@@ -214,6 +218,7 @@ jobs:
         vorbis-tools
         wireshark
         xmlstarlet
+        zoo
         zpaq
         zstd
         make groff busybox
@@ -226,14 +231,16 @@ jobs:
         zypper --non-interactive --gpg-auto-import-keys refresh
         zypper --non-interactive --xmlout search --case-sensitive nbase- | xmlstarlet sel -t -v "/stream/search-result/solvable-list/solvable[not(contains(@name,'debuginfo') or contains(@name,'-tail') or contains(@name,'-ls'))]/@name" -nl | xargs zypper --non-interactive in --no-recommends -y
     - name: 'Install extras'
-    # A few packages need newer versions to work properly, so install them
-    # separately.
+    # A few file types need packages unavailable in OpenSuSE, so install some
+    # binaries from elsewhere.
       run: |
         curl -LsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all \
             https://mirrors.kernel.org/mageia/distrib/9/x86_64/media/core/release/lib64png12_0-1.2.59-3.mga9.x86_64.rpm \
             https://mirrors.kernel.org/mageia/distrib/9/x86_64/media/core/release/pngtools-0.4-9.mga9.x86_64.rpm
-        test "$(sha256sum lib64png12_0-1.2.59-3.mga9.x86_64.rpm)" = "5930a4f9864258b0b5fc18059d8aead64ae693991df2eb3751e1d9f3836ca79e  lib64png12_0-1.2.59-3.mga9.x86_64.rpm"
-        test "$(sha256sum pngtools-0.4-9.mga9.x86_64.rpm)" = "379f44b1c95d25358eb014c03835a4b4991c6c364a509c63780e587e70d5744b  pngtools-0.4-9.mga9.x86_64.rpm"
+        sha256sum -c <<EOF
+        5930a4f9864258b0b5fc18059d8aead64ae693991df2eb3751e1d9f3836ca79e  lib64png12_0-1.2.59-3.mga9.x86_64.rpm
+        379f44b1c95d25358eb014c03835a4b4991c6c364a509c63780e587e70d5744b  pngtools-0.4-9.mga9.x86_64.rpm
+        EOF
         rpm -ivh lib64png12_0-1.2.59-3.mga9.x86_64.rpm pngtools-0.4-9.mga9.x86_64.rpm
         python3 -m pip install https://github.com/itkach/slob/archive/master.zip
     - name: 'Patch tests'

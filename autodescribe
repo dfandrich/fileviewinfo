@@ -310,12 +310,14 @@ comment_zip () {
 }
 
 # File type: zoo (zoo archive)
-# requires: zoo
+# requires: unzoo || zoo
 comment_zoo () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
-	COMMENT=$(zoo vc "$sf" dummy-file-to-eliminate-output | \
-		sed -n -e 's/^>> //p' | trimspace)
+	COMMENT=$(unzoo -l -v "$sf" | sed -n -e '/^Length/,$d' -e 's/^# //p' | head -3 | trimspace)
+	if [ -z "$COMMENT" ]; then
+		COMMENT=$(zoo vc "$sf" dummy-file-to-eliminate-output | sed -n -e 's/^>> //p' | trimspace)
+	fi
 	if [ -z "$COMMENT" ] && zoo vq "$sf" desc.sdi > /dev/null ; then
 		COMMENT=$(zoo xpq "$sf" desc.sdi | head -3 | trimspace)
 	fi
