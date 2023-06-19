@@ -197,7 +197,7 @@ jobs:
         gifsicle
         gimp
         id3lib-examples
-        java-19-openjdk-devel
+        java-20-openjdk-devel
         jq
         lhasa
         libjpeg-turbo
@@ -207,10 +207,10 @@ jobs:
         mkvtoolnix
         mtd-utils
         netpbm
-        python310-pefile
-        python310-pip
-        python310-PyICU
-        python310-vobject
+        python311-pefile
+        python311-pip
+        python311-PyICU
+        python311-vobject
         squashfs
         tiff
         unrar
