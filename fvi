@@ -31,7 +31,7 @@
 #   in the first position.  These extensions are listed using the -l option.
 
 usage () {
-	echo 'fvi ver. 6-dev'
+	echo 'fvi ver. 7-dev'
 	echo 'Displays metadata for many file types.'
 	echo ''
 	echo 'Usage: fvi [-v] [-?] [-h] [-l] [-t type] file1 [ file2 ... ]'
