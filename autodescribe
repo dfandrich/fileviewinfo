@@ -326,7 +326,8 @@ comment_zoo () {
 # File type: plist (Apple property list)
 # requires: xmlstarlet
 comment_plist () {
-	COMMENT=$(xmlstarlet sel -t -m "/plist/dict/key[text()='CFBundleDisplayName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[text()='CFBundleName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[text()='CFBundleGetInfoString'][1]" -v "following-sibling::string[1]" -nl < "$1" 2>/dev/null | head -1)
+	# Search for the more desirable names first
+	COMMENT=$(xmlstarlet sel -t -m "/plist/dict/key[normalize-space(text())='CFBundleDisplayName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleGetInfoString'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='OpenSourceProject'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='Label'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleIdentifier'][1]" -v "following-sibling::string[1]" -nl < "$1" 2>/dev/null | head -1)
 }
 
 # File type: rpm (rpm package)
