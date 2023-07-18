@@ -96,11 +96,11 @@ type2.ogg:
 
 type1.webm:
 	ppmmake black 160 120 | pnmtopng >black.png
-	ffmpeg -r 15 -f image2 -i black.png -metadata title='WEBM title' -y "$@"
+	ffmpeg -r 15 -f image2 -i black.png -metadata title='WEBM title' -metadata creation_time='2023-04-05T06:07:08.0910Z' -y "$@"
 
 type1.mp4:
 	ppmmake black 160 120 | pnmtopng >black.png
-	ffmpeg -r 12 -f image2 -i black.png -metadata title='MPEG-4 title' -pix_fmt yuv420p -vcodec libx264 -bf 0 -tune stillimage -y "$@"
+	ffmpeg -r 12 -f image2 -i black.png -metadata title='MPEG-4 title' -metadata creation_time='2023-04-05T06:07:08.09Z' -pix_fmt yuv420p -vcodec libx264 -bf 0 -tune stillimage -y "$@"
 
 type1.avi:
 	ppmmake black 160 120 | pnmtopng >black.png
