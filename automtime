@@ -649,81 +649,63 @@ mtime_svg () {
 	fi
 }
 
+# This takes a tar file on stdin and returns a raw time on stdout
+# It is intended to be used by any tar file variant to centralize tar
+# time extraction.
+handle_tar () {
+	# The mtime is considered to be the latest file time in the archive.
+	# GNU tar doesn't include seconds in the time
+	tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1
+	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
+	# The time is stored absolute, but is displayed in the local time zone
+}
+
 # File type: tar (Tape Archive)
 # requires: tar
 mtime_tar () {
-	# The mtime is considered to be the latest file time in the archive.
-	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(tar tvf - <"$1" | awk '{print $4 " " $5}' | sort -d | tail -1)
-	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
-	# The time is stored absolute, but is displayed in the local time zone
-	TIME="$RAWTIME"
+	TIME=$(handle_tar <"$1")
+}
+
+# File type: pbi (PC-BSD package)
+# requires: bzip2, tar
+mtime_pbi () {
+	TIME=$(sed '1,/^__PBI_ARCHIVE__$/d' < "$f" | handle_tar)
 }
 
 # File type: tbz (Bzip2-compressed Tape Archive)
 # requires: bzip2, tar
 mtime_tbz () {
-	# The mtime is considered to be the latest file time in the archive.
-	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(bzip2 -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1)
-	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
-	# The time is stored absolute, but is displayed in the local time zone
-	TIME="$RAWTIME"
+	TIME=$(bzip2 -dc <"$1" | handle_tar)
 }
 
 # File type: tgz (Gzip-compressed Tape Archive)
 # requires: gzip, tar
 mtime_tgz () {
-	# The mtime is considered to be the latest file time in the archive.
-	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(gzip -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1)
-	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
-	# The time is stored absolute, but is displayed in the local time zone
-	TIME="$RAWTIME"
+	TIME=$(gzip -dc <"$1" | handle_tar)
 }
 
 # File type: tlz (Lzma-compressed Tape Archive)
 # requires: lzma, tar
 mtime_tlz () {
-	# The mtime is considered to be the latest file time in the archive.
-	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(lzma -dc -- "$1" | tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1)
-	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
-	# The time is stored absolute, but is displayed in the local time zone
-	TIME="$RAWTIME"
+	TIME=$(lzma -dc -- "$1" | handle_tar)
 }
 
 # File type: tlzip (Lzip-compressed Tape Archive)
 # requires: lzip, tar
 mtime_tlzip () {
-	# The mtime is considered to be the latest file time in the archive.
-	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(lzip -dc -- "$1" | tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1)
-	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
-	# The time is stored absolute, but is displayed in the local time zone
-	TIME="$RAWTIME"
+	TIME=$(lzip -dc -- "$1" | handle_tar)
 }
 
 # File type: txz (Xzip-compressed Tape Archive)
 # requires: xz, tar
 mtime_txz () {
-	# The mtime is considered to be the latest file time in the archive.
-	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(xz -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1)
-	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
-	# The time is stored absolute, but is displayed in the local time zone
-	TIME="$RAWTIME"
+	TIME=$(xz -dc <"$1" | handle_tar)
 }
 
 # File type: tzst (Zstd-compressed Tape Archive)
 # requires: zstd, tar
 mtime_tzst () {
-	# The mtime is considered to be the latest file time in the archive.
-	# GNU tar doesn't include seconds in the time
-	RAWTIME=$(zstd -dc <"$1" | tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1)
-	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
-	# The time is stored absolute, but is displayed in the local time zone
-	TIME="$RAWTIME"
+	TIME=$(zstd -dc <"$1" | handle_tar)
 }
 
 # File type: tiff (TIFF image)
@@ -1043,6 +1025,10 @@ for f in "$@" ; do
 				TYPE=odf
 				;;
 
+			*.pbi)
+				TYPE=pbi
+				;;
+
 			*.pcap | *.pcapng | *.5vw | *.erf | *.trc0 | *.cap | *.tr1 | *.snoop | *.ncf | *.ncfx | *.bfr | \
 			*.pcap.gz | *.pcapng.gz | *.5vw.gz | *.erf.gz | *.trc0.gz | *.cap.gz | *.tr1.gz | *.snoop.gz | *.ncf.gz | *.ncfx.gz | *.bfr.gz)
 				TYPE=pcap
@@ -1092,14 +1078,16 @@ for f in "$@" ; do
 				TYPE=svg
 				;;
 
-			*.tar)
+			*.tar | *.tardist | *.lpkg | *.sto | *.depot)
 				TYPE=tar
 				;;
 
-			*.tbz | *.tbz2 | *.tar.bz2)
+			*.tbz | *.tbz2 | *.tar.bz2 | *.slp)
 				TYPE=tbz
 				;;
 
+			*.nif | *.epk | *.qpk | *.qpr | *.depot.gz | *.fpm | *.rub | \
+			*.kpr | *.chrt | *.kfo | *.flw | *.kil | *.ksp | *.kwd | \
 			*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz)
 				TYPE=tgz
 				;;
