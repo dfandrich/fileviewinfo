@@ -41,6 +41,11 @@ Many file formats require a special program to extract the metadata. If the
 required program is not found, an error message like \(lqcommand not found\(rq
 is displayed.
 .LP
+Sometimes, for some formats, embedded dates don't represent the true mtime of a
+file. For example, an image might contain the date it was taken but not the
+date it was edited on a computer. The user should consider the meanings and
+limitations of embedded date and times when choosing to use them.
+.LP
 It currently supports the following file types:
 .LP
 .RS
