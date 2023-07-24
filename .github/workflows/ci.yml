@@ -80,16 +80,16 @@ jobs:
             http://azure.archive.ubuntu.com/ubuntu/pool/universe/p/pngtools/pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb \
             http://azure.archive.ubuntu.com/ubuntu/pool/universe/n/netpbm-free/netpbm_11.01.00-2build1_amd64.deb \
             http://azure.archive.ubuntu.com/ubuntu/pool/universe/n/netpbm-free/libnetpbm11_11.01.00-2build1_amd64.deb \
-            http://azure.archive.ubuntu.com/ubuntu/pool/universe/r/rust-coreutils/rust-coreutils_0.0.17-2_amd64.deb \
+            http://azure.archive.ubuntu.com/ubuntu/pool/universe/r/rust-coreutils/rust-coreutils_0.0.20-1_amd64.deb \
             http://azure.archive.ubuntu.com/ubuntu/pool/universe/z/zoo/zoo_2.10-28_amd64.deb
         sha256sum -c <<EOF
         d690a886c1ff250ebca438d7fa64f0a6f9f56a1543c312b503ed3209a56efda3  libnetpbm11_11.01.00-2build1_amd64.deb
         ee102926ef4289c0830092447d650a58a48a0d136cab268af52b55d81d6485ce  netpbm_11.01.00-2build1_amd64.deb
         1c7490f01a64af135d6341b8e5a9ab2fc94dcfe99131882cef1e623739bfadc6  pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb
-        f34842f12753527bdc7fac8595dc91e9aede0296348dd556614a3580811e4a06  rust-coreutils_0.0.17-2_amd64.deb
+        164db0e7af90ce9cf4174af674c38c52a3ce4b997894057580002ccff4f6f068  rust-coreutils_0.0.20-1_amd64.deb
         953f4f94095ef3813dfd30c8977475c834363aaabce15ab85ac5195e52fd816a  zoo_2.10-28_amd64.deb
         EOF
-        sudo dpkg -i pngtools*.deb netpbm*.deb libnetpbm*.deb rust-coreutils*.deb zoo_2.10-28_amd64.deb || true Ignore missing dependency errors--they are not needed for our tests
+        sudo dpkg -i pngtools*.deb netpbm*.deb libnetpbm*.deb rust-coreutils*.deb zoo*.deb || true Ignore missing dependency errors--they are not needed for our tests
         # unrar isn't installed in /usr/bin for some reason
         sudo install -m0755 -D /usr/lib/unrar -t /usr/local/bin
         python3 -m pip install https://github.com/itkach/slob/archive/master.zip
@@ -111,7 +111,16 @@ jobs:
     - name: 'Run tests with zsh'
       run: make check -k SHELL=zsh
     - name: 'Prepare for uutils-coreutils'
-      run: sudo rm /usr/lib/cargo/bin/coreutils/date  # buggy up to 0.0.17
+      run: |
+        # Time zone output is different when using the fallback date routine
+        # that's used when uutils-coreutils, Busybox and Toybox 'date' is in
+        # use. All the lines are equivalent; only the time zone representation
+        # differs.
+        sed -i \
+          -e 's/2023-01-06 02:15:02 +0000/2023-01-05 21:15:02 -0500/' \
+          -e 's/2021-10-13 08:02:00 +0000/2021-10-13 01:02:00 -0700/' \
+          -e 's/2021-10-18 16:55:54 +0000/2021-10-18 16:55:54/' \
+          test-automtime-expected
     - name: 'Run tests using uutils-coreutils'
       run: PATH="/usr/lib/cargo/bin/coreutils:$PATH" make check -k
     - name: 'Prepare for Busybox'
@@ -121,14 +130,6 @@ jobs:
         # These Busybox applets don't have the required features, so the native
         # applications are needed instead.
         rm -f "$PWD"/bb/{lzop,rpm,tar,unzip}
-        # Time zone output is different when using the fallback date routine
-        # that's used when Busybox or Toybox 'date' is in use. All the lines
-        # are equivalent; only the time zone representation differs.
-        sed -i \
-          -e 's/2023-01-06 02:15:02 +0000/2023-01-05 21:15:02 -0500/' \
-          -e 's/2021-10-13 08:02:00 +0000/2021-10-13 01:02:00 -0700/' \
-          -e 's/2021-10-18 16:55:54 +0000/2021-10-18 16:55:54/' \
-          test-automtime-expected
     - name: 'Run tests using Busybox'
       run: PATH="$PWD/bb:$PATH" make check -k SHELL="$PWD/bb/sh"
     - name: 'Prepare for Toybox'
