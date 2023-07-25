@@ -470,7 +470,7 @@ comment_kra () {
 # File type: lsm (Linux Software Map)
 comment_lsm () {
 	# Title can probably be multiline, but we don't bother
-	COMMENT=$(sed -n 's/^Title: *//p' < "$1" | head -1)
+	COMMENT=$(sed -n 's/^Title:[[:space:]]*//p' < "$1" | head -1)
 }
 
 # File type: pc (pkg-config library file)
