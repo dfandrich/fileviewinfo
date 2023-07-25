@@ -1126,6 +1126,12 @@ comment_uue () {
 	COMMENT=$(sed -E -n 's/^begin [0-9]+ //p' < "$1")
 }
 
+# File type: vbox (VirtualBox machine file)
+# requires: xmlstarlet
+comment_vbox () {
+	COMMENT=$(xmlstarlet sel -N vb=http://www.virtualbox.org/ -t -v '/vb:VirtualBox/vb:Machine/@name' -o ' (' -t -v '/vb:VirtualBox/vb:Machine/@OSType' -o ')' < "$1")
+}
+
 # File type: wml (Wireless Markup Language)
 # requires: xmlstarlet
 comment_wml () {
@@ -1471,6 +1477,9 @@ for f in "$@" ; do
 				;;
 			*.uue)
 				TYPE=uue
+				;;
+			*.vbox)
+				TYPE=vbox
 				;;
 			*.wacz)
 				TYPE=wacz

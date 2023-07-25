@@ -753,6 +753,14 @@ mtime_ipk () {
 	fi
 }
 
+# File type: vbox (VirtualBox machine file)
+# requires: xmlstarlet
+mtime_vbox () {
+	RAWTIME=$(xmlstarlet sel -N vb=http://www.virtualbox.org/ -t -v '/vb:VirtualBox/vb:Machine/@lastStateChange' <"$1" 2>/dev/null)
+	# $RAWTIME is like 2016-10-28T18:39:42Z
+	TIME=$(normalize_iso_time "$RAWTIME")
+}
+
 # File type: warcgz (Compressed Web Archive Collection file)
 mtime_warcgz () {
 	# Look for the WARC-Date: lines only within the WARC header sections
@@ -1114,6 +1122,10 @@ for f in "$@" ; do
 
 			*.ttf | *.otf | *.woff)
 				TYPE=otf
+				;;
+
+			*.vbox)
+				TYPE=vbox
 				;;
 
 			*.warc.gz)
