@@ -111,8 +111,13 @@ jobs:
       run: make check -k SHELL=yash
     - name: 'Run tests with zsh'
       run: make check -k SHELL=zsh
-    - name: 'Prepare for uutils-coreutils'
+    - name: 'Prepare for Busybox'
       run: |
+        mkdir -p "$PWD/bb"
+        busybox --install -s "$PWD/bb"
+        # These Busybox applets don't have the required features, so the native
+        # applications are needed instead.
+        rm -f "$PWD"/bb/{lzop,rpm,tar,unzip}
         # Time zone output is different when using the fallback date routine
         # that's used when uutils-coreutils, Busybox and Toybox 'date' is in
         # use. All the lines are equivalent; only the time zone representation
@@ -122,17 +127,21 @@ jobs:
           -e 's/2021-10-13 08:02:00 +0000/2021-10-13 01:02:00 -0700/' \
           -e 's/2021-10-18 16:55:54 +0000/2021-10-18 16:55:54/' \
           test-automtime-expected
-    - name: 'Run tests using uutils-coreutils'
-      run: PATH="/usr/lib/cargo/bin/coreutils:$PATH" make check -k
-    - name: 'Prepare for Busybox'
-      run: |
-        mkdir -p "$PWD/bb"
-        busybox --install -s "$PWD/bb"
-        # These Busybox applets don't have the required features, so the native
-        # applications are needed instead.
-        rm -f "$PWD"/bb/{lzop,rpm,tar,unzip}
     - name: 'Run tests using Busybox'
       run: PATH="$PWD/bb:$PATH" make check -k SHELL="$PWD/bb/sh"
+    - name: 'Prepare for uutils-coreutils'
+      run: |
+        # Time zone output is different when using the fallback date routine
+        # that's used when uutils-coreutils and Toybox 'date' is in use.
+        # Busybox date works in a few cases (so the fallback isn't needed)
+        # which is why these didn't need to be changed for the Busybox tests
+        # above.
+        sed -i \
+          -e 's/2021-10-13 08:34:00 +0000/2021-10-13 08:34:00/' \
+          -e 's/2021-10-14 20:36:00 +0000/2021-10-14 20:36:00/' \
+          test-automtime-expected
+    - name: 'Run tests using uutils-coreutils'
+      run: PATH="/usr/lib/cargo/bin/coreutils:$PATH" make check -k
     - name: 'Prepare for Toybox'
       run: |
         mkdir -p "$PWD/tb"

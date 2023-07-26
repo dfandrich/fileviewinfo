@@ -662,9 +662,19 @@ mtime_svg () {
 handle_tar () {
 	# The mtime is considered to be the latest file time in the archive.
 	# GNU tar doesn't include seconds in the time
-	tar tvf - | awk '{print $4 " " $5}' | sort -d | tail -1
+	# GNU tar returns lines like:
+	#   -rw-rw-r-- root/root         4 2021-10-13 01:34 foo
+	# BSD tar returns lines like:
+	#   -rw-r--r--  1 root     wheel            4 Sep 18  2021 foo
+	#   -rw-r--r--  1 root     root             7 Jul 27 00:22 bar
+	#   -rw-r--r--  1 reallylonguser alsoalonggroup       212 Apr 19  2021 baz
+	RAWTIME=$(tar tvf - | awk '{if (index($2, "/")) print $4 " " $5; else print $6 " " $7 " " $8;}' | sort -d | tail -1)
 	# $RAWTIME is like 2021-10-13 01:34 or 2021-10-13 01:34:12 (Busybox tar)
+	# or Sep 18 2021 (BSD tar) or Jul 27 00:22 (BSD tar)
+	# If we know it's GNU tar we could skip the normalization, but it's
+	# safe to do even in that case.
 	# The time is stored absolute, but is displayed in the local time zone
+	normalize_time_tz "$RAWTIME"
 }
 
 # File type: tar (Tape Archive)
