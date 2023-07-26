@@ -127,10 +127,17 @@ mtime_7zip () {
 # File type: abw (AbiWord document)
 # requires: xmlstarlet
 mtime_abw () {
-	RAWTIME=$(xmlstarlet sel -N a=http://www.abisource.com/awml.dtd -t -v "/a:abiword/a:metadata/a:m[@key='dc.date']" < "$1" 2>/dev/null)
-	# $RAWTIME is like Mon Apr  4 17:31:07 2022
-	TIME=$(normalize_time "$RAWTIME")
-}
+	RAWTIME=$(xmlstarlet sel -N a=http://www.abisource.com/awml.dtd -t -v "/a:abiword/a:history/@last-saved" < "$1" 2>/dev/null)
+	# $RAWTIME is like 1234567890
+	if [ -n "$RAWTIME" ] ; then
+		TIME=$(normalize_time_tz "@$RAWTIME")
+	else
+		# This one does not include a time zone so is less desirable
+		RAWTIME=$(xmlstarlet sel -N a=http://www.abisource.com/awml.dtd -t -v "/a:abiword/a:metadata/a:m[@key='dc.date']" < "$1" 2>/dev/null)
+		# $RAWTIME is like Mon Apr  4 17:31:07 2022
+		TIME=$(normalize_time "$RAWTIME")
+	fi
+	}
 
 # File type: dat (Allegro4 not packed datafile)
 # See https://liballeg.org/
