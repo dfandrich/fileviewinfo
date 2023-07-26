@@ -243,6 +243,7 @@ for f in "$@" ; do
 
 		# See https://github.com/sgan81/apfs-fuse/
 		# requires dmg2img, kpartx, apfs_fuse
+		# This requires root to mount and unmount partitions
 		*.dmg)	archive_label Apple disk image
 			FVTMPDIR="`mktemp -d`"
 			dmg2img "$sf" "$FVTMPDIR/image.img"
@@ -411,7 +412,7 @@ for f in "$@" ; do
 			rpm -qlvp -- "$f"
 			;;
 
-		# (Obsolete format; from Red Hat Linux distributions < 4.0)
+		# (Obsolete format; from Red Hat Linux--NOT RHEL--distributions < 4.0)
 		# See https://www.redhat.com/
 		# requires: tar, cpio, gzip
 		*.rpp)	archive_label Red Hat RPP package
