@@ -386,6 +386,20 @@ type1.deb:
 	rm type1-0.0.1/*
 	cd type1-0.0.1 && DEBEMAIL="your@example.com" DEBFULLNAME="Fake Maintainer" dh_make -y -i -c custom --copyrightfile ../../license -f ../type1-0.0.1.tar.gz && sed -i -e '/^Description:/{i\Description: Deb package description' -e 'i\ Long deb package description' -e '}' -e '/^Description:/,$$d' debian/control && dpkg-buildpackage -d
 
+type1.cfi: foo
+	dd if=/dev/zero of=160.img bs=512 count=320
+	mkdosfs -n 160_FD 160.img
+	sudo losetup /dev/loop0 160.img
+	mv foo FOO
+	# mtools is assumed to be configured so drive L: maps to /dev/loop0
+	sudo mcopy FOO l:
+	sudo losetup -d /dev/loop0
+	dskconv -itype raw -otype cfi -format ibm160 160.img type1.cfi
+
+type1.vhd:
+	VBoxManage createmedium disk --filename=type1.vhd --format=VHD --sizebyte=163840
+	VBoxManage closemedium type1.vhd
+
 # It's best to use a version of dar <= 2.7.0 to create this file to avoid test
 # failures due to an archive created by a too-new version of dar.
 type1.1.dar: foo

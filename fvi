@@ -252,9 +252,23 @@ for f in "$@" ; do
 			dexlist -- "$f"
 			;;
 
-		# hdiutil comes standard on OS X
+		# hdiutil comes standard on OS X; use qemu-img elsewhere
+		# requires: <nothing> || qemu-img
 		*.dmg)	filetype_label Mac OS X Disk Image
-			hdiutil imageinfo "$sf"
+			hdiutil imageinfo "$sf" || qemu-img info --  "$f"
+			;;
+
+		# requires: libdsk-progs
+		*.cfi)	filetype_label CFI floppy disk image
+			# This type can't be auto-detected so it needs to be specified
+			dskid -type cfi -- "$f"
+			dsklabel -type cfi "$sf"
+			;;
+
+		# requires: libdsk-progs
+		*.dsk)	filetype_label Floppy disk image
+			dskid -- "$f"
+			dsklabel "$sf"
 			;;
 
 		# requires: dtc || device-tree-compiler
@@ -435,6 +449,12 @@ for f in "$@" ; do
 			uncompyle6 --  "$f" | grep '^#'
 			;;
 
+		# requires: qemu-img
+		*.qcow | *.qcow2 | *.qed | *.vpc | *.bochs | \
+		*.parallels)	filetype_label QEMU disk image
+			qemu-img info --  "$f"
+			;;
+
 		# requires: unrar
 		*.rar | *.rsn)	filetype_label RAR compressed archive
 			unrar vta -sl0 -idc -- "$f"
@@ -566,6 +586,13 @@ EOF
 		# requires: gobject-introspection, xmlstarlet
 		*.typelib)	filetype_label G-IR binary database
 			g-ir-generate -- "$f" | xmlstarlet sel -N x=http://www.gtk.org/introspection/core/1.0 -t -o 'Typelib for ' -v '/x:repository/x:namespace/@name' -o ' ' -v '/x:repository/x:namespace/@version' -o ' ' -v '/x:repository/x:namespace/@shared-library' -n  -
+			;;
+
+		# .vmdk is actually a VMWare disk image, and .vhd{,x} are Microsoft formats
+		# but VirtualBox supports them as well.
+		# requires: virtualbox || qemu-img
+		*.vdi | *.vmdk | *.vhd | *.vhdx)	filetype_label VirtualBox disk image
+			VBoxManage showmediuminfo -- "$f" || qemu-img info --  "$f"
 			;;
 
 		*.warc.gz)	filetype_label Compressed Web Archive Collection file
