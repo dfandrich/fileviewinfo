@@ -1132,6 +1132,19 @@ comment_vbox () {
 	COMMENT=$(xmlstarlet sel -N vb=http://www.virtualbox.org/ -t -v '/vb:VirtualBox/vb:Machine/@name' -o ' (' -t -v '/vb:VirtualBox/vb:Machine/@OSType' -o ')' < "$1")
 }
 
+# File type: vbproj (Microsoft Visual Basic project file)
+# This also works for related MS project files
+# requires: xmlstarlet
+comment_vbproj () {
+	COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='Project']/*[local-name()='PropertyGroup']/*[local-name()='Description']" -nl -v "/*[local-name()='Project']/*[local-name()='PropertyGroup']/*[local-name()='RootNamespace']" -nl < "$1" | sed '/^$/d' | head -1)
+}
+
+# File type: vcproj (Microsoft Visual Studio project file)
+# requires: xmlstarlet
+comment_vcproj () {
+	COMMENT=$(xmlstarlet sel -t -v "/VisualStudioProject/@Name" < "$1")
+}
+
 # File type: wml (Wireless Markup Language)
 # requires: xmlstarlet
 comment_wml () {
@@ -1480,6 +1493,12 @@ for f in "$@" ; do
 				;;
 			*.vbox)
 				TYPE=vbox
+				;;
+			*.vbproj | *.csproj | *.vcxproj)
+				TYPE=vbproj
+				;;
+			*.vcproj)
+				TYPE=vcproj
 				;;
 			*.wacz)
 				TYPE=wacz
