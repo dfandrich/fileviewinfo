@@ -84,22 +84,23 @@ get_comment_compressed_tar () {
 	# decompressed a maximum of one more time (assuming a successful comment
 	# extraction) to save time while also avoiding having lots of temporary
 	# files lying around at the same time.
+	#
 	# Skip any readme files more than 2 levels down in the directory hierarchy.
 	# Sort files by distance from root, so files higher up will be used first
-	# where there is more than one. Files that appears to be in a documentation
+	# when there is more than one. Files that appears to be in a documentation
 	# directory get a half-level boost and those that appear to be in a dotted
 	# (hidden) directory get a full level demotion. Because of this sorting,
 	# wildcards cannot be used to extract files because the extraction order is
 	# the order encountered in the file, not the order specified.
 	$DECOMPRESS "$1" | tar -tf - | \
-		grep -E '(\.man|\.[0-9]|\.lsm|\.appdata\.xml|\.metainfo\.xml|\.desktop|configure\.ac|README\.(adoc|md|rst|txt)|Readme\.(adoc|md|rst|txt)|ReadMe\.(adoc|md|rst|txt)|readme\.(adoc|md|rst|txt)|README|Readme|ReadMe|readme|\.texi|\.texinfo|CMakeLists\.txt|\.pc|\.pc\.in)$' | \
+		grep -E '(\.man|\.[0-9]|\.lsm|\.appdata\.xml|\.metainfo\.xml|\.desktop|configure\.ac|README\.(adoc|md|rst|txt)|Readme\.(adoc|md|rst|txt)|ReadMe\.(adoc|md|rst|txt)|readme\.(adoc|md|rst|txt)|README|Readme|ReadMe|readme|\.texi|\.texinfo|CMakeLists\.txt|\.pc|\.pc\.in|\<file_id\.diz)$' | \
 		awk 'BEGIN {FS="/"} {doc=!!match($0, "/(([Dd]oc)|[Mm]an|[Ii]nfo)"); dot=!!index($0, "/."); print split($0, a)*2-doc+2*dot "\t" $0;}' | \
 	sort -n | \
 	cut -f2- | \
 	grep -viE '^.*/.*/.*/.*readme(\.[a-z]*)?$' > "$TMPFILE"
 
 	if [ -s "$TMPFILE" ]; then
-		# Found at least one a candidate file
+		# Found at least one candidate file
 
 		# Try to find the base name of the tar ball, without version numbers
 		# and file extensions. This isn't always easy, so use two heuristics to
@@ -133,6 +134,15 @@ get_comment_compressed_tar () {
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
 			comment_lsm "$TMPFILE2"
+		fi
+
+		# file_id.diz
+		# This is likely obsolete these days but can be found in old
+		# archives.
+		MATCHNAME=$(grep 'file_id\.diz$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			comment_first_line "$TMPFILE2"
 		fi
 
 		# man page
@@ -1485,7 +1495,8 @@ for f in "$@" ; do
 			*.tif | *.tiff)
 				TYPE=tiff
 				;;
-			*.txt | *.asc | *.rst | *README | *Readme | *ReadMe | *readme)
+			*.txt | *.asc | *.rst | *README | *Readme | *ReadMe | *readme | \
+		    *file_id.diz)
 				TYPE=first_line
 				;;
 			*.uue)
