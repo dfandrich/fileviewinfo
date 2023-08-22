@@ -204,6 +204,7 @@ jobs:
         file
         flac
         ftdump
+        gawk
         gettext-tools
         gifsicle
         gimp
@@ -253,7 +254,7 @@ jobs:
         379f44b1c95d25358eb014c03835a4b4991c6c364a509c63780e587e70d5744b  pngtools-0.4-9.mga9.x86_64.rpm
         EOF
         rpm -ivh lib64png12_0-1.2.59-3.mga9.x86_64.rpm pngtools-0.4-9.mga9.x86_64.rpm
-        python3 -m pip install https://github.com/itkach/slob/archive/master.zip
+        python3 -m pip install --break-system-packages https://github.com/itkach/slob/archive/master.zip
     - name: 'Patch tests'
       run: |
         # 7zip starting 22.01 displays seconds to 7 decimal places
