@@ -356,6 +356,15 @@ comment_cue () {
 	COMMENT=$(sed -n -E -e '/^TITLE/s/^TITLE *"([^"]*)" *$/\1/p' < "$1" | head -1)
 }
 
+# File type: cbm (Commodore disk image)
+# See https://github.com/dfandrich/fvcbm/
+# requires: fvcbm
+comment_cbm () {
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(fvcbm "$sf" | sed -Ene 's/^Title: {1,3}(.{1,16}).*$/\1/p' -e '/^={16,}/q' | trimspace)
+}
+
 # File type: desktop (XDG desktop entry file)
 comment_desktop () {
 	# First look for the name, localized if possible
@@ -1327,6 +1336,9 @@ for f in "$@" ; do
 			*CMakeLists.txt)	TYPE=cmake
 				;;
 			*.cue)	TYPE=cue
+				;;
+			*.d64 | *.d71 | *.d80 | *.d82 | *.x64 | *.t64)
+				TYPE=cbm
 				;;
 			*.dar) TYPE=dar
 				;;
