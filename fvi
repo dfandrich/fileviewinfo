@@ -207,6 +207,22 @@ for f in "$@" ; do
 			openssl req -text -noout -in "$f"
 			;;
 
+		# requires: xz
+		synthesis.hdlist.cz) filetype_label URPM synthesis file
+			printf "synthesis file for %d packages\n" \
+				"$(xz -qdc < "$f" | grep '^@info@' | wc -l)"
+			# Guess this info from the filenames
+			printf "primary architecture %s\n" \
+				"$(xz -qdc < "$f" | sed -n -Ee 's/^@info@[^@]+\.([^.@]+)@.*$/\1/p' | grep -v 'noarch' | head -1)"
+			# This could be the distro tag or a media tag
+			TAG="$(xz -qdc < "$f" | sed -n -Ee 's/^@info@[^@]+\.([^.]+)\.[^.]+@.*$/\1/p' | head -1)"
+			# Assume it's the distro tag if it has a version number
+			if ! printf "%s" "$TAG" | grep -q '[0-9]'; then
+				TAG="$(xz -qdc < "$f" | sed -n -Ee 's/^@info@[^@]+\.([^.]+)(\.[^.]+){2}@.*$/\1/p' | head -1).$TAG"
+			fi
+			printf "distribution tag %s\n" "$TAG"
+			;;
+
 		# See http://dar.linux.free.fr/
 		# requires: dar >= 2.7.0
 		*.dar)	filetype_label Disk Archiver archive
