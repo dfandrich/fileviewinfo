@@ -276,6 +276,11 @@ for f in "$@" ; do
 			dtc -I dtb -O dts -o - -- "$f"
 			;;
 
+		# Used on macOS
+		*.dylib)	filetype_label Mach dynamic library
+			otool -h -l -L "$sf"
+			;;
+
 		# requires: unzip
 		*.egg)	filetype_label Python egg package
 			unzip -qp "$sf" EGG-INFO/PKG-INFO
