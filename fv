@@ -479,8 +479,8 @@ EOF
 		# *.lzh and *.lha can be handled by fvcbm, but are taken care of
 		# by lha above
 		# *.lbr types conflict and are taken care of earlier
-		*.sda | *.sfx | *.d64 | *.d71 | *.d80 | *.d82 | *.x64 | *.t64 | \
-		*.lnx | *.n64 | *.lbr | *.[psrud]0[0-9] | \
+		*.sda | *.sfx | *.d64 | *.d71 | *.d80 | *.d81 | *.d82 | *.x64 | \
+		*.t64 | *.lnx | *.n64 | *.lbr | *.[psrud]0[0-9] | \
 		*.cbmarc)	archive_label Commodore 64 archive
 			fvcbm "$sf"
 			;;
