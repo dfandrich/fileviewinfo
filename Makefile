@@ -38,7 +38,7 @@ man: $(DOC_TARGETS)
 
 %.html: %.man
 	# This is the man2html from https://www.nongnu.org/man2html/
-	man2html -topm 5 -compress -seealso -cgiurl 'https://linux.die.net/man/$${section}/$${title}' < $^ > $@
+	man2html -topm 3 -botm -1 -compress -seealso -cgiurl 'https://linux.die.net/man/$${section}/$${title}' < $^ > $@
 	# These are alternate conversion programs
 	#txt2html --linkonly < $@ > fv.tmp && mv -f fv.tmp $@ && tidy -m $@
 	#groff -man -Thtml < $^ > $@
