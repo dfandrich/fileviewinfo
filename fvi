@@ -547,6 +547,11 @@ EOF
 			zcat -- "$f" | identify -verbose -
 			;;
 
+		# requires: swftools
+		*.swf)	filetype_label Shockwave Flash file
+			swfdump "$sf"
+			;;
+
 		# See http://www.encode.ru/tc/ (defunct as of 2022)
 		# requires: python >= 3
 		# Note: the real file extension conflicts with Tellico files, so this
