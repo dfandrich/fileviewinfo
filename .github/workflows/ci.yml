@@ -162,7 +162,7 @@ jobs:
       run: |
         cd testfiles
         PATH="$PWD/../tb:$PATH" ../autodescribe * >../test-autodescribe.log
-        PATH="$PWD/../tb:$PATH" ../autodescribe -t cmake *exttype1.cmake >>../test-autodescribe.log
+        for f in *exttype*; do FTYPE=${f/*exttype?./}; PATH="$PWD/../tb:$PATH" ../autodescribe -t "$FTYPE" "$f" >>../test-autodescribe.log; done
         PATH="$PWD/../tb:$PATH" TZ=UTC ../automtime * >../test-automtime.log
         PATH="$PWD/../tb:$PATH" ../fv *.{bz2,jffs2,rz,shar,uue} >../test-fv.log
         PATH="$PWD/../tb:$PATH" ../fvi *.{3mf,7z,amf,deb,egg,class,gmo,po,stl,tc,wacz,warc.gz,whl} >../test-fvi.log

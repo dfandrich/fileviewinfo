@@ -340,6 +340,14 @@ comment_plist () {
 	COMMENT=$(xmlstarlet sel -t -m "/plist/dict/key[normalize-space(text())='CFBundleDisplayName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleGetInfoString'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='OpenSourceProject'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='Label'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleIdentifier'][1]" -v "following-sibling::string[1]" -nl < "$1" 2>/dev/null | head -1)
 }
 
+# File type: pyproject.toml (Python project definition)
+comment_pyproject () {
+	COMMENT=$(sed -En -e '/^\[project\]$/,/^\[/s/^description *= *"?([^"]*)"? *$/\1/p' < "$1" | head -1)
+	if [ -z "$COMMENT" ]; then
+		COMMENT=$(sed -En -e '/^\[project\]$/,/^\[/s/^name *= *"?([^"]*)"? *$/\1/p' < "$1" | head -1)
+	fi
+}
+
 # File type: rpm (rpm package)
 # requires: rpm
 comment_rpm () {
@@ -1447,6 +1455,8 @@ for f in "$@" ; do
 				;;
 			*.plist)
 				TYPE=plist
+				;;
+			*pyproject.toml)	TYPE=pyproject
 				;;
 			*.rpm)
 				TYPE=rpm
