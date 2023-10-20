@@ -1051,6 +1051,15 @@ comment_man () {
 	COMMENT=$(LC_ALL=C lexgrog -- "$1" | grep -v ': parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//' | head -1)
 }
 
+# File type: mantxt (plain text version of man page)
+comment_mantxt () {
+	COMMENT=$(sed -n -Ee '/^(N.NA.AM.ME.E|NAME)$/{N;s/^[^ ]* *//p}' < "$f" | head -1)
+	if [ -z "$COMMENT" ] ; then
+		# It might be bin in roff format if it's not in plain ASCII format
+		comment_man "$@"
+	fi
+}
+
 # File type: md (Markdown text)
 comment_md () {
 	COMMENT=$(head -5 < "$1" | sed -n -e 's/[ #]*$//' -e 's/^# //p' | trimspace)
@@ -1407,6 +1416,8 @@ for f in "$@" ; do
 				TYPE=lzh
 				;;
 			*.1 | *.2 | *.3 | *.4 | *.5 | *.6 | *.7 | *.8 | *.9)	TYPE=man
+				;;
+			*.man)	TYPE=mantxt
 				;;
 			*.mbox | *.mbx | *.mbo | *.nws | *.msg | *.patch | *.diff)
 				TYPE=subject
