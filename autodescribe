@@ -1048,7 +1048,7 @@ comment_kdenlive () {
 # File type: man (man page)
 # requires: man-db
 comment_man () {
-	COMMENT=$(LC_ALL=C lexgrog -- "$1" | grep -v ': parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//')
+	COMMENT=$(LC_ALL=C lexgrog -- "$1" | grep -v ': parse failed$' | sed -e 's/^[^"]*"//' -e 's/"$//' | head -1)
 }
 
 # File type: md (Markdown text)
