@@ -748,7 +748,7 @@ EOF
 
 		# requires: fv, bzip2
 		# Also Stampede Linux package .slp
-		# Also bzip2-compressed tar archive .tbz, .tbz2
+		# Also bzip2-compressed tar archive .tbz,.tbz2
 		*.slp | *.tbz | *.tbz2 | \
 		*.bz2)	filetype_label bzip2-compressed file
 			fv -t bz2 "$f"
