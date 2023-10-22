@@ -545,8 +545,9 @@ EOF
 			bzip2 -dc -- "$f" | tar tvf -
 			;;
 
+		# Also Midnight BSD ports package .mport
 		# requires: tar, xz
-		*.tar.xz | *.txz)
+		*.tar.xz | *.txz | *.mport)
 			archive_label xz-compressed tar archive
 			xz -dc -- "$f" | tar tvf -
 			;;

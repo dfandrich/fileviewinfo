@@ -771,8 +771,9 @@ EOF
 			;;
 
 		# requires: fv, xz
+		# Also Midnight BSD ports package .mport
 		# Also xz-compressed tar archive .txz
-		*.txz | \
+		*.txz | *.mport | \
 		*.xz)	filetype_label XZ compressed file
 			fv -t xz "$f"
 			;;
