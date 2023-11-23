@@ -400,6 +400,10 @@ type1.vhd:
 	VBoxManage createmedium disk --filename=type1.vhd --format=VHD --sizebyte=163840
 	VBoxManage closemedium type1.vhd
 
+type1.man: type1.1
+	# type1.1 is lightly-edited version of testfiles/type1.1
+	nroff -man -c "$^" >"$@"
+
 # It's best to use a version of dar <= 2.7.0 to create this file to avoid test
 # failures due to an archive created by a too-new version of dar.
 type1.1.dar: foo

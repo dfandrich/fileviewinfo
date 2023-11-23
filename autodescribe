@@ -1053,9 +1053,9 @@ comment_man () {
 
 # File type: mantxt (plain text version of man page)
 comment_mantxt () {
-	COMMENT=$(sed -n -Ee '/^(N.NA.AM.ME.E|NAME)$/{N;s/^[^ ]* *//p}' < "$f" | head -1)
+	COMMENT=$(sed -n -Ee '/^(N.NA.AM.ME.E|NAME)$/{N;s/^[^ ]* *//p' -e '}' < "$f" | head -1)
 	if [ -z "$COMMENT" ] ; then
-		# It might be bin in roff format if it's not in plain ASCII format
+		# It might be in roff format if it's not in plain ASCII format
 		comment_man "$@"
 	fi
 }

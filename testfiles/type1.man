@@ -1,0 +1,16 @@
+FILEVIEWINFOTEST(1)         General Commands Manual        FILEVIEWINFOTEST(1)
+
+
+
+NNAAMMEE
+       fileviewinfotest - plain text man page name
+
+SSYYNNOOPPSSIISS
+       ffiilleevviieewwiinnffootteesstt
+
+DDEESSCCRRIIPPTTIIOONN
+       Test input file.
+
+
+
+fileviewinfo test file            23 Nov 2023              FILEVIEWINFOTEST(1)
