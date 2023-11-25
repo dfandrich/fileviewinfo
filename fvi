@@ -438,6 +438,14 @@ for f in "$@" ; do
 			ogginfo -- "$f"
 			;;
 
+		# requires: wireshark-tools
+		*.pcap | *.pcapng | *.5vw | *.erf | *.trc0 | *.cap | *.tr1 | *.snoop | \
+		*.ncf | *.ncfx | *.bfr | *.pcap.gz | *.pcapng.gz | *.5vw.gz | \
+		*.erf.gz | *.trc0.gz | *.cap.gz | *.tr1.gz | *.snoop.gz | *.ncf.gz | \
+		*.ncfx.gz | *.bfr.gz) filetype_label Pcap network capture file
+			capinfos -- "$f"
+			;;
+
 		# requires: xpdf
 		*.pdf)	filetype_label Portable Document Format document
 			pdfinfo -- "$f"
