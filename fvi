@@ -685,6 +685,7 @@ EOF
 		# Also Krita image .kra
 		# Also Scratch Project .sb2
 		# Also Scratch Project .sb3
+		# Also MuseScore music score .mscz
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
@@ -693,7 +694,7 @@ EOF
 		*.otp | *.otg | *.ots | \
 		*.docx | *.pptx | *.xlsx | *.epub | *.apk | *.war | *.xps | \
 		*.resource | *.application | *.docm | *.f3d | *.kra | \
-		*.sb2 | *.sb3 | *.apkm)
+		*.sb2 | *.sb3 | *.apkm | *.mscz)
 			filetype_label ZIP archive
 			zipinfo -h -z "$sf" | grep -v "^$"; zipinfo -l "$sf" | tail -1
 			;;

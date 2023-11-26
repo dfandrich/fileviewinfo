@@ -1112,6 +1112,22 @@ comment_mov () {
 	comment_mp4 "$@"
 }
 
+# File type: mscx (MuseScore music score)
+# requires: xmlstarlet
+comment_mscx () {
+	COMMENT=$(xmlstarlet sel -t -v "/museScore/Score/metaTag[@name='workTitle']" < "$@")
+}
+
+# File type: mscz (MuseScore music score compressed)
+# requires: unzip, xmlstarlet
+comment_mscz () {
+	sf="$(safefn "$1")"
+	MEMBER=$(unzip -pqaa "$sf" META-INF/container.xml | xmlstarlet sel -t -v '/container/rootfiles/rootfile[substring(@full-path, string-length(@full-path) - 4) = ".mscx"]/@full-path')
+	if [ -n "$MEMBER" ] ; then
+		COMMENT=$(unzip -pqaa "$sf" "$MEMBER" | xmlstarlet sel -t -v "/museScore/Score/metaTag[@name='workTitle']" -)
+	fi
+}
+
 # File type: pcap (Pcap network capture file)
 # requires: wireshark-tools
 comment_pcap () {
@@ -1435,6 +1451,10 @@ for f in "$@" ; do
 			*.mp3)	TYPE=mp3
 				;;
 			*.mp4)	TYPE=mp4
+				;;
+			*.mscx)	TYPE=mscx
+				;;
+			*.mscz)	TYPE=mscz
 				;;
 			*.odt | *.otm | *.ott | *.odh | *.odc | *.otc | *.odg | *.otg | *.odi | *.oti | *.odp | *.otp | *.ods | *.ots | *.odf | \
 			*.sxw | *.sxc | *.sxi | *.sxd | *.sxm)

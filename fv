@@ -644,6 +644,7 @@ EOF
 		# Also Tellico database .tc
 		# Also Wondershare Filmora Project .wfp
 		# Also Web Archive Collection Zipped .wacz
+		# Also MuseScore music score .mscz
 		# SkyOS .pkg file are in .zip format, but the extension conflicts
 		# requires: unzip
 		*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
@@ -652,7 +653,8 @@ EOF
 		*.otp | *.otg | *.ots | *.odb | *.odc | \
 		*.docx | *.epub | *.apk | *.apkm | *.war | *.xps | *.resource | \
 		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf | \
-		*.sb2 | *.sb3 | *.ora | *.tc | *.wfp | *.wacz | *.xlsx | *.pptx)
+		*.sb2 | *.sb3 | *.ora | *.tc | *.wfp | *.wacz | *.xlsx | *.pptx | \
+		*.mscz)
 			archive_label ZIP archive
 			unzip -v "$sf"
 			;;
