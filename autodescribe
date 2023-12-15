@@ -641,7 +641,7 @@ comment_spdx () {
 # File type: stl (STL model file)
 comment_stl () {
 	# Detect ASCII or binary format
-	if [ "$(dd if="$1" bs=1 count=80 2>/dev/null | wc -l)" -gt 0 -a "$(dd if="$1" bs=1 count=6 2>/dev/null)" = "solid " -a "$(dd if="$1" bs=1 count=1 skip=80 2>/dev/null | od -An -b)" != "000" ]; then
+	if [ "$(dd if="$1" bs=1 count=80 2>/dev/null | wc -l)" -gt 0 -a "$(dd if="$1" bs=1 count=6 2>/dev/null | tr -d '\0')" = "solid " -a "$(dd if="$1" bs=1 count=1 skip=80 2>/dev/null | od -An -b)" != "000" ]; then
 		# ASCII stl format
 		COMMENT=$(sed -n -E -e 's/[[:space:]]*$//' -e '1s/^solid +//p' < "$1")
 	else
