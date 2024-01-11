@@ -520,7 +520,7 @@ for f in "$@" ; do
 		# See https://github.com/plougher/squashfs-tools/
 		# Also Snap package .snap
 		# requires: squashfs-tools
-		*.sqsh | *.squashfs | *.snap) filetype_label Squashfs filesystem image
+		*.sqsh | *.squashfs | *.sqfs | *.snap) filetype_label Squashfs filesystem image
 			unsquashfs -s "$sf"
 			;;
 

@@ -1095,7 +1095,7 @@ for f in "$@" ; do
 				TYPE=slob
 				;;
 
-			*.sqsh | *.squashfs | *.snap)
+			*.sqsh | *.squashfs | *.sqfs | *.snap)
 				TYPE=squashfs
 				;;
 
