@@ -750,7 +750,7 @@ EOF
 	*.mpg4 | *.wmv | *.mts | \
 	*.amv | *.ram \
 		)	filetype_label Video or audio file
-			ffmpeg -i "$f"
+			ffprobe "$f" || ffmpeg -i "$f"
 			;;
 
 # Plain compressed files must come after otherwise compressed files
