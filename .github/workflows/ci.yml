@@ -181,12 +181,16 @@ jobs:
       run: make distclean
 
 
+  # Tumbleweed is a rolling distribution, so changes in setting up the
+  # dependencies are expected to occur somewhat frequently.
   build-opensuse:
     runs-on: ubuntu-latest
     container: opensuse/tumbleweed
     steps:
     - uses: actions/checkout@v4
     - name: 'Install deps'
+      # The last line in the package list is for those needed by the build &
+      # test environment and not to handle a particular file type.
       run: >
         zypper --non-interactive refresh &&
         zypper --non-interactive in --no-recommends -y
@@ -235,7 +239,7 @@ jobs:
         zstd
         make groff busybox
     - name: 'Install contrib'
-    # nbase is only available in a contrib repo on OBS
+    # nbase is only available in a contrib repo on OBS (as of 2023)
     # nbase-tail and nbase-ls are completely broken in 9.1.0.2-8.39; don't
     # install them
       run: |
