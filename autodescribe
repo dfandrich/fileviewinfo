@@ -1,7 +1,7 @@
 #!/bin/sh
 # autodescribe - automatically extract comments from files
 #
-# Copyright (c) 2023 Dan Fandrich <dan@coneharvesters.com>
+# Copyright (c) 1998-2024 Dan Fandrich <dan@coneharvesters.com>
 # Licensed under the MIT license (see LICENSE).
 
 if [ -n "$ZSH_VERSION" ]; then
@@ -1276,7 +1276,7 @@ comment_pnm () {
 ###########################
 
 if [ $# -eq 0 -o "$1" = "-h" -o "$1" = "-?" ] ; then
-	echo 'autodescribe ver. 7-dev'
+	echo 'autodescribe ver. 7'
 	echo 'Usage: autodescribe [-?] [-h] [-l] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
 	echo 'Extracts comments from files'
 	echo '  -e cmd   command to run once for each file with args: comment file'
