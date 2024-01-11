@@ -1276,7 +1276,7 @@ comment_pnm () {
 ###########################
 
 if [ $# -eq 0 -o "$1" = "-h" -o "$1" = "-?" ] ; then
-	echo 'autodescribe ver. 7'
+	echo 'autodescribe ver. 8-dev'
 	echo 'Usage: autodescribe [-?] [-h] [-l] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
 	echo 'Extracts comments from files'
 	echo '  -e cmd   command to run once for each file with args: comment file'
