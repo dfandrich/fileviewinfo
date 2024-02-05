@@ -239,14 +239,15 @@ jobs:
         zstd
         make groff busybox
     - name: 'Install contrib'
-    # nbase is only available in a contrib repo on OBS (as of 2023)
-    # nbase-tail and nbase-ls are completely broken in 9.1.0.2-8.39; don't
-    # install them
-      run: |
-        zypper --non-interactive addrepo https://download.opensuse.org/repositories/home:cheusov/openSUSE_Tumbleweed/home:cheusov.repo
-        zypper --non-interactive --gpg-auto-import-keys refresh
-        zypper --non-interactive --xmlout search --case-sensitive nbase- | xmlstarlet sel -t -v "/stream/search-result/solvable-list/solvable[not(contains(@name,'debuginfo') or contains(@name,'-tail') or contains(@name,'-ls'))]/@name" -nl | xargs zypper --non-interactive in --no-recommends -y
-    - name: 'Install extras'
+# nbase isn't available right now (2024-02) so skip it for now
+#    # nbase is only available in a contrib repo on OBS (as of 2023)
+#    # nbase-tail and nbase-ls are completely broken in 9.1.0.2-8.39; don't
+#    # install them
+#      run: |
+#        zypper --non-interactive addrepo https://download.opensuse.org/repositories/home:cheusov/openSUSE_Tumbleweed/home:cheusov.repo
+#        zypper --non-interactive --gpg-auto-import-keys refresh
+#        zypper --non-interactive --xmlout search --case-sensitive nbase- | xmlstarlet sel -t -v "/stream/search-result/solvable-list/solvable[not(contains(@name,'debuginfo') or contains(@name,'-tail') or contains(@name,'-ls'))]/@name" -nl | xargs zypper --non-interactive in --no-recommends -y
+#    - name: 'Install extras'
     # A few file types need packages unavailable in OpenSuSE, so install some
     # binaries from elsewhere.
       run: |
@@ -269,8 +270,8 @@ jobs:
       run: make check -k
     - name: 'Run tests with hush'
       run: make check -k SHELL='busybox hush'
-    - name: 'Run tests using nbase'
-      run: PATH="/usr/libexec/nbase/bin:$PATH" make check -k
+#    - name: 'Run tests using nbase'
+#      run: PATH="/usr/libexec/nbase/bin:$PATH" make check -k
     - name: 'Test installation'
       run: make install prefix="$PWD/install"
     - name: 'Test dist'
