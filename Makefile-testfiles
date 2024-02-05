@@ -419,6 +419,12 @@ type1.1.dar: foo
 type1.zoo: foo
 	printf "Zoo archive comment\nSecond line of comment\n/END\n" | zoo aC type1.zoo foo
 
+# input.wav is a short file of blank created in Audacity with the other
+# metadata already included. It can't seem to create the creation time so it's
+# added here.
+type1.m4a: input.wav
+	ffmpeg -i "$^"  -metadata creation_time='2024-02-05 10:11:12' "$@"
+
 # The following files are pretty huge compared to others so they aren't
 # included in the repository but can be generated here if needed.
 

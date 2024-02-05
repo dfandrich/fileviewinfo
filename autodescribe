@@ -1450,7 +1450,7 @@ for f in "$@" ; do
 				;;
 			*.mp3)	TYPE=mp3
 				;;
-			*.mp4)	TYPE=mp4
+			*.mp4 | *.m4a)	TYPE=mp4
 				;;
 			*.mscx)	TYPE=mscx
 				;;

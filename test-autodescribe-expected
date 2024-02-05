@@ -36,6 +36,7 @@
 'testfiles/type1.kra' 'Krita name'
 'testfiles/type1.lsm' 'LSM Title'
 'testfiles/type1.lzh' 'LZH comment in desc.sdi file'
+'testfiles/type1.m4a' 'Track Title'
 'testfiles/type1.man' 'fileviewinfotest - plain text man page name'
 'testfiles/type1.md' 'Markdown title'
 'testfiles/type1.metainfo.xml' 'Nonlocalized name, Nonlocalized summary'
