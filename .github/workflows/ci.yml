@@ -146,6 +146,8 @@ jobs:
       run: |
         mkdir -p "$PWD/tb"
         for i in $(/usr/bin/toybox); do ln -s /usr/bin/toybox "$PWD/tb/$i"; done
+        # Toybox file doesn't support decoding Microsoft compound documents
+        sed -i -e '/type[0-9]\.doc\>/d' test-autodescribe-expected test-automtime-expected
     - name: 'Run tests using Toybox'
       run: PATH="$PWD/tb:$PATH" make check -k
     - name: 'Prepare for dash filename tests'

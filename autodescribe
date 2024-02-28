@@ -434,6 +434,17 @@ comment_desktop () {
 	fi
 }
 
+# File type: doc (Microsoft composite document)
+# requires: file
+comment_doc () {
+	# This will truncate titles with commas, but there's no foolproof way
+	# to avoid it due to the simplistic output format used by file
+	COMMENT=$(file - < "$f" | sed -n -e 's@^.*Title: \+\([^,]*\).*$@\1@p')
+	if [ -z "$COMMENT" ] ; then
+		COMMENT=$(file - < "$f" | sed -n -e 's@^.*Subject: \+\([^,]*\).*$@\1@p')
+	fi
+}
+
 # File type: docx (Microsoft Office document)
 # requires: unzip, xmlstarlet
 comment_docx () {
@@ -1381,6 +1392,9 @@ for f in "$@" ; do
 			*.deb) TYPE=deb
 				;;
 			*.desktop)	TYPE=desktop
+				;;
+			*.doc | *.xls | *.ppt)
+				TYPE=doc
 				;;
 			*.docx | *.docm | *.pptx | *.xlsx)
 				TYPE=docx

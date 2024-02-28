@@ -249,6 +249,18 @@ mtime_docbook () {
 	TIME="$(normalize_time "$RAWTIME")"
 }
 
+# File type: doc (Microsoft composite document)
+# requires: file
+mtime_doc () {
+	RAWTIME=$(file - < "$f" | sed -n -e 's@^.*Last Saved Time/Date: \([^,]\+\)\>.*$@\1@p')
+	# First revision sometimes doesn't included Last Saved, so use Create then
+	if [ -z "$RAWTIME" ] ; then
+		RAWTIME=$(file - < "$f" | sed -n -e 's@^.*Create Time/Date: \([^,]\+\)\>.*$@\1@p')
+	fi
+	# $RAWTIME is like Tue Mar 23 12:34:56 2010
+	TIME="$(normalize_time "$RAWTIME")"
+}
+
 # File type: docx (Microsoft Office Open XML)
 # requires: unzip, xmlstarlet
 mtime_docx () {
@@ -970,6 +982,10 @@ for f in "$@" ; do
 			# Many DocBooks just use the .xml extension which is too generic
 			*.dbk)
 				TYPE=docbook
+				;;
+
+			*.doc | *.xls | *.ppt)
+				TYPE=doc
 				;;
 
 			*.docx | *.docm | *.xlsx | *.pptx)
