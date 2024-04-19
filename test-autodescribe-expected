@@ -34,6 +34,7 @@
 'testfiles/type1.jar' 'Jar Application Name'
 'testfiles/type1.jpg' 'JPEG comment'
 'testfiles/type1.kdenlive' 'Project Title'
+'testfiles/type1.kicad_sch' 'Schematic Title'
 'testfiles/type1.kra' 'Krita name'
 'testfiles/type1.lsm' 'LSM Title'
 'testfiles/type1.lzh' 'LZH comment in desc.sdi file'

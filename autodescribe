@@ -497,6 +497,11 @@ comment_ebook() {
 	fi
 }
 
+# File type: kicad (Kicad schematic)
+comment_kicad () {
+	COMMENT=$(sed -n -e '1,/(title_block/d' -e 's/^[[:space:]]*(title "\(.*\)")$/\1/p' -e '/^[[:space:]]*)$/,$d' < "$1")
+}
+
 # File type: kra (Krita image)
 # requires: unzip, xmlstarlet
 comment_kra () {
@@ -1517,6 +1522,8 @@ for f in "$@" ; do
 			*.py)	TYPE=py
 				;;
 			*.rss | *.atom)	TYPE=rss
+				;;
+			*.kicad_sch | *.kicad_pcb)	TYPE=kicad
 				;;
 			*.sla)	TYPE=sla
 				;;

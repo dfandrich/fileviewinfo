@@ -437,6 +437,13 @@ mtime_jpeg () {
 	TIME=$(echo "$RAWTIME" | sed -E -e 's/^([0-9][0-9][0-9][0-9]):([0-9][0-9]):/\1-\2-/')
 }
 
+# File type: kicad (Kicad schematic)
+mtime_kicad () {
+	RAWTIME=$(sed -n -e '1,/(title_block/d' -e 's/^[[:space:]]*(date "\(.*\)")$/\1/p' -e '/^[[:space:]]*)$/,$d' < "$1")
+	# $RAWTIME is like 2021-01-03
+	TIME=$(normalize_time "$RAWTIME")
+}
+
 # File type: kra (Krita image)
 # requires: unzip, xmlstarlet
 mtime_kra () {
@@ -1026,6 +1033,9 @@ for f in "$@" ; do
 
 			*.jpg | *.jpeg | *.jfif)
 				TYPE=jpeg
+				;;
+
+			*.kicad_sch | *.kicad_pcb)	TYPE=kicad
 				;;
 
 			*.kra)
