@@ -571,6 +571,7 @@ mtime_pdf () {
 
 # File type: png (PNG image)
 # requires: pngtools
+# TODO: some PNG files (e.g. written by GIMP) have a tIME chunk that could be used
 mtime_png () {
 	# "safe" filename guaranteed not to start with a dash
 	sf="$(safefn "$1")"
@@ -1196,7 +1197,7 @@ for f in "$@" ; do
 
 			*.zip | *.jar | *.xpi | *.par | *.wsz | *.wal | *.kmz | \
 			*.sxi | *.sxd | *.sxw | *.pk3 | *.ipg | *.nth | *.odt | \
-			*.ods | *.odp | *.odg | *.odf | \
+			*.ods | *.odp | *.odg | *.odf | *.oxt | \
 			*.otp | *.otg | *.ots | *.odb | *.odc | \
 			*.docx | *.epub | *.apk | *.apkm | *.war | *.xps | *.resource | \
 			*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf | \

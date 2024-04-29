@@ -670,6 +670,7 @@ EOF
 		# Also OpenDocument Presentation Template .otp
 		# Also OpenDocument Spreadsheet Template .ots
 		# Also OpenDocument Presentation Template .otp
+		# Also OpenDocument Extension .oxt
 		# Also Quake3 packed file .pk3
 		# Also Nokia mobile phone theme .nth
 		# Also Microsoft Office Open XML .docx

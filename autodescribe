@@ -1182,6 +1182,16 @@ comment_odf () {
 	COMMENT=$(unzip -pq "$sf" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:title 2>/dev/null)
 }
 
+# File type: oxt (Open Document Extension)
+# requires: unzip, xmlstarlet
+comment_oxt () {
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	# TODO: choose the appropriate language if more than one is available
+	# instead of just using the first one
+	COMMENT=$(unzip -pq "$sf" description.xml | xmlstarlet sel -N x=http://openoffice.org/extensions/description/2006 -t -v /x:description/x:display-name/x:name -nl | head -1)
+}
+
 # File type: py (Python source code)
 comment_py () {
 	# delete #!/bin/sh line and blank comment lines
@@ -1479,6 +1489,8 @@ for f in "$@" ; do
 			*.sxw | *.sxc | *.sxi | *.sxd | *.sxm)
 			# *.otf is left off because it's much more commonly a font file
 				TYPE=odf
+				;;
+			*.oxt) TYPE=oxt
 				;;
 			*.ogg) TYPE=ogg
 				;;
