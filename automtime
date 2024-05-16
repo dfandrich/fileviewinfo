@@ -817,14 +817,18 @@ mtime_wml () {
 # File type: xcf (Gimp image)
 # requires: gimp
 mtime_xcf () {
+	# "safe" filename with quoted double quotes
+	sf="$(echo "$1" | sed 's/"/\\"/g')"
 	# The mtime is considered to be the most recent stored event, which is
 	# generally a "save" event (which makes sense).
 	# gimp's Scheme interpreter displays some logging info before and after the
 	# desired output, so use sed to delete it to leave only XML.
-	METADATA=$(echo '((display "\nMETADATA-START\n") (let ((img (car (gimp-file-load 1 "'"$1"'" "file")))) (display (car (gimp-image-get-metadata img))) (gimp-image-delete img)) (gimp-quit TRUE))' | gimp -n -i -d -f -s -g /dev/null --stack-trace-mode=never -b -  2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
-	RAWTIME=$(echo "$METADATA" | xmlstarlet sel -t -v  "/metadata/tag[starts-with(@name, 'Xmp.xmpMM.History[') and contains(@name, '/stEvt:when')]" | sed 's/lang="x-default" *//' | sort -d | tail -1)
-	# $RAWTIME is like 2022-02-23T22:50:48-08:00
-	TIME="$(normalize_iso_time "$RAWTIME")"
+	METADATA=$(echo '((display "\nMETADATA-START\n") (let ((img (car (gimp-file-load RUN-NONINTERACTIVE "'"$sf"'" "file")))) (display (car (gimp-image-get-metadata img))) (gimp-image-delete img)) (gimp-quit TRUE))' | gimp -n -i -d -f -s -g /dev/null --stack-trace-mode=never -b -  2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
+	if [ -n "$METADATA" ]; then
+		RAWTIME=$(echo "$METADATA" | xmlstarlet sel -t -v  "/metadata/tag[starts-with(@name, 'Xmp.xmpMM.History[') and contains(@name, '/stEvt:when')]" | sed 's/lang="x-default" *//' | sort -d | tail -1)
+		# $RAWTIME is like 2022-02-23T22:50:48-08:00
+		TIME="$(normalize_iso_time "$RAWTIME")"
+	fi
 	if [ -z "$TIME" ]; then
 		# Gimp probably isn't installed; maybe exiftool is
 		mtime_xcf_exiftool "$1"
@@ -1180,7 +1184,7 @@ for f in "$@" ; do
 				TYPE=wml
 				;;
 
-			*.xcf)
+			*.xcf | *.xcf.gz | *.xcf.bz2 | *.xcf.xz | *.xcfgz | *.xcfbz2 | *.xcfxz)
 				TYPE=xcf
 				;;
 

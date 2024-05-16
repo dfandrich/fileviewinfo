@@ -1275,10 +1275,14 @@ comment_xbm () {
 # File type: xcf (Gimp image)
 # requires: gimp
 comment_xcf () {
+	# "safe" filename with quoted double quotes
+	sf="$(echo "$1" | sed 's/"/\\"/g')"
 	# gimp's Scheme interpreter displays some logging info before and after the
 	# desired output, so use sed to delete it to leave only XML.
-	METADATA=$(echo '((display "\nMETADATA-START\n") (let ((img (car (gimp-file-load 1 "'"$1"'" "file")))) (display (car (gimp-image-get-metadata img))) (gimp-image-delete img)) (gimp-quit TRUE))' | gimp -n -i -d -f -s -g /dev/null --stack-trace-mode=never -b -  2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
-	COMMENT=$(echo "$METADATA" | xmlstarlet sel -t -v  '/metadata/tag[@name="Xmp.dc.title"]' | sed 's/lang="x-default" *//')
+	METADATA=$(echo '((display "\nMETADATA-START\n") (let ((img (car (gimp-file-load RUN-NONINTERACTIVE "'"$sf"'" "file")))) (display (car (gimp-image-get-metadata img))) (gimp-image-delete img)) (gimp-quit TRUE))' | gimp -n -i -d -f -s -g /dev/null --stack-trace-mode=never -b -  2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
+	if [ -n "$METADATA" ]; then
+		COMMENT=$(echo "$METADATA" | xmlstarlet sel -t -v  '/metadata/tag[@name="Xmp.dc.title"]' | sed 's/lang="x-default" *//')
+	fi
 }
 
 # File type: xpm (X pixmap image)
@@ -1615,7 +1619,7 @@ for f in "$@" ; do
 			*.xbm)
 				TYPE=xbm
 				;;
-			*.xcf)
+			*.xcf | *.xcf.gz | *.xcf.bz2 | *.xcf.xz | *.xcfgz | *.xcfbz2 | *.xcfxz)
 				TYPE=xcf
 				;;
 			*.xhb)
