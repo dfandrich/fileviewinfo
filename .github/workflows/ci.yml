@@ -193,29 +193,29 @@ jobs:
         dar
         exif
         exiftool
-        ffmpeg-6
+        ffmpeg-7
         file
         flac
         ftdump
-        gawk
         gettext-tools
         gifsicle
         gimp
         id3lib-examples
-        java-21-openjdk-devel
+        java-22-openjdk-devel
         jq
         lhasa
         libjpeg-turbo
         lzop
         man
+        mawk
         mkisofs
         mkvtoolnix
         mtd-utils
         netpbm
-        python311-pefile
-        python311-pip
-        python311-PyICU
-        python311-vobject
+        python312-pefile
+        python312-pip
+        python312-PyICU
+        python312-vobject
         squashfs
         tiff
         unrar
@@ -228,9 +228,9 @@ jobs:
         zstd
         make groff busybox
     - name: 'Install contrib'
-    # nbase is only available in a contrib repo on OBS (as of 2023)
-    # nbase-tail and nbase-ls are completely broken in 9.1.0.2-8.39; don't
-    # install them
+    # nbase is only available in a contrib repo on OBS (as of 2024)
+    # nbase-tail and nbase-ls are completely broken in 9.1.0.2-8.39 and 9.3.0.1-55.13;
+    # don't install them
       run: |
         zypper --non-interactive addrepo https://download.opensuse.org/repositories/home:cheusov/openSUSE_Tumbleweed/home:cheusov.repo
         zypper --non-interactive --gpg-auto-import-keys refresh
@@ -247,7 +247,12 @@ jobs:
         379f44b1c95d25358eb014c03835a4b4991c6c364a509c63780e587e70d5744b  pngtools-0.4-9.mga9.x86_64.rpm
         EOF
         rpm -ivh lib64png12_0-1.2.59-3.mga9.x86_64.rpm pngtools-0.4-9.mga9.x86_64.rpm
+        # Make python 3.12 the default to test with the latest
+        rm /usr/bin/python3
+        ln -s python3.12 /usr/bin/python3
         python3 -m pip install --break-system-packages https://github.com/itkach/slob/archive/master.zip
+        # Set mawk as the default for test diversity
+        ln -s mawk /usr/bin/awk
     - name: 'Run tests'
       run: make check -k
     - name: 'Run tests with hush'
