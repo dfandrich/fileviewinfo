@@ -15,8 +15,8 @@ on:
       - master
 
 jobs:
-  build-22_04:
-    runs-on: ubuntu-22.04
+  build-24_04:
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
     - name: 'Install deps'
@@ -31,7 +31,6 @@ jobs:
         cpio
         dar
         exif
-        exiftool
         ffmpeg
         file
         flac
@@ -40,12 +39,13 @@ jobs:
         gettext
         gifsicle
         gimp
-        openjdk-18-jdk-headless
+        openjdk-21-jdk-headless
         jq
         lhasa
         liballegro4-dev
         libavifile-0.7-bin
         libid3-tools
+        libimage-exiftool-perl
         libjpeg-turbo-progs
         libtiff-tools
         lzop
@@ -65,7 +65,9 @@ jobs:
         quicktime-utils
         rar
         rpm
+        rust-coreutils
         squashfs-tools
+        unrar
         unzip
         vorbis-tools
         wireshark-common
@@ -73,30 +75,15 @@ jobs:
         zpaq
         make curl ca-certificates groff-base man2html-base bash busybox ksh toybox mmv yash zsh
     - name: 'Install extras'
-    # A few packages need newer versions to work properly, so install them
-    # separately.
+    # One package is no longer available in Ubuntu and must be installed manually
       run: |
         curl -LsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all \
-            http://azure.archive.ubuntu.com/ubuntu/pool/universe/l/lhasa/lhasa_0.4.0-1_amd64.deb \
-            http://azure.archive.ubuntu.com/ubuntu/pool/universe/l/lhasa/liblhasa0_0.4.0-1_amd64.deb \
-            http://azure.archive.ubuntu.com/ubuntu/pool/universe/p/pngtools/pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb \
-            http://azure.archive.ubuntu.com/ubuntu/pool/universe/n/netpbm-free/netpbm_11.01.00-2build1_amd64.deb \
-            http://azure.archive.ubuntu.com/ubuntu/pool/universe/n/netpbm-free/libnetpbm11_11.01.00-2build1_amd64.deb \
-            http://azure.archive.ubuntu.com/ubuntu/pool/universe/r/rust-coreutils/rust-coreutils_0.0.20-1_amd64.deb \
             http://azure.archive.ubuntu.com/ubuntu/pool/universe/z/zoo/zoo_2.10-28_amd64.deb
         sha256sum -c <<EOF
-        21f4edf6f7073b3f110d11c0a6a0d2fb399a21a4e807f524037027dce3c37798  lhasa_0.4.0-1_amd64.deb
-        0231c4875273b229aa8217064e64a280643b004a401fcb86f341e68a16bc495b  liblhasa0_0.4.0-1_amd64.deb
-        d690a886c1ff250ebca438d7fa64f0a6f9f56a1543c312b503ed3209a56efda3  libnetpbm11_11.01.00-2build1_amd64.deb
-        ee102926ef4289c0830092447d650a58a48a0d136cab268af52b55d81d6485ce  netpbm_11.01.00-2build1_amd64.deb
-        1c7490f01a64af135d6341b8e5a9ab2fc94dcfe99131882cef1e623739bfadc6  pngtools_0.5~git20220314.1ccca3a-2ubuntu1_amd64.deb
-        164db0e7af90ce9cf4174af674c38c52a3ce4b997894057580002ccff4f6f068  rust-coreutils_0.0.20-1_amd64.deb
         953f4f94095ef3813dfd30c8977475c834363aaabce15ab85ac5195e52fd816a  zoo_2.10-28_amd64.deb
         EOF
-        sudo dpkg -i lhasa*.deb liblhasa*.deb pngtools*.deb netpbm*.deb libnetpbm*.deb rust-coreutils*.deb zoo*.deb || true Ignore missing dependency errors--they are not needed for our tests
-        # unrar isn't installed in /usr/bin for some reason
-        sudo install -m0755 -D /usr/lib/unrar -t /usr/local/bin
-        python3 -m pip install https://github.com/itkach/slob/archive/master.zip
+        sudo dpkg -i zoo*.deb
+        python3 -m pip install --break-system-packages https://github.com/itkach/slob/archive/master.zip
     - name: 'Run tests'
       run: make check -k
     - name: 'Run tests with ash'
