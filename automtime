@@ -189,6 +189,13 @@ mtime_arj () {
 	TIME="$RAWTIME"
 }
 
+# File type: avif (AVIF image)
+# requires: exiftool
+mtime_avif () {
+	# Uses exiftool that works just as well for this format
+	mtime_heif "$@"
+}
+
 # File type: cab (Microsoft Cabinet archive)
 # requires: cabextract
 mtime_cab () {
@@ -346,6 +353,22 @@ EOF
 	TIME=$(normalize_time_tz "@$RAWTIME")
 }
 
+# File type: heif (High Efficiency Image Format)
+# requires: exiftool
+mtime_heif () {
+	# There are many possible fields that could be used as mtime. If a "modify"
+	# one exists, use that in preference to others by sorting. The odd sed
+	# replacement with AA and sort keys ensures that.
+	RAWTIME=$(LC_ALL=C exiftool -- "$1" | grep -E '^((Date/Time Original)|((Create|Modify) Date))' | sed 's@/@AA@' | sort -k1.6 | tail -1 | sed 's/^.*: //' )
+	# $RAWTIME is like 2022:03:14 23:52:52 or 2023:04:05 06:07:08.0900000333786011Z (the
+	# Z in the latter may be a bug)
+	TIME="$(echo $RAWTIME | sed -E -e 's/^((20|19|00)[0-9][0-9]):([01][0-9]):/\1-\3-/' -e 's/Z$//' )"
+	if [ -z "$(echo "$TIME" | sed 's/[-:0 ]//g' )" ]; then
+		# Don't return an empty time like "0000-00-00 00:00:00"
+		TIME=""
+	fi
+}
+
 # File type: ics (iCalendar file)
 mtime_ics () {
 	# The most recent date stamp or last-modified entry in the file is used
@@ -437,6 +460,13 @@ mtime_jpeg () {
 	TIME=$(echo "$RAWTIME" | sed -E -e 's/^([0-9][0-9][0-9][0-9]):([0-9][0-9]):/\1-\2-/')
 }
 
+# File type: jxl (JPEG XL)
+# requires: exiftool
+mtime_jxl () {
+	# Uses exiftool that works just as well for this format
+	mtime_heif "$@"
+}
+
 # File type: kicad (Kicad schematic)
 mtime_kicad () {
 	RAWTIME=$(sed -n -e '1,/(title_block/d' -e 's/^[[:space:]]*(date "\(.*\)")$/\1/p' -e '/^[[:space:]]*)$/,$d' < "$1")
@@ -485,7 +515,7 @@ mtime_appdata () {
 	# $RAWTIME is like 2021-10-11
 	TIME="$RAWTIME"
 }
-#
+
 # File type: mkv (Matroska video)
 # requires: exiftool
 mtime_mkv () {
@@ -499,12 +529,12 @@ mtime_mov () {
 	# There are many possible fields that could be used as mtime. If a "modify"
 	# one exists, use that in preference to others by sorting. The odd sed
 	# replacement with AA and sort keys ensures that.
-	RAWTIME=$(LC_ALL=C exiftool -- "$1" | grep -E '^(Date/Time Original)|(Creation Date)|(Track (Create|Modify) Date)|(Media (Create|Modify) Date)' | sed 's@/@AA@' | sort -k1.6 | tail -1 | sed 's/^.*: //' )
+	RAWTIME=$(LC_ALL=C exiftool -- "$1" | grep -E '^((Date/Time Original)|(Creation Date)|(Track (Create|Modify) Date)|(Media (Create|Modify) Date))' | sed 's@/@AA@' | sort -k1.6 | tail -1 | sed 's/^.*: //' )
 	# $RAWTIME is like 2022:03:14 23:52:52 or 2023:04:05 06:07:08.0900000333786011Z (the
 	# Z in the latter may be a bug)
 	TIME="$(echo $RAWTIME | sed -E -e 's/^((20|19|00)[0-9][0-9]):([01][0-9]):/\1-\3-/' -e 's/Z$//' )"
-	if [ "$TIME" = "0000-00-00 00:00:00" ]; then
-		# Don't return an empty time
+	if [ -z "$(echo "$TIME" | sed 's/[-:0 ]//g' )" ]; then
+		# Don't return an empty time like "0000-00-00 00:00:00"
 		TIME=""
 	fi
 }
@@ -806,6 +836,13 @@ mtime_warcgz () {
 	TIME=$(normalize_iso_time "$RAWTIME")
 }
 
+# File type: webp (WEBP image)
+# requires: exiftool
+mtime_webp () {
+	# Uses exiftool that works just as well for this format
+	mtime_heif "$@"
+}
+
 # File type: wml (Wireless Markup Language)
 # requires: xmlstarlet
 mtime_wml () {
@@ -973,6 +1010,10 @@ for f in "$@" ; do
 				TYPE=arj
 				;;
 
+			*.avif)
+				TYPE=avif
+				;;
+
 			*.cab | *.msi | *.onepkg)
 				TYPE=cab
 				;;
@@ -1024,6 +1065,10 @@ for f in "$@" ; do
 				TYPE=gpx
 				;;
 
+			*.heif | *.heic)
+				TYPE=heif
+				;;
+
 			*.ics)
 				TYPE=ics
 				;;
@@ -1038,6 +1083,10 @@ for f in "$@" ; do
 
 			*.jpg | *.jpeg | *.jfif)
 				TYPE=jpeg
+				;;
+
+			*.jxl)
+				TYPE=jxl
 				;;
 
 			*.kicad_sch | *.kicad_pcb)	TYPE=kicad
@@ -1178,6 +1227,10 @@ for f in "$@" ; do
 
 			*.warc.gz)
 				TYPE=warcgz
+				;;
+
+			*.webp)
+				TYPE=webp
 				;;
 
 			*.wml)
