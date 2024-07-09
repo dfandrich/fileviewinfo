@@ -331,12 +331,6 @@ for f in "$@" ; do
 			lha -v "$sf" 2>/dev/null || lhasa v - < "$f"
 			;;
 
-		# See https://www.lzop.org/
-		# requires: lzop
-		*.lzo)	archive_label LZOP compressed file
-			lzop -vl -- "$f"
-			;;
-
 		# (Is .mac the most common suffix for MacBinary files?)
 		# requires: macutils
 		*.mac)	archive_label Macintosh MacBinary encoding
@@ -510,7 +504,7 @@ EOF
 		# requires: tar, gzip
 		*.nif | *.epk | *.qpk | *.qpr | *.depot.gz | *.fpm | *.rub | \
 		*.kpr | *.chrt | *.kfo | *.flw | *.kil | *.ksp | *.kwd | \
-		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz) 
+		*.tar.z | *.tar.Z | *.tar.gz | *.tgz | *.taz | *.taZ)
 			archive_label gzip-compressed tar archive
 			gzip -dc -- "$f" | tar tvf -
 			;;
@@ -522,9 +516,16 @@ EOF
 			lzip -dc -- "$f" | tar tvf -
 			;;
 
+		# lzo-compressed tar archive .tar.lzop
+		# requires: tar, lzop
+		*.tar.lzo)
+			archive_label lzop-compressed tar archive
+			lzop -dc -- "$f" | tar tvf -
+			;;
+
 		# zstd-compressed tar archive .tar.zst
 		# requires: tar, zstd
-		*.tar.zst)
+		*.tar.zst | *.tzst)
 			archive_label zstd-compressed tar archive
 			zstd -dc -- "$f" | tar tvf -
 			;;
@@ -541,7 +542,7 @@ EOF
 		# Also Stampede Linux package .slp
 		# requires: tar, bzip2
 		*.slp | \
-		*.tar.bz2 | *.tbz | *.tbz2) archive_label bzip2-compressed tar archive
+		*.tar.bz2 | *.tbz | *.tbz2 | *.tz2) archive_label bzip2-compressed tar archive
 			bzip2 -dc -- "$f" | tar tvf -
 			;;
 
@@ -717,6 +718,12 @@ EOF
 		# requires: lzip
 		*.lz)	archive_label LZIP compressed file
 			lzip -lv -- "$f"
+			;;
+
+		# See https://www.lzop.org/
+		# requires: lzop
+		*.lzo)	archive_label LZOP compressed file
+			lzop -vl -- "$f"
 			;;
 
 		# See https://www.7-zip.org/sdk.html
