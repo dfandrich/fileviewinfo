@@ -458,6 +458,11 @@ for f in "$@" ; do
 			openssl crl2pkcs7 -nocrl -certfile "$f" | openssl pkcs7 -print_certs -text -noout || keytool -printcert -v -file "$f"
 			;;
 
+		# requires: pacman
+		*.pkg.tar.xz)	filetype_label Pacman package
+			pacman -Qip "$sf"
+			;;
+
 		# requires: pngtools
 		*.png)	filetype_label Portable Network Graphics image
 			pnginfo "$sf"

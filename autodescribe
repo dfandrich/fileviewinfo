@@ -570,6 +570,12 @@ comment_pctmpl () {
 	fi
 }
 
+# File type: pacman (Pacman package)
+# requires: tar, xz
+comment_pacman () {
+	COMMENT=$(xz -dc < "$1" | tar -xOf - .PKGINFO | sed -n -e 's/^pkgname = //p' -e 's/^pkgdesc = /, /p' | tr -d '\n')
+}
+
 # File type: pdf (Portable Document Format)
 # requires: poppler
 comment_pdf () {
@@ -1530,6 +1536,8 @@ for f in "$@" ; do
 			*.sh)	TYPE=sh
 				;;
 			*.pdf)	TYPE=pdf
+				;;
+			*.pkg.tar.xz)	TYPE=pacman
 				;;
 			*.png)	TYPE=png
 				;;
