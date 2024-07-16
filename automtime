@@ -17,25 +17,16 @@ shquote () {
 # like:
 #   2012-01-23 10:09:08.901234
 # Note that not all date programs support all dates that might be passed in.
-# Busybox date, for example, only supports a small number of numeric-only date
-# formats while GNU date supports them all. OS X & BSD date forces the caller
-# to specify the date format being given, and uses different arguments.
+# GNU date supports them all but Busybox date, for example, only supports a
+# small number of numeric-only date formats. OS X & BSD date force the caller
+# to specify the date format being given, and use different arguments.
 # Solaris date doesn't parse arbitrary dates at all.
 # The Python fallback code is tried if the regular date returns an error, and,
 # while it isn't as powerful as GNU date, it does a decent job (but only if
 # the external dateutil and pytz modules are available).
 normalize_time () {
-	test -z "$1" -o "$1" = "@" -o "$1" = "@0" && return
-	date --date="$1" '+%04Y-%m-%d %H:%M:%S' 2>/dev/null || {
-		python3 -c '
-import datetime, dateutil.parser, sys
-if sys.argv[1][0] == "@":
-	d = datetime.datetime.fromtimestamp(int(sys.argv[1][1:]))
-else:
-	d = dateutil.parser.parse(sys.argv[1])
-print(d.astimezone().strftime("%Y-%m-%d %H:%M:%S"))
-	' "$1"
-	}
+	test -z "$1" -o "$1" = "@" -o "$1" = "@0" -o "$1" = "@0.0" && return
+	date --date="$1" '+%04Y-%m-%d %H:%M:%S' 2>/dev/null || { python3 -c 'import datetime, dateutil.parser, sys; print((datetime.datetime.fromtimestamp(float(sys.argv[1][1:])) if sys.argv[1][0] == "@" else dateutil.parser.parse(sys.argv[1])).astimezone().strftime("%Y-%m-%d %H:%M:%S"))' "$1"; }
 }
 
 # Use the time program to normalize an input time with time zone (or at least
@@ -46,13 +37,13 @@ print(d.astimezone().strftime("%Y-%m-%d %H:%M:%S"))
 # returns the time offset for the current time zone.  The Python fallback code
 # actually does the right thing here.
 normalize_time_tz () {
-	test -z "$1" -o "$1" = "@" -o "$1" = "@0" && return
+	test -z "$1" -o "$1" = "@" -o "$1" = "@0" -o "$1" = "@0.0" && return
 	date --date="$1" '+%04Y-%m-%d %H:%M:%S %z' 2>/dev/null || {
 		python3 -c '
 import datetime, dateutil.parser, pytz, sys
 if sys.argv[1][0] == "@":
 	localtz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
-	d = datetime.datetime.fromtimestamp(int(sys.argv[1][1:]), tz=localtz)
+	d = datetime.datetime.fromtimestamp(float(sys.argv[1][1:]), tz=localtz)
 else:
 	pyz = {x:pytz.timezone(x) for x in pytz.all_timezones}
 	rfc822z = {abbr:pyz[f"Etc/GMT{-off:+}"] for abbr,off in {
@@ -66,16 +57,8 @@ print(d.strftime("%Y-%m-%d %H:%M:%S %z").rstrip())
 
 # Works like normalize_time but returns the given time as seconds past 1970.
 epoch_time () {
-	test -z "$1" -o "$1" = "@" -o "$1" = "@0" && return
-	date --date="$1" '+%s' 2>/dev/null || {
-		python3 -c '
-import dateutil.parser, sys
-if sys.argv[1][0] == "@":
-	print(sys.argv[1][1:])
-else:
-	print(int(dateutil.parser.parse(sys.argv[1]).timestamp()))
-' "$1"
-	}
+	test -z "$1" -o "$1" = "@" -o "$1" = "@0" -o "$1" = "@0.0" && return
+	date --date="$1" '+%s' 2>/dev/null || { python3 -c 'import dateutil.parser, sys; print(sys.argv[1][1:] if sys.argv[1][0] == "@" else float(dateutil.parser.parse(sys.argv[1]).timestamp()))' "$1"; }
 }
 
 # Use the time program to normalize a ISO 8601 input time into the
