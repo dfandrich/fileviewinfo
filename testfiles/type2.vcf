@@ -1,0 +1,10 @@
+BEGIN:VCARD
+VERSION:3.0
+EMAIL;TYPE:mail@example.com
+FN:Fullname
+N:ZeroRev;;;;
+ORG:Organization
+UID:5a535529-fd93-4448-bae3-bde1ee3ff695
+X-KADDRESSBOOK-X-Profession:Professional Test Services
+REV:0
+END:VCARD

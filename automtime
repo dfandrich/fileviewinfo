@@ -811,6 +811,15 @@ mtime_vbox () {
 	TIME=$(normalize_iso_time "$RAWTIME")
 }
 
+# File type: vcf (vCard contact)
+mtime_vcf () {
+	RAWTIME=$(sed -E -n -e 's/^REV:([^()]*)(\(.*\))?$/\1/p' <"$1" | sort | tail -1)
+	# $RAWTIME is like 2017-05-10T14:34:50Z
+	if [ -n "$RAWTIME" -a "$RAWTIME" != "0" ]; then
+		TIME=$(normalize_iso_time "$RAWTIME")
+	fi
+}
+
 # File type: warcgz (Compressed Web Archive Collection file)
 mtime_warcgz () {
 	# Look for the WARC-Date: lines only within the WARC header sections
@@ -1206,6 +1215,10 @@ for f in "$@" ; do
 
 			*.vbox)
 				TYPE=vbox
+				;;
+
+			*.vcf)
+				TYPE=vcf
 				;;
 
 			*.warc.gz)
