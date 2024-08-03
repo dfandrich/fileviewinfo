@@ -572,6 +572,7 @@ comment_pctmpl () {
 
 # File type: pacman (Pacman package)
 # requires: tar, xz
+# TODO: these packages can be compressed with gzip, bzip2 and zstd as well
 comment_pacman () {
 	COMMENT=$(xz -dc < "$1" | tar -xOf - .PKGINFO | sed -n -e 's/^pkgname = //p' -e 's/^pkgdesc = /, /p' | tr -d '\n')
 }

@@ -459,7 +459,8 @@ for f in "$@" ; do
 			;;
 
 		# requires: pacman
-		*.pkg.tar.xz)	filetype_label Pacman package
+		*.pkg.tar | *.pkg.tar.xz | *.pkg.tar.zst | *.pkg.tar.bz2 | \
+		*.pkg.tar.gz)	filetype_label Pacman package
 			pacman -Qip "$sf"
 			;;
 
