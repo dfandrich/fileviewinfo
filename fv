@@ -358,6 +358,11 @@ for f in "$@" ; do
 			par2ls "$sf"
 			;;
 
+		# requires: pilot-link
+		*.pdb | *.prc) filetype_label Palm Pilot file
+			pilot-file -Hasl -- "$f"
+			;;
+
 		# requires: poppler
 		*.pdf) archive_label Portable Document Format document
 			pdfimages -list -- "$f"

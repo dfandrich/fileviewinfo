@@ -573,6 +573,14 @@ mtime_pcap () {
 	TIME="$RAWTIME"
 }
 
+# File type: palm (Palm Pilot file)
+# requires: pilot-tools
+mtime_palm () {
+	RAWTIME=$(pilot-file -H -- "$1" | sed -n -e 's/^modified_time\.: *//p')
+	# $RAWTIME is like 2008-07-07 08:40:50
+	TIME=$(normalize_time "$RAWTIME")
+}
+
 # File type: pdf (Portable Document Format)
 # requires: poppler
 mtime_pdf () {
@@ -1131,6 +1139,9 @@ for f in "$@" ; do
 			*.pcap | *.pcapng | *.5vw | *.erf | *.trc0 | *.cap | *.tr1 | *.snoop | *.ncf | *.ncfx | *.bfr | \
 			*.pcap.gz | *.pcapng.gz | *.5vw.gz | *.erf.gz | *.trc0.gz | *.cap.gz | *.tr1.gz | *.snoop.gz | *.ncf.gz | *.ncfx.gz | *.bfr.gz)
 				TYPE=pcap
+				;;
+
+			*.pdb | *.prc) TYPE=palm
 				;;
 
 			*.pdf)

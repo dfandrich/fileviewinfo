@@ -446,6 +446,11 @@ for f in "$@" ; do
 			capinfos -- "$f"
 			;;
 
+		# requires: pilot-link
+		*.pdb | *.prc) filetype_label Palm Pilot file
+			pilot-file -Ha -- "$f"
+			;;
+
 		# requires: xpdf
 		*.pdf)	filetype_label Portable Document Format document
 			pdfinfo -- "$f"

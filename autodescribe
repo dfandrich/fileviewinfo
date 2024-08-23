@@ -1157,6 +1157,12 @@ comment_pcap () {
 	COMMENT=$(capinfos -- "$1" | sed -n -e 's/^Capture comment: *//p')
 }
 
+# File type: palm (Palm Pilot file)
+# requires: pilot-tools
+comment_palm () {
+	COMMENT=$(pilot-file -H -- "$1" | sed -n -e 's/^Name\.*: *//p')
+}
+
 # File type: sh (shell script)
 comment_sh () {
 	# delete #!/bin/sh line and blank comment lines
@@ -1523,8 +1529,9 @@ for f in "$@" ; do
 				;;
 			*.pcap | *.pcapng) TYPE=pcap
 				;;
-			*.pfa | *.gsf)
-				TYPE=psfont
+			*.pdb | *.prc) TYPE=palm
+				;;
+			*.pfa | *.gsf) TYPE=psfont
 				;;
 			*.plist)
 				TYPE=plist
