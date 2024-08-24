@@ -443,6 +443,14 @@ mtime_jpeg () {
 	TIME=$(echo "$RAWTIME" | sed -E -e 's/^([0-9][0-9][0-9][0-9]):([0-9][0-9]):/\1-\2-/')
 }
 
+# File type: journal (journald log file)
+# requires: systemd
+mtime_journal () {
+	RAWTIME=$(journalctl -e -o export --output-fields=__REALTIME_TIMESTAMP --file "$f" | grep ^__REALTIME_TIMESTAMP= | tail -1 | sed -E 's/^.*=([0-9]{10})(.*)$/\1.\2/')
+	# $RAWTIME is like 1234567890.123456
+	TIME=$(normalize_time_tz "@$RAWTIME")
+}
+
 # File type: jxl (JPEG XL)
 # requires: exiftool
 mtime_jxl () {
@@ -1085,6 +1093,10 @@ for f in "$@" ; do
 
 			*.jpg | *.jpeg | *.jfif)
 				TYPE=jpeg
+				;;
+
+			*.journal)
+				TYPE=journal
 				;;
 
 			*.jxl)

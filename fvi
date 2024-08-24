@@ -372,6 +372,11 @@ for f in "$@" ; do
 			unzip -pqaa "$sf" META-INF/MANIFEST.MF | sed  '/^$/,$d'
 			;;
 
+		# requires: system
+		*.journal) filetype_label journald log file
+			journalctl --header --file "$f"
+			;;
+
 		# requires: jhead || exiv2 || exif
 		*.jpg | *.jpeg | *.jfif)	filetype_label JPEG image
 			jhead "$sf" || exiv2 pr "$sf" || exif -- "$f"
