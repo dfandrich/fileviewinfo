@@ -446,9 +446,9 @@ mtime_jpeg () {
 # File type: journal (journald log file)
 # requires: systemd
 mtime_journal () {
-	RAWTIME=$(journalctl -e -o export --output-fields=__REALTIME_TIMESTAMP --file "$f" | grep ^__REALTIME_TIMESTAMP= | tail -1 | sed -E 's/^.*=([0-9]{10})(.*)$/\1.\2/')
-	# $RAWTIME is like 1234567890.123456
-	TIME=$(normalize_time_tz "@$RAWTIME")
+	RAWTIME=$(TZ=UTC journalctl --header --file "$f" | sed -E -n 's/Tail realtime timestamp: (.*) \(.*\)$/\1/p')
+	# $RAWTIME is like Sat 2024-08-24 14:33:29 UTC
+	TIME=$(normalize_time_tz "$RAWTIME")
 }
 
 # File type: jxl (JPEG XL)
