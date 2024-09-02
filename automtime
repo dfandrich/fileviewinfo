@@ -1280,7 +1280,7 @@ for f in "$@" ; do
 			*.docx | *.epub | *.apk | *.apkm | *.war | *.xps | *.resource | \
 			*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf | \
 			*.sb2 | *.sb3 | *.ora | *.tc | *.wfp | *.wacz | \
-			*.pisi | *.pup)
+			*.pisi | *.pup | *.mscz)
 				TYPE=zip
 				;;
 
