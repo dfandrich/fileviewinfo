@@ -29,7 +29,7 @@ drop_useless_comment () {
 		return
 	fi
 	# Strip uninteresting characters before comparison
-	BARE=$(echo "$1" | tr -d '.:=-' | trimspace)
+	BARE=$(echo "$1" | tr -d '.:=\000-' | trimspace)
 	if echo "$BARE" | grep -Ei '^(about|background|contents|description|example|general information|install|installation|instructions|intro|introduction|module|name|overview|project|readme|readme\.txt|status|summary|synopsis|This is a Bazaar control directory|todo|tools|usage|usage guide)$' >/dev/null; then
 		return
 	fi
