@@ -235,8 +235,7 @@ jobs:
         zypper --non-interactive addrepo https://download.opensuse.org/repositories/home:cheusov/openSUSE_Tumbleweed/home:cheusov.repo
         zypper --non-interactive addrepo https://download.opensuse.org/repositories/devel:languages:misc/openSUSE_Tumbleweed/devel:languages:misc.repo
         zypper --non-interactive --gpg-auto-import-keys refresh
-        zypper --non-interactive --xmlout search --case-sensitive nbase- | xmlstarlet sel -t -v "/stream/search-result/solvable-list/solvable[not(contains(@name,'debuginfo') or contains(@name,'-tail') or contains(@name,'-ls'))]/@name" -nl | xargs zypper --non-interactive in --no-recommends -y
-        zypper --non-interactive in --no-recommends -y gash
+        zypper --non-interactive --xmlout search --case-sensitive nbase- | xmlstarlet sel -t -v "/stream/search-result/solvable-list/solvable[not(contains(@name,'debuginfo') or contains(@name,'-tail') or contains(@name,'-ls'))]/@name" -nl | xargs zypper --non-interactive in --no-recommends -y gash
     - name: 'Install extras'
     # A few file types need packages unavailable in OpenSuSE, so install some
     # binaries from elsewhere.
