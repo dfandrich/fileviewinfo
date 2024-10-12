@@ -626,10 +626,10 @@ comment_rss () {
 # File type: subject (news article or mail file)
 # File type: patch (git format-patch)
 comment_subject () {
-	COMMENT=$(sed -n 's/^Subject: *//ip' < "$1" | head -1)
+	COMMENT=$(sed -n 's/^Subject: *//ip' < "$1" | head -1 | trimspace)
 	if [ -z "$COMMENT" ] ; then
         # Try for an alternate comment
-		COMMENT=$(sed -n 's/^Content-Description: *//ip' < "$1" | head -1)
+		COMMENT=$(sed -n 's/^Content-Description: *//ip' < "$1" | head -1 | trimspace)
 	fi
 }
 
@@ -1481,7 +1481,7 @@ for f in "$@" ; do
 				;;
 			*.man)	TYPE=mantxt
 				;;
-			*.mbox | *.mbx | *.mbo | *.nws | *.msg | *.patch | *.diff)
+			*.mbox | *.mbx | *.mbo | *.nws | *.msg | *.eml | *.patch | *.diff)
 				TYPE=subject
 				;;
 			*.md | *.mkd | *.mkdn | *.mdwn | *.mdown | *.markdown)

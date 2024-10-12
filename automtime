@@ -1118,7 +1118,7 @@ for f in "$@" ; do
 				TYPE=lzo
 				;;
 
-			*.mbox | *.mbx | *.mbo | *.nws | *.msg)
+			*.mbox | *.mbx | *.mbo | *.nws | *.msg | *.eml)
 				TYPE=email
 				;;
 
