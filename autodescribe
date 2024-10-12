@@ -1404,7 +1404,7 @@ for f in "$@" ; do
 				;;
 			*.aup) TYPE=aup
 				;;
-			*.avi) TYPE=avi
+			*.avi | *.wmv) TYPE=avi
 				;;
 			*.c | *.h)
 				TYPE=c
