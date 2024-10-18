@@ -510,6 +510,12 @@ comment_kra () {
 	COMMENT=$(unzip -pq "$sf" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:title 2>/dev/null )
 }
 
+# File type: kvtml (kwordquiz flash card file)
+# requires: xmlstarlet
+comment_kvtml () {
+	COMMENT=$(xmlstarlet sel -t -v '/kvtml/information/title' < "$1" 2>/dev/null)
+}
+
 # File type: lsm (Linux Software Map)
 comment_lsm () {
 	# Title can probably be multiline, but we don't bother
@@ -1470,6 +1476,9 @@ for f in "$@" ; do
 				;;
 			*.kra)
 				TYPE=kra
+				;;
+			*.kvtml)
+				TYPE=kvtml
 				;;
 			*.lsm)
 				TYPE=lsm
