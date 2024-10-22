@@ -73,6 +73,7 @@ jobs:
         wireshark-common
         xmlstarlet
         zpaq
+        zstd
         make curl ca-certificates groff-base man2html-base bash busybox ksh toybox mmv yash zsh
     - name: 'Install extras'
     # One package is no longer available in Ubuntu and must be installed manually
