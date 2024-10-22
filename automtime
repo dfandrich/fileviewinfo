@@ -1156,7 +1156,7 @@ for f in "$@" ; do
 			*.pdb | *.prc) TYPE=palm
 				;;
 
-			*.pdf)
+			*.pdf | *.ai)
 				TYPE=pdf
 				;;
 

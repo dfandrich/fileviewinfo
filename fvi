@@ -457,7 +457,7 @@ for f in "$@" ; do
 			;;
 
 		# requires: xpdf
-		*.pdf)	filetype_label Portable Document Format document
+		*.pdf | *.ai)	filetype_label Portable Document Format document
 			pdfinfo -- "$f"
 			;;
 

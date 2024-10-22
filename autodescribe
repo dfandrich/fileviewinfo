@@ -1552,7 +1552,7 @@ for f in "$@" ; do
 				;;
 			*.sh)	TYPE=sh
 				;;
-			*.pdf)	TYPE=pdf
+			*.pdf | *.ai)	TYPE=pdf
 				;;
 			*.pkg.tar.xz)	TYPE=pacman
 				;;
