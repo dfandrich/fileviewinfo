@@ -73,7 +73,8 @@ jobs:
         wireshark-common
         xmlstarlet
         zpaq
-        make curl ca-certificates groff-base man2html-base bash busybox ksh toybox mmv yash zsh
+        zstd
+        make curl ca-certificates groff-base man2html-base bash busybox ksh toybox mmv mksh yash zsh
     - name: 'Install extras'
     # One package is no longer available in Ubuntu and must be installed manually
       run: |
@@ -94,6 +95,8 @@ jobs:
       run: make check -k SHELL=dash
     - name: 'Run tests with ksh'
       run: make check -k SHELL=ksh
+    - name: 'Run tests with mksh'
+      run: make check -k SHELL=mksh
     - name: 'Run tests with yash'
       run: make check -k SHELL=yash
     - name: 'Run tests with zsh'
