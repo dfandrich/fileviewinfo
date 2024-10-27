@@ -93,7 +93,7 @@ get_comment_compressed_tar () {
 	# wildcards cannot be used to extract files because the extraction order is
 	# the order encountered in the file, not the order specified.
 	$DECOMPRESS "$1" | tar -tf - | \
-		grep -E '(\.man|\.[0-9]|\.lsm|\.appdata\.xml|\.metainfo\.xml|\.desktop|configure\.ac|README\.(adoc|md|rst|txt)|Readme\.(adoc|md|rst|txt)|ReadMe\.(adoc|md|rst|txt)|readme\.(adoc|md|rst|txt)|README|Readme|ReadMe|readme|\.texi|\.texinfo|CMakeLists\.txt|\.pc|\.pc\.in|\<file_id\.diz)$' | \
+		grep -E '(\.man|\.[0-9]|\.lsm|\.appdata\.xml|\.metainfo\.xml|\.desktop|configure\.ac|README\.(adoc|md|rst|txt)|Readme\.(adoc|md|rst|txt)|ReadMe\.(adoc|md|rst|txt)|readme\.(adoc|md|rst|txt)|README|Readme|ReadMe|readme|\.texi|\.texinfo|pyproject.toml|CMakeLists\.txt|\.pc|\.pc\.in|\<file_id\.diz)$' | \
 		awk 'BEGIN {FS="/"} {doc=!!match($0, "/(([Dd]oc)|[Mm]an|[Ii]nfo)"); dot=!!index($0, "/."); print split($0, a)*2-doc+2*dot "\t" $0;}' | \
 	sort -n | \
 	cut -f2- | \
@@ -143,6 +143,13 @@ get_comment_compressed_tar () {
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
 			comment_first_line "$TMPFILE2"
+		fi
+
+		# pyproject.toml
+		MATCHNAME=$(grep 'pyproject\.toml$' < "$TMPFILE" | head -1)
+		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" > "$TMPFILE2"
+			comment_pyproject "$TMPFILE2"
 		fi
 
 		# man page
