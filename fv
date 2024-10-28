@@ -177,6 +177,12 @@ for f in "$@" ; do
 			unarj l "$f" || arj l -- "$f"
 			;;
 
+		# See https://crates.io/crates/blend_info
+		# requires: blend_info
+		*.blend)	archive_label Blender file
+			blend_info -- "$f"
+			;;
+
 		# See http://www.star.le.ac.uk/~tjg/bun/ (defunct as of 2021)
 		# requires: bun
 		# (Untested)
