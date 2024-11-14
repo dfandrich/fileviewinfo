@@ -808,6 +808,14 @@ mtime_gpx () {
 	TIME=$(normalize_iso_time "$RAWTIME")
 }
 
+# File type: har (HTTP Archive Format file)
+# requires: jq
+mtime_har () {
+	RAWTIME=$(jq -r '.log.pages[].startedDateTime,.log.entries[].startedDateTime' < "$1" | sort -u | tail -1)
+	# $RAWTIME is like 2024-11-13T22:54:37.006-05:00
+	TIME=$(normalize_iso_time "$RAWTIME")
+}
+
 # File type: ipk (Itsy package)
 # See http://www.handhelds.org/ (defunct as of 2021)
 # requires: binutils, file, grep, gzip, tar
@@ -1073,6 +1081,10 @@ for f in "$@" ; do
 
 			*.gpx)
 				TYPE=gpx
+				;;
+
+			*.har)
+				TYPE=har
 				;;
 
 			*.heif | *.heic)
