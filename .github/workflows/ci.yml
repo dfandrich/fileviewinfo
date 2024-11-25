@@ -215,10 +215,10 @@ jobs:
         mkvtoolnix
         mtd-utils
         netpbm
-        python312-pefile
-        python312-pip
-        python312-PyICU
-        python312-vobject
+        python313-pefile
+        python313-pip
+        python313-PyICU
+        python313-vobject
         squashfs
         tiff
         unrar
@@ -251,9 +251,9 @@ jobs:
         379f44b1c95d25358eb014c03835a4b4991c6c364a509c63780e587e70d5744b  pngtools-0.4-9.mga9.x86_64.rpm
         EOF
         rpm -ivh lib64png12_0-1.2.59-3.mga9.x86_64.rpm pngtools-0.4-9.mga9.x86_64.rpm
-        # Make python 3.12 the default to test with the latest
+        # Make python 3.13 the default to test with the latest
         rm /usr/bin/python3
-        ln -s python3.12 /usr/bin/python3
+        ln -s python3.13 /usr/bin/python3
         python3 -m pip install --break-system-packages https://github.com/itkach/slob/archive/master.zip
         # Set mawk as the default for test diversity
         ln -s mawk /usr/bin/awk
