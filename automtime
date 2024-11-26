@@ -198,7 +198,7 @@ mtime_cab () {
 # easy to parse.
 mtime_cpio () {
 	# The mtime is considered to be the latest file time in the archive.
-	RAWTIME=$(busybox cpio -itv <"$1" | awk '{print $4 " " $5}' | sort -d | tail -1)
+	RAWTIME=$(busybox cpio -itv <"$1" 2>/dev/null | awk '{print $4 " " $5}' | sort -d | tail -1)
 	# $RAWTIME is like 21-10-13 01:34:12
 	# The time is stored absolute, but is displayed in the local time zone
 	TIME="$RAWTIME"
