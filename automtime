@@ -1146,7 +1146,7 @@ for f in "$@" ; do
 				TYPE=mkv
 				;;
 
-			*.mov | *.mp4 | *.m4a)
+			*.mov | *.mp4 | *.m4a | *.mts)
 				TYPE=mov
 				;;
 
