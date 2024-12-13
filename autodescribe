@@ -850,6 +850,10 @@ comment_apk () {
 			# Try again with English
 			L=en
 			COMMENT=$(aapt  d badging "$1" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
+			if [ -z "$COMMENT" ]; then
+				# Try again with ANY label, regardless of the locale
+				COMMENT=$(aapt  d badging "$1" | grep "^application-label-" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
+			fi
 		fi
 	fi
 }
