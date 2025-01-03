@@ -304,6 +304,12 @@ comment_tzst () {
 	get_comment_compressed_tar "$1" 'zstd -dc --'
 }
 
+# File type: tar (tar archive)
+# Comments are taken from embedded files.
+# requires: tar, man-db, xmlstarlet
+comment_tar () {
+	get_comment_compressed_tar "$1" 'cat --'
+}
 
 # File type: lzh (lzh/lha archive with desc.sdi comment)
 # requires: lha || lhasa
@@ -1590,6 +1596,8 @@ for f in "$@" ; do
 			*.svg)	TYPE=svg
 				;;
 			*.svgz)	TYPE=svgz
+				;;
+			*.tar) TYPE=tar
 				;;
 			*.tar.bz2 | *.tbz | *.tbz2)
 				TYPE=tbz2
