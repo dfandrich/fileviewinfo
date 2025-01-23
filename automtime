@@ -679,6 +679,15 @@ mtime_slob () {
 	TIME=$(normalize_time_tz "$RAWTIME")
 }
 
+# File type: spdx (Software Package Data Exchange)
+# See https://spdx.dev/
+mtime_spdx () {
+	# This works for SPDX 2.X but may not for SPDX 3.X (once it's finalized)
+	RAWTIME=$(sed -n 's/^Created: *//p' < "$1" | head -1)
+	# $RAWTIME is like 2025-01-23T22:14:27Z
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
 # File type: squashfs (Squashfs filesystem image)
 # requires: squashfs-tools
 mtime_squashfs () {
@@ -1202,6 +1211,10 @@ for f in "$@" ; do
 
 			*.slob)
 				TYPE=slob
+				;;
+
+			*.spdx)
+				TYPE=spdx
 				;;
 
 			*.sqsh | *.squashfs | *.sqfs | *.snap)
