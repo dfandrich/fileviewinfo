@@ -695,20 +695,21 @@ comment_stl () {
 # File type: svg (Scalable Vector Graphics image)
 # requires: xmlstarlet
 comment_svg () {
-	COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']" < "$1")
+	COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']" < "$1" 2> /dev/null)
 	if [ -z "$COMMENT" ] ; then
 		# Try for title in metadata
-		COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='title']" < "$1")
+		COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='title']" < "$1" 2> /dev/null)
 	fi
 }
 
 # File type: svgz (Compressed Scalable Vector Graphics image)
 # requires: gzip, xmlstarlet
+# TODO: xmlstarlet can transparently gzip-decompress, so replace with comment_svg
 comment_svgz () {
-	COMMENT=$(gzip -dc < "$1" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']")
+	COMMENT=$(gzip -dc < "$1" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']" 2> /dev/null)
 	if [ -z "$COMMENT" ] ; then
 		# Try for title in metadata
-		COMMENT=$(gzip -dc < "$1" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='title']")
+		COMMENT=$(gzip -dc < "$1" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='title']" 2> /dev/null)
 	fi
 }
 

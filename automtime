@@ -693,7 +693,7 @@ mtime_squashfs () {
 # File type: svg (Scalable Vector Graphics image)
 # requires: xmlstarlet
 mtime_svg () {
-	RAWTIME=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='date']" < "$1")
+	RAWTIME=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='date']" < "$1" 2>/dev/null)
 	# $RAWTIME can be just about anything, but DublinCore recommends ISO 8601-1.
 	# Anything else is too ambiguous, so ignore them.
 	if echo "$RAWTIME" | grep '^[012][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]' >/dev/null; then
