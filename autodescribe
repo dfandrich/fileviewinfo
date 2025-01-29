@@ -704,7 +704,9 @@ comment_svg () {
 
 # File type: svgz (Compressed Scalable Vector Graphics image)
 # requires: gzip, xmlstarlet
-# TODO: xmlstarlet can transparently gzip-decompress, so replace with comment_svg
+# TODO: xmlstarlet can optionally transparently decompress, but that feature is
+# likely to be removed some time after 2025 so we shouldn't rely on it here (or
+# for certain other file types).
 comment_svgz () {
 	COMMENT=$(gzip -dc < "$1" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']" 2> /dev/null)
 	if [ -z "$COMMENT" ] ; then
