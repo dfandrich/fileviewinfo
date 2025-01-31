@@ -191,6 +191,11 @@ for f in "$@" ; do
 			avitype -- "$f"
 			;;
 
+		# requires: brotli
+		*.br) filetype_label brotli-compressed file
+			# This will be slow on large files because it actually decompresses
+			brotli -tv -- "$f"
+			;;
 
 		# requires: Java jdk
 		*.class) filetype_label Java compiled class file
@@ -501,7 +506,7 @@ for f in "$@" ; do
 			;;
 
 		# requires: unrar
-		*.rar | *.rsn)	filetype_label RAR compressed archive
+		*.rar | *.rsn)	filetype_label RAR-compressed archive
 			unrar vta -sl0 -idc -- "$f"
 			;;
 
@@ -792,7 +797,7 @@ EOF
 		# requires: fv, lzma
 		# Also Tukaani Linux package .tlz
 		*.tlz | \
-		*.lzma)	filetype_label LZMA compressed file
+		*.lzma)	filetype_label LZMA-compressed file
 			fv -t lzma "$f"
 			;;
 
@@ -800,7 +805,7 @@ EOF
 		# Also Midnight BSD ports package .mport
 		# Also xz-compressed tar archive .txz
 		*.txz | *.mport | \
-		*.xz)	filetype_label XZ compressed file
+		*.xz)	filetype_label XZ-compressed file
 			fv -t xz "$f"
 			;;
 

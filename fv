@@ -183,6 +183,12 @@ for f in "$@" ; do
 			blend_info -- "$f"
 			;;
 
+		# requires: brotli
+		*.br) archive_label brotli-compressed file
+			# This will be slow on large files because it actually decompresses
+			brotli -tv -- "$f"
+			;;
+
 		# See http://www.star.le.ac.uk/~tjg/bun/ (defunct as of 2021)
 		# requires: bun
 		# (Untested)
@@ -396,7 +402,7 @@ for f in "$@" ; do
 		# See https://mattmahoney.net/dc/
 		# See https://sourceforge.net/projects/kgbarchiver/
 		# Also KGB archive .kgb
-		*.pq6 | *.kgb)	archive_label PAQ6 compressed archive
+		*.pq6 | *.kgb)	archive_label PAQ6-compressed archive
 			sed '//,$d' < "$f"
 			;;
 
@@ -413,7 +419,7 @@ for f in "$@" ; do
 
 		# requires: unrar
 		# Also SNES sound archive .rsn
-		*.rar | *.rsn)	archive_label RAR compressed archive
+		*.rar | *.rsn)	archive_label RAR-compressed archive
 			unrar v -idc -- "$f"
 			;;
 
@@ -576,7 +582,7 @@ EOF
 
 		# Also Tukaani Linux package .tlz
 		# requires: lzma, tar
-		*.tlz | *.tar.lzma)	archive_label LZMA compressed tar archive
+		*.tlz | *.tar.lzma)	archive_label LZMA-compressed tar archive
 			lzma -dc -- "$f" | tar tvf -
 			;;
 
@@ -679,7 +685,7 @@ EOF
 
 		# See https://mattmahoney.net/dc/zpaq.html
 		# requires: zpaq
-		*.zpaq)	archive_label ZPAQ compressed archive
+		*.zpaq)	archive_label ZPAQ-compressed archive
 			zpaq l "$sf"
 			;;
 
@@ -727,19 +733,19 @@ EOF
 			;;
 
 		# requires: lzip
-		*.lz)	archive_label LZIP compressed file
+		*.lz)	archive_label LZIP-compressed file
 			lzip -lv -- "$f"
 			;;
 
 		# See https://www.lzop.org/
 		# requires: lzop
-		*.lzo)	archive_label LZOP compressed file
+		*.lzo)	archive_label LZOP-compressed file
 			lzop -vl -- "$f"
 			;;
 
 		# See https://www.7-zip.org/sdk.html
 		# requires: lzma || python >= 3
-		*.lzma)	archive_label LZMA compressed file
+		*.lzma)	archive_label LZMA-compressed file
 		    if which lzmainfo  >/dev/null 2>&1 ; then
 				lzmainfo -- "$f"
 		    else
