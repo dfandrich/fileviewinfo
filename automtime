@@ -1217,7 +1217,7 @@ for f in "$@" ; do
 				TYPE=spdx
 				;;
 
-			*.sqsh | *.squashfs | *.sqfs | *.snap)
+			*.sqsh | *.squashfs | *.sqfs | *.snap | *.tcz)
 				TYPE=squashfs
 				;;
 

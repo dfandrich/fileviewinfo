@@ -540,8 +540,9 @@ for f in "$@" ; do
 
 		# See https://github.com/plougher/squashfs-tools/
 		# Also Snap package .snap
+		# Also Tiny Core Linux package .tcz
 		# requires: squashfs-tools
-		*.sqsh | *.squashfs | *.sqfs | *.snap) filetype_label Squashfs filesystem image
+		*.sqsh | *.squashfs | *.sqfs | *.snap | *.tcz) filetype_label Squashfs filesystem image
 			unsquashfs -s "$sf"
 			;;
 
