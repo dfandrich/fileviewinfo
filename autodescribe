@@ -1521,7 +1521,7 @@ for f in "$@" ; do
 			*.mlt)
 				TYPE=mlt
 				;;
-			*.mov)	TYPE=mov
+			*.mov | *.3gp | *.3gpp)	TYPE=mov
 				;;
 			*.mp3)	TYPE=mp3
 				;;

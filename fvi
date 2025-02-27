@@ -429,7 +429,7 @@ for f in "$@" ; do
 			;;
 
 		# requires: libquicktime-progs
-		*.mp4 | *.mpg4 | *.mov | *.qt | *.3gp)	filetype_label Quicktime video
+		*.mp4 | *.mpg4 | *.mov | *.qt | *.3gp | *.3gpp)	filetype_label Quicktime video
 			qtinfo "$f"
 			;;
 
