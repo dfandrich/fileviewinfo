@@ -185,7 +185,7 @@ jobs:
       # test environment and not to handle a particular file type.
       run: >
         zypper --non-interactive refresh &&
-        zypper --non-interactive in --no-recommends -y
+        zypper --non-interactive in --no-recommends --allow-name-change -y
         7zip
         allegro44-tools
         arj
