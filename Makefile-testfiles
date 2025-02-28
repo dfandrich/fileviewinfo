@@ -1,18 +1,19 @@
 # Instructions for generating sample test files
 #
-# Copyright (c) 2023 Dan Fandrich <dan@coneharvesters.com>
+# Copyright (c) 2023-2025 Dan Fandrich <dan@coneharvesters.com>
 # Licensed under the MIT license (see LICENSE).
 #
 # The resulting files are checked in (with a few exceptions at the end) so that
 # these commands never need to be run again.  Smaller file size is sometimes
 # prioritized over ease of creation. All generated files must also be able to
 # be released to the public domain.  Some of these commands were documented
-# after the fact & are therefore not well tested.
+# after the fact & are therefore not well tested. Manually-created plain text
+# files are not documented here.
 #
 # Many of these rules must be run as root to generate reproducible output.
 
 all:
-	@echo Use this makefile to generate individual test files
+	@echo Use this makefile to generate or learn how to generate individual test files
 
 foo:
 	echo foo >foo
@@ -57,6 +58,21 @@ type1.gcode:
 	@echo This file was created in PrusaSlicer 2.5.0 by slicing a 1×1×0.2mm
 	@echo box without skirt then manually deleting the embedded thumbnails and
 	@echo prusa_config metadata
+
+type1.har:
+	@echo This file was created in Firefox but had whitespace removed for size.
+
+type1.kicad_sch:
+	@echo This file was created in Kicad 7.0
+
+type1.oxt:
+	@echo This file comes from https://extensions.libreoffice.org/en/extensions/show/21522
+
+type1.mscx:
+	@echo This file was created in Muse Score
+
+type1.mscz:
+	@echo This file was created in Muse Score
 
 type1.arj: foo
 	echo ARJ archive comment >cmt
@@ -193,7 +209,7 @@ type2.a: foo
 	ar r "$@" foo
 
 type1.amf:
-	openscad --export-format amf -o -  <(echo 'linear_extrude(1) polygon([[0,0], [0,1], [1,0], [0,0]]);') | xmlstarlet edit -a /amf/metadata -t elem -n 'metadata' -v "AMF name"  -a '/amf/metadata[not(@type)]' -t attr -n type -v name > "$@"
+	openscad --export-format amf -o - <(echo 'linear_extrude(1) polygon([[0,0], [0,1], [1,0], [0,0]]);') | xmlstarlet edit -a /amf/metadata -t elem -n 'metadata' -v "AMF name" -a '/amf/metadata[not(@type)]' -t attr -n type -v name > "$@"
 
 type2.amf: type1.amf
 	cp type1.amf type2.amf
@@ -209,9 +225,9 @@ type2.stl:
 
 type1.3mf:
 	test ! -e 3D # Abort if found to avoid accidentally deleting more than we want
-	openscad --export-format 3mf -o "$@"  <(echo 'linear_extrude(1) polygon([[0,0], [0,1], [1,0], [0,0]]);')
+	openscad --export-format 3mf -o "$@" <(echo 'linear_extrude(1) polygon([[0,0], [0,1], [1,0], [0,0]]);')
 	unzip -q "$@" 3D/3dmodel.model
-	xmlstarlet edit -L -i  "/*[local-name()='model']/*[local-name()='resources']" -t elem -n metadata -v '3MF title'  -a "//*[local-name()='metadata'][not(@name)]" -t attr -n name -v Title 3D/3dmodel.model
+	xmlstarlet edit -L -i "/*[local-name()='model']/*[local-name()='resources']" -t elem -n metadata -v '3MF title' -a "//*[local-name()='metadata'][not(@name)]" -t attr -n name -v Title 3D/3dmodel.model
 	zip -f "$@" 3D/3dmodel.model
 	rm -r 3D
 
@@ -423,7 +439,7 @@ type1.zoo: foo
 # metadata already included. It can't seem to create the creation time so it's
 # added here.
 type1.m4a: input.wav
-	ffmpeg -i "$^"  -metadata creation_time='2024-02-05 10:11:12' "$@"
+	ffmpeg -i "$^" -metadata creation_time='2024-02-05 10:11:12' "$@"
 
 # The following files are pretty huge compared to others so they aren't
 # included in the repository but can be generated here if needed.
