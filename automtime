@@ -462,7 +462,7 @@ mtime_jxl () {
 mtime_kicad () {
 	RAWTIME=$(sed -n -e '1,/(title_block/d' -e 's/^[[:space:]]*(date "\(.*\)")$/\1/p' -e '/^[[:space:]]*)$/,$d' < "$1")
 	# $RAWTIME is like 2021-01-03
-	TIME=$(normalize_time "$RAWTIME")
+	TIME="$RAWTIME"
 }
 
 # File type: kra (Krita image)
@@ -473,6 +473,14 @@ mtime_kra () {
 	RAWTIME=$(unzip -pq "$sf" documentinfo.xml | xmlstarlet sel -N d=http://www.calligra.org/DTD/document-info -t -v /d:document-info/d:about/d:date 2>/dev/null )
 	# $RAWTIME is like 2022-01-01T13:57:46
 	TIME="$(normalize_iso_time "$RAWTIME")"
+}
+
+# File type: kmy (KMyMoney file)
+# requires: xmlstarlet
+mtime_kmy () {
+	RAWTIME=$(xmlstarlet sel -t -v /KMYMONEY-FILE/FILEINFO/LAST_MODIFIED_DATE/@date < "$1" )
+	# $RAWTIME is like 2022-01-01
+	TIME="$RAWTIME"
 }
 
 # File type: lzh (lzh archive)
@@ -1129,6 +1137,10 @@ for f in "$@" ; do
 
 			*.kra)
 				TYPE=kra
+				;;
+
+			*.kmy)
+				TYPE=kmy
 				;;
 
 			*.lzh | *.lha)
