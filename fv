@@ -618,6 +618,7 @@ EOF
 			;;
 
 		# zip archive .zip
+		# Also Android archive library .aar
 		# Also Android package .apk
 		# Also Apkmirror Android package .apkm
 		# Also Java jar file .jar
@@ -671,7 +672,7 @@ EOF
 		*.sxi | *.sxd | *.sxw | *.sxm | *.pk3 | *.ipg | *.nth | *.odt | \
 		*.ods | *.odp | *.odg | *.odf | \
 		*.otp | *.otg | *.ots | *.odb | *.odc | *.oxt | \
-		*.docx | *.epub | *.apk | *.apkm | *.war | *.xps | *.resource | \
+		*.docx | *.epub | *.apk | *.apkm | *.aar | *.war | *.xps | *.resource | \
 		*.application | *.docm | *.f3d | *.egg | *.kra | *.whl | *.3mf | \
 		*.sb2 | *.sb3 | *.ora | *.tc | *.wfp | *.wacz | *.xlsx | *.pptx | \
 		*.mscz)

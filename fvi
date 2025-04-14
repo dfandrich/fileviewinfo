@@ -672,6 +672,7 @@ EOF
 
 
 		# zip archive .zip
+		# Also Android archive library .aar
 		# Also Android package .apk
 		# Also Apkmirror Android package .apkm
 		# Also Mozilla Java Cross Platform Installer .xpi
@@ -717,7 +718,7 @@ EOF
 		*.otp | *.otg | *.ots | \
 		*.docx | *.pptx | *.xlsx | *.epub | *.apk | *.war | *.xps | \
 		*.resource | *.application | *.docm | *.f3d | *.kra | \
-		*.sb2 | *.sb3 | *.apkm | *.mscz)
+		*.sb2 | *.sb3 | *.apkm | *.mscz | *.aar)
 			filetype_label ZIP archive
 			zipinfo -h -z "$sf" | grep -v "^$"; zipinfo -l "$sf" | tail -1
 			;;
