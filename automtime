@@ -312,6 +312,20 @@ mtime_gcode () {
 	TIME="$(normalize_time "$RAWTIME")"
 }
 
+# File type: bgcode (Binary G-code machine control file)
+# See https://github.com/prusa3d/libbgcode/
+# The bgcode version must date from no earlier than approx. 2024-10-24
+# requires: bgcode
+mtime_bgcode () {
+	# Create a temporary file to avoid overwriting an original .gcode file
+	AMTMPDIR=$(mktemp -d)
+	cat < "$f" > "$AMTMPDIR"/file.bgcode
+	bgcode "$AMTMPDIR"/file.bgcode >/dev/null
+	mtime_gcode "$AMTMPDIR"/file.gcode
+	rm -f "$AMTMPDIR"/file.bgcode "$AMTMPDIR"/file.gcode
+	rmdir "$AMTMPDIR"
+}
+
 # File type: gnumeric (Gnumeric spreadsheet)
 # requires: xmlstarlet
 mtime_gnumeric () {
@@ -1047,6 +1061,10 @@ for f in "$@" ; do
 
 			*.avif)
 				TYPE=avif
+				;;
+
+			*.bgcode | *.bgc)
+				TYPE=bgcode
 				;;
 
 			*.cab | *.msi | *.onepkg)

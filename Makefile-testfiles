@@ -62,6 +62,14 @@ type1.gcode:
 	@echo box without skirt then manually deleting the embedded thumbnails and
 	@echo prusa_config metadata
 
+type1.bgcode:
+	@echo This file was created in PrusaSlicer 2.9.2 by slicing a tiny
+	@echo box without skirt into bgcode, converting to gcode with bgcode,
+	@echo manually editing the gcode file to delete all but the first thumbnail
+	@echo and most of the PrusaSlicer configuration to reduce size, then
+	@echo converting back to bgcode with the command
+	@echo "  bgcode type1.gcode --file_metadata_compression=1 --print_metadata_compression=1 --printer_metadata_compression=1 --gcode_compression=1"
+
 type1.har:
 	@echo This file was created in Firefox but had whitespace removed for size.
 

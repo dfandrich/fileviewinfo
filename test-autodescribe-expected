@@ -10,6 +10,7 @@
 'testfiles/type1.arj' 'ARJ archive comment'
 'testfiles/type1.aup' 'Track title'
 'testfiles/type1.avi' 'AVI title'
+'testfiles/type1.bgcode' 'Object-Name'
 'testfiles/type1.c' 'Typical C-style comment'
 'testfiles/type1.cue' 'CUE title'
 'testfiles/type1.dbk' 'Docbook Title'

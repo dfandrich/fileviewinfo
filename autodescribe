@@ -996,6 +996,7 @@ comment_fodf () {
 # File type: gcode (G-code machine control file)
 # gcode has a few codes that could be used as titles, but aren't widely
 # supported. Just extract a title from structured comments.
+# requires: jq
 comment_gcode () {
 	# Supports PrusaSlicer ver. >= 2.2.0, Cura >= ~4.0.0, Fanuc
 	# Use the name of the first object when more than one are present
@@ -1008,6 +1009,23 @@ comment_gcode () {
 		# PyCAM https://pycam.sourceforge.net/
 		COMMENT=$(sed -n -E -e 's/^;PYCAM-META-DATA: Filename: (.*[/\\])?//p' < "$1" | head -1 | trimspace)
 	fi
+	if [ -z "$COMMENT" ] ; then
+		# Created by https://github.com/prusa3d/libbgcode/
+		COMMENT=$(sed -n 's/^; objects_info = //p' < "$1" | jq -r -C '.objects | map(.name) | join(", ")')
+	fi
+}
+
+# File type: bgcode (Binary G-code machine control file)
+# See https://github.com/prusa3d/libbgcode/
+# requires: bgcode, jq
+comment_bgcode () {
+	# Create a temporary file to avoid overwriting an original .gcode file
+	ADTMPDIR=$(mktemp -d)
+	cat < "$f" > "$ADTMPDIR"/file.bgcode
+	bgcode "$ADTMPDIR"/file.bgcode >/dev/null
+	comment_gcode "$ADTMPDIR"/file.gcode
+	rm -f "$ADTMPDIR"/file.bgcode "$ADTMPDIR"/file.gcode
+	rmdir "$ADTMPDIR"
 }
 
 # File type: gif (GIF image)
@@ -1431,6 +1449,9 @@ for f in "$@" ; do
 			*.aup) TYPE=aup
 				;;
 			*.avi | *.wmv) TYPE=avi
+				;;
+			*.bgcode | *.bgc)
+				TYPE=bgcode
 				;;
 			*.c | *.h)
 				TYPE=c

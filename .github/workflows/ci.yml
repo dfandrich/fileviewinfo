@@ -76,14 +76,17 @@ jobs:
         zstd
         make curl ca-certificates groff-base man2html-base bash busybox ksh toybox mmv mksh yash zsh
     - name: 'Install extras'
-    # One package is no longer available in Ubuntu and must be installed manually
+    # zoo is no longer available in Ubuntu and must be installed manually
+    # bgcode is too old in 24.04 and must be upgraded to the version in 25.04
       run: |
         curl -LsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all \
+            http://azure.archive.ubuntu.com/ubuntu/pool/universe/libb/libbgcode/bgcode_0.0~git20241024.d33a277-2_amd64.deb \
             http://azure.archive.ubuntu.com/ubuntu/pool/universe/z/zoo/zoo_2.10-28_amd64.deb
         sha256sum -c <<EOF
+        33d486df33efcb9fc9fd34008a8400633a0a2f426f767f8987adcd26c9ac8839  bgcode_0.0~git20241024.d33a277-2_amd64.deb
         953f4f94095ef3813dfd30c8977475c834363aaabce15ab85ac5195e52fd816a  zoo_2.10-28_amd64.deb
         EOF
-        sudo dpkg -i zoo*.deb
+        sudo dpkg -i bgcode*.deb zoo*.deb
         python3 -m pip install --break-system-packages https://github.com/itkach/slob/archive/master.zip
     - name: 'Run tests'
       run: make check -k
@@ -207,6 +210,7 @@ jobs:
         java-23-openjdk-devel
         jq
         lhasa
+        libbgcode
         libjpeg-turbo
         lzop
         man
