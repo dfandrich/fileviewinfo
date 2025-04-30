@@ -512,6 +512,9 @@ comment_ebook() {
 
 # File type: kicad (Kicad schematic)
 comment_kicad () {
+	# This parsing is a bit dodgy but should be fine for files written by Kicad itself.
+	# The data is an s-expression so a better way would be to use a clisp program
+	# (guile doesn't like the data) to load the data and extract the title entry.
 	COMMENT=$(sed -n -e '1,/(title_block/d' -e 's/^[[:space:]]*(title "\(.*\)")$/\1/p' -e '/^[[:space:]]*)$/,$d' < "$1")
 }
 
