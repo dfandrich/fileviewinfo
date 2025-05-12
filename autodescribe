@@ -683,6 +683,14 @@ comment_spdx () {
 	COMMENT=$(sed -n 's/^DocumentName: *//p' < "$1" | head -1)
 }
 
+# File type: spdx (Software Package Data Exchange)
+# See https://spdx.dev/
+# requires: jq
+comment_spdx_json () {
+	# This works for SPDX 2.X but may not for SPDX 3.X (once it's finalized)
+	COMMENT=$(jq -r .name < "$1" | head -1)
+}
+
 # File type: stl (STL model file)
 comment_stl () {
 	# Detect ASCII or binary format
@@ -1617,6 +1625,8 @@ for f in "$@" ; do
 			*.snap)	TYPE=snap
 				;;
 			*.spdx)	TYPE=spdx
+				;;
+			*.spdx.json)	TYPE=spdx_json
 				;;
 			*.stl)	TYPE=stl
 				;;

@@ -75,6 +75,7 @@
 'testfiles/type1.sla' 'Scribus Title'
 'testfiles/type1.slob' 'SLOB file label'
 'testfiles/type1.spdx' 'app-sources'
+'testfiles/type1.spdx.json' 'unknown'
 'testfiles/type1.stl' 'STL_name'
 'testfiles/type1.svg' 'SVG root title'
 'testfiles/type1.svgz' 'SVG root title'
