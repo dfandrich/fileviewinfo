@@ -287,7 +287,7 @@ for f in "$@" ; do
 		# requires: binutils, file, grep, gzip, tar
 		*.ipk)	archive_label Itsy package
 			# Detect the old or new style ipk format
-			if file -- "$f" | egrep -iq 'Debian|ar archive' ; then
+			if file -- "$f" | grep -Eiq 'Debian|ar archive' ; then
 				ar -p "$sf" data.tar.gz | gzip -dc | tar tvf -
 			else
 				# Internal file name may or may not be prefixed with ./
