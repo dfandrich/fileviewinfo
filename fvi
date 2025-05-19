@@ -622,7 +622,7 @@ EOF
 		# requires: samdisk
 		*.bpb | *.cfi | *.cpm | *.d2m | *.d4m | *.d80 | *.d81 | *.d88 | *.dfi | \
 		*.dmk | *.ds2 | *.dsc | *.dsk | *.dti | *.edsk | *.fdi | *.hfe | *.imd | \
-		*.ipf | *.lif | *.mbd | *.mgt | *.msa | *.opd | *.raw | *.raw | *.s24 | \
+		*.ipf | *.lif | *.mbd | *.mgt | *.msa | *.opd | *.raw | *.s24 | \
 		*.sad | *.sbt | *.scl | *.scp | *.sdf | *.td0 | *.trd | *.udi \
 		)  filetype_label Floppy disk image file
 			samdisk info -- "$f"
@@ -730,7 +730,7 @@ EOF
 		# Catch-all bitmapped image information displayer
 		# requires: imagemagick
 		*.raw | *.pcl | *.xpm | *.jbig | *.jp2 | *.png | *.fpx | *.pcx | \
-		*.xbm | *.webp | *.heic \
+		*.xbm | *.webp | *.heic | *.cur \
 		)	filetype_label Bitmapped image file
 			identify -verbose -- "$f"
 			;;
@@ -761,7 +761,7 @@ EOF
 	*.dv | *.dv1394 | *.dvd | *.dxa | *.ea | *.ffm | *.film_cpk | *.flac | *.flic | \
 	*.flv | *.framecrc | *.gif | *.gxf | *.h261 | *.h263 | *.h264 | *.idcin | \
 	*.image2 | *.image2pipe | *.ingenient | *.ipmovie | *.libnut | *.m4v |\
-	*.matroska | *.mjpeg | *.mm | *.mmf | *.mov | *.mov | *.m4a | \
+	*.matroska | *.mjpeg | *.mm | *.mmf | *.mov | *.m4a | \
 	*.mj2 | *.mp2 | *.mp3 | *.mp4 | *.mpc | *.mpeg | *.mpeg1video | \
 	*.mpeg2video | *.mpegts | *.mpegtsraw | *.mpegvideo | *.mpjpeg | *.mulaw |\
 	*.mxf | *.nsv | *.null | *.nut | *.nuv | *.ogg | *.oss | *.psp | *.psxstr | \
@@ -771,7 +771,7 @@ EOF
 	*.vcd | *.video4linux | *.video4linux2 | *.vmd | *.vob | *.voc | \
 	*.wav | *.wc3movie | *.wsaud | *.wsvqa | *.wv | *.x11grab | *.yuv4mpegpipe | \
 	\
-	*.mpg4 | *.wmv | *.mts | \
+	*.mpg4 | *.wmv | *.mts | *.qt | \
 	*.amv | *.ram \
 		)	filetype_label Video or audio file
 			ffprobe "$f" || ffmpeg -i "$f"

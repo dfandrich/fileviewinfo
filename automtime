@@ -536,6 +536,13 @@ mtime_mkv () {
 	mtime_mov "$@"
 }
 
+# File type: wmv (Windows Media Video)
+# requires: exiftool
+mtime_wmv () {
+	# Uses exiftool that works just as well for this format
+	mtime_mov "$@"
+}
+
 # File type: mov (QuickTime video)
 # requires: exiftool
 mtime_mov () {
@@ -1195,7 +1202,7 @@ for f in "$@" ; do
 				TYPE=mkv
 				;;
 
-			*.mov | *.mp4 | *.m4a | *.mts | *.3gp | *.3gpp)
+			*.mov | *.mp4 | *.m4a | *.mts | *.3gp | *.3gpp | *.qt)
 				TYPE=mov
 				;;
 
@@ -1325,6 +1332,10 @@ for f in "$@" ; do
 
 			*.wml)
 				TYPE=wml
+				;;
+
+			*.wmv)
+				TYPE=wmv
 				;;
 
 			*.xcf | *.xcf.gz | *.xcf.bz2 | *.xcf.xz | *.xcfgz | *.xcfbz2 | *.xcfxz)

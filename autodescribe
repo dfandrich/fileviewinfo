@@ -1553,7 +1553,7 @@ for f in "$@" ; do
 			*.mlt)
 				TYPE=mlt
 				;;
-			*.mov | *.3gp | *.3gpp)	TYPE=mov
+			*.mov | *.3gp | *.3gpp | *.qt)	TYPE=mov
 				;;
 			*.mp3)	TYPE=mp3
 				;;
@@ -1570,7 +1570,7 @@ for f in "$@" ; do
 				;;
 			*.oxt) TYPE=oxt
 				;;
-			*.ogg) TYPE=ogg
+			*.ogg | *.ogv) TYPE=ogg
 				;;
 			*.otf | *.ttf | *.woff) TYPE=otf
 				;;
