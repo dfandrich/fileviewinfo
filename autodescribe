@@ -189,7 +189,7 @@ get_comment_compressed_tar () {
 		# Note: this doesn't handle spaces in filenames
 		MATCHNAME=$(grep -E '\.texi(nfo)?$' < "$TMPFILE")
 		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
-			$DECOMPRESS "$1" | tar -xOf - $MATCHNAME 2>/dev/null > "$TMPFILE2"
+			$DECOMPRESS "$1" | tar -xOf - "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_texi "$TMPFILE2"
 		fi
 

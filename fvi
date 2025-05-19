@@ -215,7 +215,7 @@ for f in "$@" ; do
 		# requires: xz
 		synthesis.hdlist.cz) filetype_label URPM synthesis file
 			printf "synthesis file for %d packages\n" \
-				"$(xz -qdc < "$f" | grep '^@info@' | wc -l)"
+				"$(xz -qdc < "$f" | grep -c '^@info@')"
 			# Guess this info from the filenames
 			printf "primary architecture %s\n" \
 				"$(xz -qdc < "$f" | sed -n -Ee 's/^@info@[^@]+\.([^.@]+)@.*$/\1/p' | grep -v 'noarch' | head -1)"
@@ -357,7 +357,7 @@ for f in "$@" ; do
 		# requires: binutils, file, grep, gzip, tar
 		*.ipk)	filetype_label Itsy package
 			# Detect the old or new style ipk format
-			if file -- "$f" | egrep -iq 'Debian|ar archive' ; then
+			if file -- "$f" | grep -Eiq 'Debian|ar archive' ; then
 				ar -p "$sf" control.tar.gz | gzip -dc | tar xOf -
 			else
 				# Internal file name may or may not be prefixed with ./
@@ -552,7 +552,7 @@ for f in "$@" ; do
 			if [ "`dd if="$f" bs=1 count=80 2>/dev/null | wc -l`" -gt 0 -a "`dd if="$f" bs=1 count=6 2>/dev/null | tr -d '\0'`" = "solid " -a "`dd if="$f" bs=1 count=1 skip=80 2>/dev/null | od -An -b`" != "000" ]; then
 				# ASCII stl format
 				sed -n -E -e '1s/^solid +//p' < "$f" | iconv -f windows-1252
-				grep "^[[:space:]]*facet " < "$f" | wc -l | tr -d ' \n'
+				grep -c "^[[:space:]]*facet " < "$f" | tr -d '\n'
 				echo " facets"
 			else
 				# Binary stl format
