@@ -1173,6 +1173,9 @@ comment_mp3 () {
 	if [ -z "$COMMENT" ] ; then
 		comment_ffmpeg "$@"
 	fi
+	if [ -z "$COMMENT" ] ; then
+		COMMENT=$(LC_ALL=C exiftool -- "$1" | grep -E '^Title' | sed 's/^.*: //' )
+	fi
 }
 
 # File type: mp4 (MPEG-4 video)
