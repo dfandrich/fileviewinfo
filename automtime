@@ -472,9 +472,34 @@ mtime_jxl () {
 	mtime_heif "$@"
 }
 
-# File type: kicad (Kicad schematic)
+# File type: kicad (Kicad document)
+# requires: clisp (optional)
 mtime_kicad () {
-	RAWTIME=$(sed -n -e '1,/(title_block/d' -e 's/^[[:space:]]*(date "\(.*\)")$/\1/p' -e '/^[[:space:]]*)$/,$d' < "$1")
+	# The data is an s-expression, so use a clisp program to parse it.
+	# This will return the first list called "date", which might theoretically
+	# return the wrong thing if there is more than "date" entry.
+	# The script is written to a file before running to avoid the REPL from
+	# displaying something extraneous after the (defun).
+	TMPFILE=$(mktemp)
+	echo >"$TMPFILE" "
+(defun find-subexpression (sexp pattern)
+  \"Finds and returns a subexpression that matches the pattern.\"
+  (cond
+        ((atom sexp) nil)
+        ((eq (car sexp) pattern) (cdr sexp))
+        (t (or
+             (find-subexpression (car sexp) pattern)
+             (find-subexpression (cdr sexp) pattern)))))
+(format t (car (or (find-subexpression (read *terminal-io*) 'date) '(\"\"))))
+"
+	RAWTIME=$(clisp -q "$TMPFILE" < "$1" 2>/dev/null)
+	if [ -n "$TMPFILE" ]; then
+		rm -f "$TMPFILE"
+	fi
+	if [ -z "$COMMENT" ] ; then
+		# This parsing is a bit dodgy but should be fine for files written by Kicad itself.
+		RAWTIME=$(sed -n -e '1,/(title_block/d' -e 's/^[[:space:]]*(date "\(.*\)")$/\1/p' -e '/^[[:space:]]*)$/,$d' < "$1")
+	fi
 	# $RAWTIME is like 2021-01-03
 	TIME="$RAWTIME"
 }

@@ -28,6 +28,7 @@ jobs:
         bsdextrautils
         cabextract
         calibre
+        clisp
         cpio
         dar
         exif
