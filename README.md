@@ -74,11 +74,11 @@ or issues there, or submit pull requests to support new file types.
 
 [![Download](https://img.shields.io/github/v/release/dfandrich/fileviewinfo?sort=semver)](https://github.com/dfandrich/fileviewinfo/releases/latest)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/license/mit/)
-[![Github Actions Build Status](https://github.com/dfandrich/fileviewinfo/workflows/CI/badge.svg?branch=master)](https://github.com/dfandrich/fileviewinfo/actions?query=workflow%3A%22CI%22)
+[![Github Actions Build Status](https://github.com/dfandrich/fileviewinfo/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/dfandrich/fileviewinfo/actions?query=workflow%3A%22CI%22)
 
 ## Author
 
-Copyright © 2003–2024 Dan Fandrich <dan@coneharvesters.com>
+Copyright © 2003–2025 Dan Fandrich <dan@coneharvesters.com>
 Licensed under the MIT license (see the file [LICENSE](LICENSE) for details)
 with the exception of the files in testfiles/ which are hereby dedicated to the
 public domain in jurisdictions where such a dedication is legally permitted.
