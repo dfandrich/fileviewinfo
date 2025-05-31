@@ -1187,7 +1187,7 @@ comment_mlt () {
 # id3info is the best program of the common ones I've found for this, since it
 # supports both ID3v1 and ID3v2 tags, exports them both in the same format, and
 # uses a format that's easy to parse.
-# requires: id3lib || ffmpeg
+# requires: id3lib || ffmpeg || exiftool
 comment_mp3 () {
 	COMMENT=$(id3info -- "$1" | sort -r | sed -E -n -e 's/^=== (TPE1|TIT2).*\): //p' | sed '2i\
 /
