@@ -133,6 +133,7 @@ jobs:
         sed -i \
           -e 's/2021-10-13 08:34:00 +0000/2021-10-13 08:34:00/' \
           -e 's/2021-10-14 20:36:00 +0000/2021-10-14 20:36:00/' \
+          -e 's/2023-02-18 04:19:00 +0000/2023-02-17 20:19:00 -0800/' \
           test-automtime-expected
     - name: 'Run tests using uutils-coreutils'
       run: PATH="/usr/lib/cargo/bin/coreutils:$PATH" make check -k

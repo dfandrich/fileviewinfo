@@ -665,6 +665,24 @@ mtime_png () {
 	TIME=$(normalize_time_tz "$RAWTIME")
 }
 
+# File type: po (GNU gettext message catalog)
+mtime_po () {
+	RAWTIME=$(sed -n -e 's/\\n"$//' -e 's/^"PO-Revision-Date: *//p' < "$1" | head -1)
+	# $RAWTIME is like 2023-02-17 20:19-0800
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
+# File type: pot (GNU gettext message catalog template)
+mtime_pot () {
+	# Try getting the revision date first, which will almost always fail
+	RAWTIME=$(sed -n -e 's/\\n"$//' -e 's/^"PO-Revision-Date: *//p' < "$1" | head -1)
+	if [ "${RAWTIME##[0-9]}" == "$RAWTIME" ]; then
+		RAWTIME=$(sed -n -e 's/\\n"$//' -e 's/^"POT-Creation-Date: *//p' < "$1" | head -1)
+	fi
+	# $RAWTIME is like 2023-02-17 20:19-0800
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
 # File type: ps (PostScript)
 mtime_ps () {
 	RAWTIME=$(sed -n -e 's/^%%CreationDate: *//p' < "$1" | head -1)
@@ -1257,6 +1275,14 @@ for f in "$@" ; do
 
 			*.png)
 				TYPE=png
+				;;
+
+			*.po)
+				TYPE=po
+				;;
+
+			*.pot)
+				TYPE=pot
 				;;
 
 			*.ps)
