@@ -501,6 +501,9 @@ mtime_kicad () {
 		RAWTIME=$(sed -n -e '1,/(title_block/d' -e 's/^[[:space:]]*(date "\(.*\)")$/\1/p' -e '/^[[:space:]]*)$/,$d' < "$1")
 	fi
 	# $RAWTIME is like 2021-01-03
+	# NOTE: this is only the default time format; it can be manually entered
+	# in any format.
+	# TODO: validate the standard format before returning
 	TIME="$RAWTIME"
 }
 
