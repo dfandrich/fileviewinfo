@@ -1372,7 +1372,7 @@ comment_xcf () {
 	sf="$(echo "$1" | sed 's/"/\\"/g')"
 	# gimp's Scheme interpreter displays some logging info before and after the
 	# desired output, so use sed to delete it to leave only XML.
-	METADATA=$(echo '((display "\nMETADATA-START\n") (display (car (gimp-image-get-metadata (car (gimp-file-load RUN-NONINTERACTIVE "'"$sf"'" "file"))))) (gimp-quit TRUE)) (gimp-quit TRUE)' | gimp-console -n -i -c -d -f -s -g /dev/null --stack-trace-mode=never -b -  2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
+	METADATA=$(echo '((display "\nMETADATA-START\n") (display (car (gimp-image-get-metadata (car (gimp-file-load RUN-NONINTERACTIVE "'"$sf"'" "file"))))) (gimp-quit TRUE)) (gimp-quit TRUE)' | gimp-console --batch-interpreter=plug-in-script-fu-eval -n -i -c -d -f -s -g /dev/null --stack-trace-mode=never -b -  2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
 	if [ -n "$METADATA" ]; then
 		COMMENT=$(echo "$METADATA" | xmlstarlet sel -t -v  '/metadata/tag[@name="Xmp.dc.title"]' | sed 's/lang="x-default" *//')
 	fi
