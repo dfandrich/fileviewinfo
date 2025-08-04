@@ -318,6 +318,11 @@ for f in "$@" ; do
 			hexbin -il "$sf"
 			;;
 
+		# requires: dracut
+		initrd*.img | initrd)	archive_label initrd image
+			lsinitrd -- "$f"
+			;;
+
 		# requires: cdrecord
 		*.iso)	archive_label ISO9660 filesystem image file
 			isoinfo -l -R -i "$f"
