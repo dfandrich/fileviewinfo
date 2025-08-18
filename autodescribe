@@ -483,7 +483,7 @@ import pefile,sys
 try:
 	pe=pefile.PE(data=sys.stdin.buffer.read())
 	if hasattr(pe, "FileInfo"):
-		print("".join([v.decode("UTF-8")
+		print("".join([v.decode("UTF-8").strip()
 			for fi in pe.FileInfo
 				for sfi in fi if hasattr(sfi, "StringTable")
 					for item in sfi.StringTable
