@@ -209,7 +209,7 @@ jobs:
         gifsicle
         gimp
         id3lib-examples
-        java-24-openjdk-devel
+        java-25-openjdk-devel
         jq
         lhasa
         libbgcode
