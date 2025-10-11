@@ -384,12 +384,12 @@ mtime_iso () {
 	# The raw value is like: 2022021110514800o where o is a signed 8-bit offset
 	# from GMT in 15 minute increments.
 	TIME=$(python3 - "$1" <<EOF
-import os, struct, sys
+import struct, sys
 with open(sys.argv[1], 'rb') as f:
 	f.seek(33581)
 	y,mo,d,h,m,s,s100, offset15 = struct.unpack('4s2s2s2s2s2s2sb', f.read(17))
 if not y.isdigit() or not mo.isdigit() or not d.isdigit() or not h.isdigit() or not m.isdigit() or not s.isdigit() or not s100.isdigit():
-	os.exit(1)
+	sys.exit(1)
 offset_h = offset15/4
 offset_m = int(60*(offset_h - int(offset_h)))
 offset_hm = 100*int(offset_h) + offset_m
