@@ -1145,6 +1145,12 @@ comment_kdenlive () {
 	COMMENT=$(xmlstarlet sel -t -v '/mlt/playlist[@id="main_bin"]/property[@name="kdenlive:docmetadata.meta.attr.title.markup"]' < "$1")
 }
 
+# File type: kml (Keyhole Markup Language)
+# requires: xmlstarlet
+comment_kml () {
+	COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='kml']/*[local-name()='Document']/*[local-name()='name']" < "$1" | trimspace)
+}
+
 # File type: man (man page)
 # requires: man-db
 comment_man () {
@@ -1545,6 +1551,8 @@ for f in "$@" ; do
 				;;
 			*.kdenlive)
 				TYPE=kdenlive
+				;;
+			*.kml)	TYPE=kml
 				;;
 			*.jar)	TYPE=jar
 				;;

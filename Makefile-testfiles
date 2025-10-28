@@ -452,6 +452,9 @@ type1.zoo: foo
 type1.m4a: input.wav
 	ffmpeg -i "$^" -metadata creation_time='2024-02-05 10:11:12' "$@"
 
+type1.kml: type1.gpx
+	gpsbabel -i gpx -x transform -o kml "$^" "$@"
+
 # The following files are pretty huge compared to others so they aren't
 # included in the repository but can be generated here if needed.
 

@@ -923,6 +923,15 @@ mtime_ipk () {
 	fi
 }
 
+# File type: kml (Keyhole Markup Language)
+# requires: xmlstarlet
+mtime_kml () {
+	# This depends on a Google extension to the KML format
+	RAWTIME=$(xmlstarlet sel -t -v "/*[local-name()='kml']/*[local-name()='Document']/*[local-name()='LookAt']/*[local-name()='TimeSpan']/*[local-name()='end']" < "$1")
+	# $RAWTIME is like 2022-10-01T23:43:05Z
+	TIME=$(normalize_iso_time "$RAWTIME")
+}
+
 # File type: vbox (VirtualBox machine file)
 # requires: xmlstarlet
 mtime_vbox () {
@@ -1216,6 +1225,10 @@ for f in "$@" ; do
 				;;
 
 			*.kicad_sch | *.kicad_pcb)	TYPE=kicad
+				;;
+
+			*.kml)
+				TYPE=kml
 				;;
 
 			*.kra)
