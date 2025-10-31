@@ -976,6 +976,8 @@ mtime_wml () {
 
 # File type: xcf (Gimp image)
 # requires: gimp
+# NOTE: this works only with gimp < 3.0.0 (see
+# https://gitlab.gnome.org/GNOME/gimp/-/issues/14303)
 mtime_xcf () {
 	# "safe" filename with quoted double quotes
 	sf="$(echo "$1" | sed 's/"/\\"/g')"
