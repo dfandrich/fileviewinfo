@@ -739,6 +739,18 @@ mtime_shar () {
 	TIME=$(normalize_time_tz "$RAWTIME")
 }
 
+# File type: sigstore (Sigstore Release Attestation)
+# requires: jq, openssl
+# This uses the MIME type application/vnd.dev.sigstore.bundle.v0.3+json
+mtime_sigstore () {
+	# The format allows for multiple timestamps, so convert them to epoch
+	# times first to sort them.  Unfortunately, this loses the time zone.
+	# raw time from openssl is like Nov  5 07:18:19 2025 GMT
+	RAWTIME="$(jq -r '.verificationMaterial.timestampVerificationData.rfc3161Timestamps[].signedTimestamp' < "$f" | tr -d ' \n' | xargs -n1 sh -c 'echo "$1" | base64 -d | openssl ts -reply -text -in /dev/stdin 2>/dev/null | sed -n "s/^Time stamp: *//p" ' ts | tr '\n' '\0' | xargs -0 -n1 "$AUTOMTIME" --epoch_time | sort -n | tail -1 )"
+	# $RAWTIME is like 1234567890
+	TIME=$(normalize_time_tz "@$RAWTIME")
+}
+
 # File type: sla (Scribus document)
 # requires: xmlstarlet
 mtime_sla () {
@@ -1321,6 +1333,10 @@ for f in "$@" ; do
 
 			*.shar)
 				TYPE=shar
+				;;
+
+			*.sigstore.json)
+				TYPE=sigstore
 				;;
 
 			*.sla | *.sla.gz)

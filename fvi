@@ -639,6 +639,11 @@ EOF
 			torrentinfo-console "$sf"
 			;;
 
+		# requires: openssl
+		*.tsr) filetype_label X509 Time Stamp Protocol Reply
+			openssl ts -reply -text -in "$f"
+			;;
+
 		# requires: gobject-introspection, xmlstarlet
 		*.typelib)	filetype_label G-IR binary database
 			g-ir-generate -- "$f" | xmlstarlet sel -N x=http://www.gtk.org/introspection/core/1.0 -t -o 'Typelib for ' -v '/x:repository/x:namespace/@name' -o ' ' -v '/x:repository/x:namespace/@version' -o ' ' -v '/x:repository/x:namespace/@shared-library' -n  -
