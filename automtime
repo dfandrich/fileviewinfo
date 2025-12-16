@@ -746,7 +746,7 @@ mtime_sigstore () {
 	# The format allows for multiple timestamps, so convert them to epoch times first to sort them.
 	# Unfortunately, this loses the time zone.
 	# raw time from openssl is like Nov  5 07:18:19 2025 GMT
-	RAWTIME="$(jq -r '.verificationMaterial.timestampVerificationData.rfc3161Timestamps[].signedTimestamp' < "$f" | xargs -I{} sh -c 'echo "$1" | base64 -d | openssl ts -reply -text -in /dev/stdin 2>/dev/null | sed -n "s/^Time stamp: *//p" ' ts {} | xargs -I{} "$AUTOMTIME" --epoch_time {} | sort -n | tail -1 )"
+	RAWTIME="$(jq -r '.verificationMaterial.timestampVerificationData.rfc3161Timestamps[].signedTimestamp' < "$f" | tr -d ' \n' | xargs -n1 sh -c 'echo "$1" | base64 -d | openssl ts -reply -text -in /dev/stdin 2>/dev/null | sed -n "s/^Time stamp: *//p" ' ts | tr '\n' '\0' | xargs -0 -n1 "$AUTOMTIME" --epoch_time | sort -n | tail -1 )"
 	# $RAWTIME is like 1234567890
 	TIME=$(normalize_time_tz "@$RAWTIME")
 }
