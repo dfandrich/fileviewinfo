@@ -273,9 +273,6 @@ jobs:
       run: make check -k SHELL='busybox hush'
     - name: 'Run tests with gash'
       run: make check -k SHELL=gash
-    - name: 'Prepare tests for nbase'
-    # https://github.com/cheusov/nbase/issues/13
-      run: sed -i -e '/\.sigstore.json/d' test-*-expected
     - name: 'Run tests using nbase'
       run: PATH="/usr/libexec/nbase/bin:$PATH" make check -k
     - name: 'Test installation'
