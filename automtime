@@ -566,7 +566,7 @@ mtime_mkv () {
 		# Some files embed a "date" tag rather than using the creation time
 		# "safe" filename guaranteed not to start with a dash
 		sf="$(safefn "$1")"
-		RAWTIME=$(mkvinfo "$sf" | sed -n -e '1,/\+ Tags/d' -e '/\+ Name: DATE/{n;s/^.*\+ String: //p}' )
+		RAWTIME=$(mkvinfo "$sf" | sed -E -n -e '1,/\+ Tags/d' -e '/\+ Name: (CREATION_TIME|DATE)/{n;s/^.*\+ String: //p}' )
 		# $RAWTIME is probably pretty free-form, but one example is like 2025-02-01 15:05:00+01
 		TIME=$(normalize_time_tz "$RAWTIME")
 	fi
