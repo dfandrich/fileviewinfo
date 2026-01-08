@@ -740,6 +740,14 @@ mtime_rtf () {
 	TIME=$(echo "$RAWTIME" | sed -E -e 's/([0-9]+-)([0-9]-)/\10\2/' -e 's/([0-9]+-[0-9][0-9]-)([0-9])\>/\10\2/' -e 's/([^0-9])([0-9]:)/\10\2/' -e 's/([^0-9][0-9][0-9]:)([0-9]\>)/\10\2/' -e 's/:([0-9])$/:0\1/' -e 's/( [0-9][0-9]:[0-9][0-9])$/\1:00/' )
 }
 
+# File type: sig (OpenPGP signature)
+# requires: gnupg2
+mtime_sig () {
+	RAWTIME="$(LC_ALL=C gpg --verify -- "$f" /dev/null 2>&1 | sed -n 's/^.*: Signature made //p')"
+	# $RAWTIME is like Mon 16 Jan 2017 09:24:37 AM CET
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
 # File type: shar (shell archive)
 mtime_shar () {
 	RAWTIME="$(sed -E -n -e '1,/^$/s/^# Made on ([012][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-9][0-9](:[0-9][0-9])? ?[^ ]*).*/\1/p' < "$1")"
@@ -1341,6 +1349,10 @@ for f in "$@" ; do
 
 			*.shar)
 				TYPE=shar
+				;;
+
+			*.sig)
+				TYPE=sig
 				;;
 
 			*.sigstore.json)

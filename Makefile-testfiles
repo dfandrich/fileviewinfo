@@ -455,6 +455,12 @@ type1.m4a: input.wav
 type1.kml: type1.gpx
 	gpsbabel -i gpx -x transform -o kml "$^" "$@"
 
+type1.sig:
+	gpg --generate-key
+	touch type1
+	gpg --detach-sign type1
+	rm type1
+
 # The following files are pretty huge compared to others so they aren't
 # included in the repository but can be generated here if needed.
 

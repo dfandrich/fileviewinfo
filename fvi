@@ -335,9 +335,9 @@ for f in "$@" ; do
 			giftext < "$f"
 			;;
 
-		# Also GnuPG signature
+		# Also OpenPGP signature
 		# requires: gnupg2
-		# .sig is used a bit generically, but GPG is probably the most general
+		# .sig is used a bit generically, but OpenPGP is probably the most general use
 		*.gpg | *.pgp | *.sig)	filetype_label Gnu Privacy Guard/Pretty Good Privacy file
 			gpg --list-packets --list-only --no-autostart -- "$f"
 			;;
