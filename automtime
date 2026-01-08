@@ -743,7 +743,7 @@ mtime_rtf () {
 # File type: sig (OpenPGP signature)
 # requires: gnupg2
 mtime_sig () {
-	RAWTIME="$(LC_ALL=C gpg --verify -- "$f" /dev/null 2>&1 | sed -n 's/^.*: Signature made //p')"
+	RAWTIME="$(LC_ALL=C gpg --verify -- "$f" /dev/null 2>&1 | sed -n 's/^.*: Signature made //p' | tail -1)"
 	# $RAWTIME is like Mon 16 Jan 2017 09:24:37 AM CET
 	TIME=$(normalize_time_tz "$RAWTIME")
 }
