@@ -42,22 +42,22 @@ usage () {
 	exit 3
 }
 
-if [ X"$1" = X"-v" ] ; then
+if [ "$1" = "-v" ] ; then
 	FV_VERBOSE=1
 	shift
-	if [ X"$1" = X"-v" ] ; then
+	if [ "$1" = "-v" ] ; then
 		FV_VERBOSE=2
 		shift
 	fi
 fi
 
-if [ $# -eq 0 -o X"$1" = X"-?" -o X"$1" = X"-h"  ] ; then
+if [ $# -eq 0 -o "$1" = "-?" -o "$1" = "-h"  ] ; then
 	usage
 fi
 
-if [ X"$1" = X"-l" ] ; then
+if [ "$1" = "-l" ] ; then
 	# requires: textutils, sed
-	if [ X"$FV_VERBOSE" != X ] ; then
+	if [ -n "$FV_VERBOSE" ] ; then
 		# Scan this script looking for label lines and Also comments
 		sed -n -e "s/'//g" -e 's/^[^#]\+filetype[_]label //p' \
 		 -e 's/^[ 	]*# Also \(.*\) [\.a-z0-9A-Z,_]*$/\1/p' "$0" | sort -f | uniq
@@ -71,7 +71,7 @@ if [ X"$1" = X"-l" ] ; then
 fi
 
 staticfiletype=""
-if [ X"$1" = X"-t" ] ; then
+if [ "$1" = "-t" ] ; then
 	staticfiletype="$2"
 	# Make sure file type starts with . for comparision purposes
 	case "$staticfiletype" in
@@ -89,9 +89,9 @@ fi
 
 filetype_label () {
 	# Display the file type in verbose mode
-	if [ X"$FV_VERBOSE" != X ] ; then
+	if [ -n "$FV_VERBOSE" ] ; then
 		echo "$*"
-		if [ X"$FV_VERBOSE" = X2 ] ; then
+		if [ "$FV_VERBOSE" = 2 ] ; then
 		  # echo the actual command used to display the file
 		  set -x
 		fi
@@ -124,9 +124,9 @@ check_tar_wildcards () {
 
 for f in "$@" ; do
 	# "safe" filename guaranteed not to start with a dash
-	sf="`safefn "$f"`"
-	if [ X"$staticfiletype" = X"" ] ; then
-		filetype=`basename "$sf"`
+	sf="$(safefn "$f")"
+	if [ -z "$staticfiletype" ] ; then
+		filetype="$(basename "$sf")"
 	else
 		filetype="$staticfiletype"
 	fi
@@ -135,7 +135,7 @@ for f in "$@" ; do
 
 		# requires: unzip, xmlstarlet
 		*.3mf)	filetype_label 3MF 3-D Manufacturing file
-			TMPFILE="`mktemp`"
+			TMPFILE="$(mktemp)"
 			unzip -pq "$sf" 3D/3dmodel.model > "${TMPFILE}"
 			# This could probably be combined into a single xmlstarlet invocation for speed
 			printf 'Name: '
@@ -158,9 +158,9 @@ for f in "$@" ; do
 
 		# requires: unzip, xmlstarlet
 		*.amf)	filetype_label Additive Manufacturing File
-			if [ "`dd if="$f" bs=1 count=2 2>/dev/null`" = "PK" ]; then
+			if [ "$(dd if="$f" bs=1 count=2 2>/dev/null)" = "PK" ]; then
 				# If the amf file is zip compressed, uncompress it first
-				TMPFILE=`mktemp`
+				TMPFILE="$(mktemp)"
 				INFILE="${TMPFILE}"
 				unzip -pq "$sf" > "$INFILE"
 			else
@@ -549,7 +549,7 @@ for f in "$@" ; do
 		# requires: python >= 3
 		*.stl)	filetype_label STL model file
 			# Detect ASCII or binary format
-			if [ "`dd if="$f" bs=1 count=80 2>/dev/null | wc -l`" -gt 0 -a "`dd if="$f" bs=1 count=6 2>/dev/null | tr -d '\0'`" = "solid " -a "`dd if="$f" bs=1 count=1 skip=80 2>/dev/null | od -An -b`" != "000" ]; then
+			if [ "$(dd if="$f" bs=1 count=80 2>/dev/null | wc -l)" -gt 0 -a "$(dd if="$f" bs=1 count=6 2>/dev/null | tr -d '\0')" = "solid " -a "$(dd if="$f" bs=1 count=1 skip=80 2>/dev/null | od -An -b)" != "000" ]; then
 				# ASCII stl format
 				sed -n -E -e '1s/^solid +//p' < "$f" | iconv -f windows-1252
 				grep -c "^[[:space:]]*facet " < "$f" | tr -d '\n'
@@ -830,7 +830,7 @@ EOF
 			;;
 
 	esac
-	if [ X"$FV_VERBOSE" = X2 ] ; then
+	if [ "$FV_VERBOSE" = 2 ] ; then
 	  set +x
 	fi
 	# Save the return code of the last program run so we can return that from
@@ -839,4 +839,4 @@ EOF
 	rc=$?
 	echo ""
 done
-exit $rc
+exit "$rc"

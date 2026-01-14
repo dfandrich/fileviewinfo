@@ -42,22 +42,22 @@ usage () {
 	exit 3
 }
 
-if [ X"$1" = X"-v" ] ; then
+if [ "$1" = "-v" ] ; then
 	FV_VERBOSE=1
 	shift
-	if [ X"$1" = X"-v" ] ; then
+	if [ "$1" = "-v" ] ; then
 		FV_VERBOSE=2
 		shift
 	fi
 fi
 
-if [ $# -eq 0 -o X"$1" = X"-?" -o X"$1" = X"-h"  ] ; then
+if [ $# -eq 0 -o "$1" = "-?" -o "$1" = "-h"  ] ; then
 	usage
 fi
 
-if [ X"$1" = X"-l" ] ; then
+if [ "$1" = "-l" ] ; then
 	# requires: textutils, sed
-	if [ X"$FV_VERBOSE" != X ] ; then
+	if [ -n "$FV_VERBOSE" ] ; then
 		# Scan this script looking for archive label lines and Also comments
 		sed -n -e "s/'//g" -e 's/^[^#]\+archive[_]label //p' \
 		 -e 's/^[ 	]*# Also \(.*\) [\.a-z0-9A-Z,_]*$/\1/p' "$0" | sort -f | uniq
@@ -71,7 +71,7 @@ if [ X"$1" = X"-l" ] ; then
 fi
 
 staticfiletype=""
-if [ X"$1" = X"-t" ] ; then
+if [ "$1" = "-t" ] ; then
 	staticfiletype="$2"
 	# Make sure file type starts with . for comparision purposes
 	case "$staticfiletype" in
@@ -89,9 +89,9 @@ fi
 
 archive_label () {
 	# Display the archive name in verbose mode
-	if [ X"$FV_VERBOSE" != X ] ; then
+	if [ -n "$FV_VERBOSE" ] ; then
 		echo "$*"
-		if [ X"$FV_VERBOSE" = X2 ] ; then
+		if [ "$FV_VERBOSE" = 2 ] ; then
 		  # echo the actual command used to display the archive
 		  set -x
 		fi
@@ -125,9 +125,9 @@ check_tar_wildcards () {
 
 for f in "$@" ; do
 	# "safe" filename guaranteed not to start with a dash
-	sf="`safefn "$f"`"
-	if [ X"$staticfiletype" = X"" ] ; then
-		filetype=`basename "$sf"`
+	sf="$(safefn "$f")"
+	if [ "$staticfiletype" = "" ] ; then
+		filetype="$(basename "$sf")"
 	else
 		filetype="$staticfiletype"
 	fi
@@ -263,9 +263,9 @@ for f in "$@" ; do
 		# requires dmg2img, kpartx, apfs_fuse
 		# This requires root to mount and unmount partitions
 		*.dmg)	archive_label Apple disk image
-			FVTMPDIR="`mktemp -d`"
+			FVTMPDIR="$(mktemp -d)"
 			dmg2img "$sf" "$FVTMPDIR/image.img"
-			DMGDEVICE="`sudo kpartx -asrv "$FVTMPDIR/image.img" | awk '/^add map/ {print "/dev/mapper/" $3}'`"
+			DMGDEVICE="$(sudo kpartx -asrv "$FVTMPDIR/image.img" | awk '/^add map/ {print "/dev/mapper/" $3}')"
 			if [ -z "$FVTMPDIR" -o -z "$DMGDEVICE" ] ; then
 				echo "Error: cannot manipulate DMG file; are dmg2img and kpartx installed?"
 				# Indicate that an error has occurred
@@ -395,7 +395,7 @@ for f in "$@" ; do
 		# (Don't know what kind of suffix this one uses)
 		# (Untested)
 		*.pkg)	archive_label 'SysV package (SCO UNIX, IRIX)'
-			pkginfo -d "`dirname -- "$f"`" -l "`basename "$sf"`"
+			pkginfo -d "$(dirname -- "$f")" -l "$(basename "$sf")"
 			;;
 
 		# See http://en.pardus-wiki.org/Package-manager (defunct as of 2021)
@@ -719,14 +719,14 @@ EOF
 		# requires: fileutils, textutils, sh-utils, awk, util-linux
 		*.bz2)	archive_label bzip2-compressed file
 		    if [ -e "$f" ] ; then
-				FILEINFO=`env LC_ALL=C ls -l -- "$f"`
-				#FILESIZE=`echo "$FILEINFO" | cut -c 30-42`
-				FILESIZE=`echo "$FILEINFO" | awk '{print $5}'`
-				FILENAME=`basename "$sf" .bz2`
-				#FILECRC=`od -A n -j 10 -N 4 -t x1 < "$f" | sed "s/ //g"`
-				FILECRC=`hexdump -e '4/1 "%02x" "\n"' -n 4 -s 10 < "$f"`
-				#FILECOMPRESS=`od -A n -j 3 -N 1 -t c "$f" | sed "s/ //g"`
-				FILECOMPRESS=`hexdump -e '"%_c" "\n"' -n 1 -s 3 < "$f"`
+				FILEINFO="$(env LC_ALL=C ls -l -- "$f")"
+				#FILESIZE="$(echo "$FILEINFO" | cut -c 30-42)"
+				FILESIZE="$(echo "$FILEINFO" | awk '{print $5}')"
+				FILENAME="$(basename "$sf" .bz2)"
+				#FILECRC="$(od -A n -j 10 -N 4 -t x1 < "$f" | sed "s/ //g")"
+				FILECRC="$(hexdump -e '4/1 "%02x" "\n"' -n 4 -s 10 < "$f")"
+				#FILECOMPRESS="$(od -A n -j 3 -N 1 -t c "$f" | sed "s/ //g")"
+				FILECOMPRESS="$(hexdump -e '"%_c" "\n"' -n 1 -s 3 < "$f")"
 				echo "method  crc         compressed uncompressed_name"
 				printf "bzip2-%s %8s %13s %s" "$FILECOMPRESS" "$FILECRC" "$FILESIZE" "$FILENAME"
 			else
@@ -782,7 +782,7 @@ EOF
 		# Unknown format
 		# requires: file
 		*)	echo "$filetype: Unsupported archive format." 1>&2
-			if [ X"$FV_VERBOSE" != X ] ; then
+			if [ -n "$FV_VERBOSE" ] ; then
 				file -- "$f" 1>&2
 			fi
 			# Indicate that an error has occurred
@@ -790,7 +790,7 @@ EOF
 			;;
 
 	esac
-	if [ X"$FV_VERBOSE" = X2 ] ; then
+	if [ "$FV_VERBOSE" = 2 ] ; then
 	  set +x
 	fi
 	# Save the return code of the last program run so we can return that from
@@ -799,4 +799,4 @@ EOF
 	rc=$?
 	echo ""
 done
-exit $rc
+exit "$rc"
