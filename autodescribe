@@ -348,6 +348,11 @@ comment_zoo () {
 	fi
 }
 
+# File type: PKG-INFO (Python package information)
+comment_pkginfo () {
+	COMMENT="$(sed -n 's/^Name: //p' < "$1"), $(sed -n 's/^Summary: //p' < "$1")"
+}
+
 # File type: plist (Apple property list)
 # requires: xmlstarlet
 comment_plist () {
@@ -1630,6 +1635,9 @@ for f in "$@" ; do
 			*.pdb | *.prc) TYPE=palm
 				;;
 			*.pfa | *.gsf) TYPE=psfont
+				;;
+			*/PKG-INFO | PKG-INFO)
+				TYPE=pkginfo
 				;;
 			*.plist)
 				TYPE=plist
