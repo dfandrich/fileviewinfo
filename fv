@@ -376,7 +376,7 @@ for f in "$@" ; do
 			;;
 
 		# requires: pilot-link
-		*.pdb | *.prc) filetype_label Palm Pilot file
+		*.pdb | *.prc) archive_label Palm Pilot file
 			pilot-file -Hasl -- "$f"
 			;;
 
