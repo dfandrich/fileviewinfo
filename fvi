@@ -634,9 +634,9 @@ EOF
 			tiffinfo -- "$f" || tiffdump -- "$f"
 			;;
 
-		# requires: bittorrent
+		# requires: aria2 || bittorrent
 		*.torrent)	filetype_label BitTorrent torrent file
-			torrentinfo-console "$sf"
+			aria2c --show-file -- "$sf" || torrentinfo-console "$sf"
 			;;
 
 		# requires: openssl

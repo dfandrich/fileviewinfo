@@ -785,6 +785,12 @@ comment_tiff () {
 	COMMENT=$(tiffinfo -- "$1" | sort -r | sed -E -n -e 's/^ *(ImageDescription|DocumentName|Artist): //p' | head -1)
 }
 
+# File type: torrent (BitTorrent torrent file)
+# requires: aria2
+comment_torrent () {
+	COMMENT="$(aria2c --show-file -- "$1" | sed -n 's/^Name: *//p')"
+}
+
 # File type: whl (Python wheel package)
 # requires: unzip
 comment_whl () {
@@ -1710,6 +1716,9 @@ for f in "$@" ; do
 				;;
 			*.tif | *.tiff)
 				TYPE=tiff
+				;;
+			*.torrent)
+				TYPE=torrent
 				;;
 			*.txt | *.asc | *.rst | *README | *Readme | *ReadMe | *readme | \
 		    *file_id.diz)
