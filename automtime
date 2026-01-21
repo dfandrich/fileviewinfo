@@ -465,6 +465,13 @@ mtime_journal () {
 	TIME=$(normalize_time_tz "$RAWTIME")
 }
 
+# File type: jp2 (JPEG 2000)
+# requires: exiftool
+mtime_jp2 () {
+	# Uses exiftool that works just as well for this format
+	mtime_heif "$@"
+}
+
 # File type: jxl (JPEG XL)
 # requires: exiftool
 mtime_jxl () {
@@ -1265,6 +1272,10 @@ for f in "$@" ; do
 
 			*.journal)
 				TYPE=journal
+				;;
+
+			*.jp2)
+				TYPE=jp2
 				;;
 
 			*.jxl)
