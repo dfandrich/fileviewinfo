@@ -18,7 +18,7 @@ jobs:
   build-24_04:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: 'Install deps'
       run: >
         sudo apt-get update -y &&
@@ -184,7 +184,7 @@ jobs:
     runs-on: ubuntu-latest
     container: opensuse/tumbleweed
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: 'Install deps'
       # The last line in the package list is for those needed by the build &
       # test environment and not to handle a particular file type.
@@ -221,6 +221,7 @@ jobs:
         mkvtoolnix
         mtd-utils
         netpbm
+        oils-for-unix
         python313-pefile
         python313-pip
         python313-PyICU
@@ -275,6 +276,8 @@ jobs:
       run: make check -k SHELL=gash
     - name: 'Run tests using nbase'
       run: PATH="/usr/libexec/nbase/bin:$PATH" make check -k
+    - name: 'Run tests with oils'
+      run: make check -k SHELL=osh
     - name: 'Test installation'
       run: make install prefix="$PWD/install"
     - name: 'Test dist'
