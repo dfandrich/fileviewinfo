@@ -31,7 +31,7 @@
 #   in the first position.  These extensions are listed using the -l option.
 
 usage () {
-	echo 'fv ver. 8'
+	echo 'fv ver. 9-dev'
 	echo 'Displays directory listings for many archive types.'
 	echo ''
 	echo 'Usage: fv [-v] [-?] [-h] [-l] [-t type] archive1 [ archive2 ... ]'
