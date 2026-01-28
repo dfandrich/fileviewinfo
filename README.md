@@ -81,4 +81,5 @@ or issues there, or submit pull requests to support new file types.
 Copyright © 2003–2025 Dan Fandrich <dan@coneharvesters.com>
 Licensed under the MIT license (see the file [LICENSE](LICENSE) for details)
 with the exception of the files in testfiles/ which are hereby dedicated to the
-public domain in jurisdictions where such a dedication is legally permitted.
+public domain (in jurisdictions where such a dedication is not possible, the
+MIT license applies).
