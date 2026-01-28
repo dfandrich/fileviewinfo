@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.TH FVI 1 "2024-01-10" "fvi version 8-dev"
+.TH FVI 1 "2026-01-27" "fvi version 8"
 .SH NAME
 fvi \- File view info metadata displayer
 .SH SYNOPSIS
@@ -46,37 +46,38 @@ with the \-l option.
 This version supports the following file extensions:
 .LP
 .\" This section comes from: ./fvi -l | sed -e /^Supported/,1d -e 's/^/.SM /'
-.SM .3g2 .3gp .3mf .4xm .5vw .5vw.gz .7z .a .aac .ac3 .adts .aiff .alaw .amf
-.SM .amr .amv .apc .ape .apk .apkm .application .asf .asf_stream .au .avi .avs
-.SM .bethsoftvid .bfr .bfr.gz .bochs .bpb .bz2 .c93 .cacrt .cap .cap.gz .cfi
-.SM .cgm .cgz .chrt .class .cpm .crc .crl .crt .csr .d2m .d4m .d80 .d81 .d88
-.SM .dar .daud .db .deb .depot .depot.gz .der .dex .dfi .dirac .dll .dmg .dmk
-.SM .dng .docm .docx .ds2 .dsc .dsicin .dsk .dtb .dti .dts .dv .dv1394 .dvd
-.SM .dxa .dylib .ea .edsk .egg .epk .eps .epub .erf .erf.gz .exe .f3d .fdi
-.SM .ffm .fig .film_cpk .flac .flic .flv .flw .fpm .fpx .framecrc .gdbm .gif
-.SM .gmo .gpg .gplt .gpx .gxf .gz .h261 .h263 .h264 .heic .heic .heif .hfe
-.SM .hpgl .idcin .image2 .image2pipe .imd .ingenient .ipf .ipg .ipk .ipmovie
-.SM .iso .jar .jbig .jfif .jp2 .jpeg .jpg .key .kfo .kil .kmz .kpr .kra .ksp
-.SM .kwd .libnut .lif .lz .lzma .lzo .m1v .m2v .m4a .m4v .matroska .mbd .mgt
-.SM .mj2 .mjpeg .mkv .mm .mmf .mng .mo .mov .mp2 .mp3 .mp4 .mpc .mpe .mpeg
-.SM .mpeg1video .mpeg2video .mpegts .mpegtsraw .mpegvideo .mpg .mpg4 .mpjpeg
-.SM .mport .msa .mscz .mts .MTV .mulaw .mxf .ncf .ncf.gz .ncfx .ncfx.gz .nif
-.SM .nsv .nth .null .nut .nuv .o .odf .odg .odp .ods .odt .ogg .ogv .opd
-.SM .opk .oss .otf .otg .otp .ots .pam .par .parallels .pbm .pcap .pcap.gz
-.SM .pcapng .pcapng.gz .pcl .pcx .pdf .pem .pet .pfa .pfb .pgm .pgp .pk3
-.SM .png .pnm .po .ppm .pptx .ps .psp .psxstr .pyc .pyd .pyo .qcow .qcow2
-.SM .qed .qpk .qpr .qt .ram .rar .raw .rawvideo .redir .resource .rle .rm
-.SM .RoQ .rpm .rsn .rtp .rtsp .rub .rz .s16be .s16le .s24 .s8 .sad .sb2 .sb3
-.SM .sbt .scl .scp .sdf .sdp .shn .siff .sig .sis .slob .slp .smk .snap
-.SM .snoop .snoop.gz .so .so.?  .so.??  .so.???  .sol .spm .sqfs .sqlite
-.SM .sqlite3 .sqsh .squashfs .stl .svcd .svg .svgz .swf .sxd .sxi .sxm .sxw
-.SM .taz .tbz .tbz2 .tc .tc-compressed .td0 .tdb .tgz .thp .tiertexseq .tif
-.SM .tiff .tlz .torrent .tr1 .tr1.gz .trc0 .trc0.gz .trd .tta .ttf .txd .txz
-.SM .typelib .u16be .u16le .u8 .udi .vc1 .vcd .vdi .vhd .vhdx .video4linux
-.SM .video4linux2 .vmd .vmdk .vob .voc .vpc .wacz .wal .war .warc.gz .wav
-.SM .wc3movie .webm .webp .whl .wmf .wmv .wmz .woff .wsaud .wsvqa .wsz .wv
-.SM .x11grab .xbm .xlsx .xpi .xpm .xps .xz .yuv4mpegpipe .Z .z .zip .zst gz
-.SM xz zst
+.SM .3g2 .3gp .3gpp .3mf .4xm .5vw .5vw.gz .7z .a .aac .aar .ac3 .adts
+.SM .ai .aiff .alaw .amf .amr .amv .apc .ape .apk .apkm .application .asf
+.SM .asf_stream .au .avi .avs .bethsoftvid .bfr .bfr.gz .bochs .bpb .br .bz2
+.SM .c93 .cacrt .cap .cap.gz .cfi .cgm .cgz .chrt .class .cpm .crc .crl .crt
+.SM .csr .cur .d2m .d4m .d80 .d81 .d88 .dar .daud .db .deb .depot .depot.gz
+.SM .der .dex .dfi .dirac .dll .dmg .dmk .dng .docm .docx .ds2 .dsc .dsicin
+.SM .dsk .dtb .dti .dts .dv .dv1394 .dvd .dxa .dylib .ea .edsk .egg .epk
+.SM .eps .epub .erf .erf.gz .exe .f3d .fdi .ffm .fig .film_cpk .flac .flic
+.SM .flv .flw .fpm .fpx .framecrc .gdbm .gif .gmo .gpg .gplt .gpx .gxf .gz
+.SM .h261 .h263 .h264 .heic .heif .hfe .hpgl .idcin .image2 .image2pipe
+.SM .imd .ingenient .ipf .ipg .ipk .ipmovie .iso .jar .jbig .jfif .journal
+.SM .jp2 .jpeg .jpg .key .kfo .kil .kmz .kpr .kra .ksp .kwd .libnut .lif .lz
+.SM .lzma .lzo .m1v .m2v .m4a .m4v .matroska .mbd .mgt .mj2 .mjpeg .mkv .mm
+.SM .mmf .mng .mo .mov .mp2 .mp3 .mp4 .mpc .mpe .mpeg .mpeg1video .mpeg2video
+.SM .mpegts .mpegtsraw .mpegvideo .mpg .mpg4 .mpjpeg .mport .msa .mscz .mts
+.SM .MTV .mulaw .mxf .ncf .ncf.gz .ncfx .ncfx.gz .nif .nsv .nth .null .nut
+.SM .nuv .o .odf .odg .odp .ods .odt .ogg .ogv .opd .opk .oss .otf .otg .otp
+.SM .ots .oxt .pam .par .parallels .pbm .pcap .pcap.gz .pcapng .pcapng.gz .pcl
+.SM .pcx .pdb .pdf .pem .pet .pfa .pfb .pgm .pgp .pk3 .pkg.tar .pkg.tar.bz2
+.SM .pkg.tar.gz .pkg.tar.xz .pkg.tar.zst .png .pnm .po .ppm .pptx .prc .ps
+.SM .psp .psxstr .pyc .pyd .pyo .qcow .qcow2 .qed .qpk .qpr .qt .ram .rar
+.SM .raw .rawvideo .redir .resource .rle .rm .RoQ .rpm .rsn .rtp .rtsp .rub
+.SM .rz .s16be .s16le .s24 .s8 .sad .sb2 .sb3 .sbt .scl .scp .sdf .sdp .shn
+.SM .siff .sig .sis .slob .slp .smk .snap .snoop .snoop.gz .so .so.?  .so.??
+.SM .so.???  .sol .spm .sqfs .sqlite .sqlite3 .sqsh .squashfs .stl .svcd .svg
+.SM .svgz .swf .sxd .sxi .sxm .sxw .taz .tbz .tbz2 .tc .tc-compressed .tcz
+.SM .td0 .tdb .tgz .thp .tiertexseq .tif .tiff .tlz .torrent .tr1 .tr1.gz
+.SM .trc0 .trc0.gz .trd .tsr .tta .ttf .txd .txz .typelib .u16be .u16le .u8
+.SM .udi .vc1 .vcd .vdi .vhd .vhdx .video4linux .video4linux2 .vmd .vmdk
+.SM .vob .voc .vpc .wacz .wal .war .warc.gz .wav .wc3movie .webm .webp .whl
+.SM .wmf .wmv .wmz .woff .wsaud .wsvqa .wsz .wv .x11grab .xbm .xlsx .xpi
+.SM .xpm .xps .xz .yuv4mpegpipe .Z .z .zip .zst gz xz zst
 .\" End of mechanically-generated section
 .LP
 It is trivial to add more file types to
@@ -95,6 +96,8 @@ These are the file types supported:
 .LP
 Additive Manufacturing File
 .LP
+Android archive library
+.LP
 Android Java class file
 .LP
 Android package
@@ -108,6 +111,8 @@ Binary message catalog file
 Bitmapped image file
 .LP
 BitTorrent torrent file
+.LP
+brotli-compressed file
 .LP
 bzip2-compressed file
 .LP
@@ -147,8 +152,6 @@ GIF image
 .LP
 Gnu Privacy Guard/Pretty Good Privacy file
 .LP
-GnuPG
-.LP
 Google Earth
 .LP
 GPS exchange format file
@@ -171,13 +174,15 @@ Java jar file
 .LP
 Java Web Start
 .LP
+journald log file
+.LP
 JPEG image
 .LP
 Krita image
 .LP
 lzip-compressed file
 .LP
-LZMA compressed file
+LZMA-compressed file
 .LP
 LZOP-compressed file
 .LP
@@ -217,6 +222,8 @@ OpenDocument Drawing
 .LP
 OpenDocument Drawing Template
 .LP
+OpenDocument Extension
+.LP
 OpenDocument Formula
 .LP
 OpenDocument Presentation
@@ -236,6 +243,12 @@ OpenOffice Impress Presentation
 OpenOffice Math
 .LP
 OpenOffice Writer Document
+.LP
+OpenPGP
+.LP
+Pacman package
+.LP
+Palm Pilot file
 .LP
 Pcap network capture file
 .LP
@@ -265,7 +278,7 @@ Quicktime audio
 .LP
 Quicktime video
 .LP
-RAR compressed archive
+RAR-compressed archive
 .LP
 Red Hat RPM package
 .LP
@@ -303,6 +316,8 @@ Tellico database
 .LP
 Text message catalog file
 .LP
+Tiny Core Linux package
+.LP
 Tukaani Linux package
 .LP
 URPM synthesis file
@@ -333,9 +348,11 @@ X509 Certificate Signing Request
 .LP
 X509 CRL
 .LP
+X509 Time Stamp Protocol Reply
+.LP
 XML Paper Specification
 .LP
-XZ compressed file
+XZ-compressed file
 .LP
 xz-compressed tar archive
 .LP
@@ -404,5 +421,5 @@ See https://github.com/dfandrich/fileviewinfo/
 .\" ---------------------------------------------------------------------------
 .SH COPYRIGHT
 .B fvi
-is Copyright (c) 2021\(en2024 Dan Fandrich <dan@coneharvesters.com>.
+is Copyright (c) 2021\(en2026 Dan Fandrich <dan@coneharvesters.com>.
 Licensed under the MIT license (see LICENSE).

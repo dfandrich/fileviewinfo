@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.TH AUTOMTIME 1 "2024-01-10" "automtime version 8-dev"
+.TH AUTOMTIME 1 "2026-01-27" "automtime version 8"
 .SH NAME
 automtime \- automatically extract modification times from files
 .SH SYNOPSIS
@@ -62,6 +62,10 @@ ar (ar archive)
 .LP
 arj (arj archive)
 .LP
+avif (AVIF image)
+.LP
+bgcode (Binary G-code machine control file)
+.LP
 cab (Microsoft Cabinet archive)
 .LP
 cpio (CPIO Archive)
@@ -75,6 +79,8 @@ dat (Allegro4 not packed datafile)
 dll (Microsoft Windows PE dynamic link library)
 .LP
 docbook (DocBook document)
+.LP
+doc (Microsoft composite document)
 .LP
 docx (Microsoft Office Open XML)
 .LP
@@ -92,13 +98,29 @@ gpx (GPX GPS track)
 .LP
 gzip (gzip-compressed file)
 .LP
+har (HTTP Archive Format file)
+.LP
+heif (High Efficiency Image Format)
+.LP
 ics (iCalendar file)
 .LP
 ipk (Itsy package)
 .LP
 iso (ISO-9660 CD-ROM image)
 .LP
+journal (journald log file)
+.LP
+jp2 (JPEG 2000)
+.LP
 jpeg (JPEG JFIF image)
+.LP
+jxl (JPEG XL)
+.LP
+kicad (Kicad document)
+.LP
+kml (Keyhole Markup Language)
+.LP
+kmy (KMyMoney file)
 .LP
 kra (Krita image)
 .LP
@@ -114,6 +136,8 @@ odf (Open Document Format)
 .LP
 otf (OpenType font/TrueType font)
 .LP
+palm (Palm Pilot file)
+.LP
 patch (unified diff style patch)
 .LP
 pbi (PC-BSD package)
@@ -123,6 +147,10 @@ pcap (Pcap network capture file)
 pdf (Portable Document Format)
 .LP
 png (PNG image)
+.LP
+po (GNU gettext message catalog)
+.LP
+pot (GNU gettext message catalog template)
 .LP
 ps (PostScript)
 .LP
@@ -134,9 +162,15 @@ rtf (Rich Text Format file)
 .LP
 shar (shell archive)
 .LP
+sig (OpenPGP signature)
+.LP
+sigstore (Sigstore Release Attestation)
+.LP
 sla (Scribus document)
 .LP
 slob (Sorted List of Blobs dictionary)
+.LP
+spdx (Software Package Data Exchange)
 .LP
 squashfs (Squashfs filesystem image)
 .LP
@@ -154,15 +188,23 @@ tlzip (Lzip-compressed Tape Archive)
 .LP
 tlz (Lzma-compressed Tape Archive)
 .LP
+torrent (BitTorrent torrent file)
+.LP
 txz (Xzip-compressed Tape Archive)
 .LP
 tzst (Zstd-compressed Tape Archive)
 .LP
 vbox (VirtualBox machine file)
 .LP
+vcf (vCard contact)
+.LP
 warcgz (Compressed Web Archive Collection file)
 .LP
+webp (WEBP image)
+.LP
 wml (Wireless Markup Language)
+.LP
+wmv (Windows Media Video)
 .LP
 xcf (Gimp image)
 .LP
@@ -274,5 +316,5 @@ See https://github.com/dfandrich/fileviewinfo/
 .\" ---------------------------------------------------------------------------
 .SH COPYRIGHT
 .B automtime
-is Copyright (c) 2023\(en2024 Dan Fandrich <dan@coneharvesters.com>.
+is Copyright (c) 2023\(en2026 Dan Fandrich <dan@coneharvesters.com>.
 Licensed under the MIT license (see LICENSE).

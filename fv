@@ -1,7 +1,7 @@
 #!/bin/sh
 # fv - archive and package directory lister
 #
-# Copyright (c) 2003-2024 Dan Fandrich <dan@coneharvesters.com>
+# Copyright (c) 2003-2026 Dan Fandrich <dan@coneharvesters.com>
 # Licensed under the MIT license (see LICENSE).
 #
 # Format of archive entries in this file:
@@ -31,7 +31,7 @@
 #   in the first position.  These extensions are listed using the -l option.
 
 usage () {
-	echo 'fv ver. 8-dev'
+	echo 'fv ver. 8'
 	echo 'Displays directory listings for many archive types.'
 	echo ''
 	echo 'Usage: fv [-v] [-?] [-h] [-l] [-t type] archive1 [ archive2 ... ]'

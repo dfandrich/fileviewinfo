@@ -1,7 +1,7 @@
 #!/bin/sh
 # automtime - automatically get modification time from internal file metadata
 #
-# Copyright (c) 2023-2024 Dan Fandrich <dan@coneharvesters.com>
+# Copyright (c) 2023-2026 Dan Fandrich <dan@coneharvesters.com>
 # Licensed under the MIT license (see LICENSE).
 
 ###########################
@@ -1097,7 +1097,7 @@ mtime_zpaq () {
 ###########################
 
 if [ $# -eq 0 -o "$1" = "-h" -o "$1" = "-?" ] ; then
-	echo 'automtime ver. 8-dev'
+	echo 'automtime ver. 8'
 	echo 'Usage: automtime [-?] [-h] [-l] [-m] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
 	echo 'Extracts modification from internal file metadata'
 	echo '  -e cmd   command to run once for each file with args: mtime file'

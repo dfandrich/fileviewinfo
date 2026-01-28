@@ -1,7 +1,7 @@
 #!/bin/sh
 # fvi - file metainformation lister
 #
-# Copyright (c) 2009-2024 Dan Fandrich <dan@coneharvesters.com>
+# Copyright (c) 2009-2026 Dan Fandrich <dan@coneharvesters.com>
 # Licensed under the MIT license (see LICENSE).
 #
 # Format of file type entries in this file:
@@ -31,7 +31,7 @@
 #   in the first position.  These extensions are listed using the -l option.
 
 usage () {
-	echo 'fvi ver. 8-dev'
+	echo 'fvi ver. 8'
 	echo 'Displays metadata for many file types.'
 	echo ''
 	echo 'Usage: fvi [-v] [-?] [-h] [-l] [-t type] file1 [ file2 ... ]'

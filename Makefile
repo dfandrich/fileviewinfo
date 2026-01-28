@@ -1,6 +1,6 @@
 # Makefile for installing fileviewinfo
 #
-# Copyright (c) 2023 Dan Fandrich <dan@coneharvesters.com>
+# Copyright (c) 2023-2026 Dan Fandrich <dan@coneharvesters.com>
 # Licensed under the MIT license (see LICENSE).
 #
 # This Makefile relies on some GNU make extensions.
