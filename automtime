@@ -830,6 +830,14 @@ mtime_squashfs () {
 	TIME=$(normalize_time_tz "$RAWTIME")
 }
 
+# File type: stardict (StarDict info file)
+mtime_stardict () {
+	# Make sure the date parts are separated with - and month/date are 0-prefixed
+	RAWTIME=$(sed -n -e 's/^date=//p' < "$f" | sed -Ene 's/([0-9]{4})[.-]([0-9]{1,2})[.-]([0-9]{1,2})$/\1-\2-\3/p' | sed -E -e 's/-([0-9])-/-0\1-/g' -e 's/-([0-9])$/-0\1/g' )
+	# $RAWTIME is like 2022-01-02
+	TIME="$RAWTIME"
+}
+
 # File type: svg (Scalable Vector Graphics image)
 # requires: xmlstarlet
 mtime_svg () {
@@ -1256,6 +1264,10 @@ for f in "$@" ; do
 
 			*.ics)
 				TYPE=ics
+				;;
+
+			*.ifo)
+				TYPE=stardict
 				;;
 
 			*.ipk)

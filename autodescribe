@@ -1269,6 +1269,11 @@ comment_sh () {
 	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^#* *$/d' -e 's/^# *//p' < "$1" | head -1)
 }
 
+# File type: stardict (StarDict info file)
+comment_stardict () {
+	COMMENT=$(sed -n -e 's/^bookname=//p' < "$1")
+}
+
 # File type: otf (OpenType font/TrueType font)
 # requires: freetype2-demos
 comment_otf () {
@@ -1561,6 +1566,8 @@ for f in "$@" ; do
 				TYPE=html
 				;;
 			*.ics)	TYPE=ics
+				;;
+			*.ifo)	TYPE=stardict
 				;;
 			*.iso)	TYPE=iso
 				;;
