@@ -1250,6 +1250,11 @@ comment_mscz () {
 	fi
 }
 
+# File type: nix (NixOS package definition file)
+comment_nix () {
+	COMMENT=$(sed -n -e '1,/^[[:space:]]*meta[[:space:]]*=/d' -e 's/"[[:space:]]*;[[:space:]]*$//' -e 's/^[[:space:]]*description[[:space:]]*=[[:space:]]*"//p' < "$1" | head -1)
+}
+
 # File type: pcap (Pcap network capture file)
 # requires: wireshark-tools
 comment_pcap () {
@@ -1617,6 +1622,8 @@ for f in "$@" ; do
 			*.mscx)	TYPE=mscx
 				;;
 			*.mscz)	TYPE=mscz
+				;;
+			*.nix) TYPE=nix
 				;;
 			*.odt | *.otm | *.ott | *.odh | *.odc | *.otc | *.odg | *.otg | *.odi | *.oti | *.odp | *.otp | *.ods | *.ots | *.odf | \
 			*.sxw | *.sxc | *.sxi | *.sxd | *.sxm)
