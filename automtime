@@ -1391,7 +1391,7 @@ for f in "$@" ; do
 				TYPE=shar
 				;;
 
-			*.sig)
+			*.sig | *.asc)
 				TYPE=sig
 				;;
 
