@@ -744,9 +744,6 @@ comment_svg () {
 
 # File type: svgz (Compressed Scalable Vector Graphics image)
 # requires: gzip, xmlstarlet
-# TODO: xmlstarlet can optionally transparently decompress, but that feature is
-# likely to be removed some time after 2025 so we shouldn't rely on it here (or
-# for certain other file types).
 comment_svgz () {
 	COMMENT=$(gzip -dc < "$1" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='title']" 2> /dev/null)
 	if [ -z "$COMMENT" ] ; then
@@ -1084,9 +1081,9 @@ comment_gif () {
 }
 
 # File type: gnumeric (Gnumeric spreadsheet)
-# requires: xmlstarlet
+# requires: gzip, xmlstarlet
 comment_gnumeric () {
-	COMMENT=$(xmlstarlet sel -N gnm=http://www.gnumeric.org/v10.dtd -N office=urn:oasis:names:tc:opendocument:xmlns:office:1.0 -N dc=http://purl.org/dc/elements/1.1/ -t -v '/gnm:Workbook/office:document-meta/office:meta/dc:title' < "$1")
+	COMMENT=$(gzip -dcf < "$1" | xmlstarlet sel -N gnm=http://www.gnumeric.org/v10.dtd -N office=urn:oasis:names:tc:opendocument:xmlns:office:1.0 -N dc=http://purl.org/dc/elements/1.1/ -t -v '/gnm:Workbook/office:document-meta/office:meta/dc:title')
 }
 
 # File type: gpx (GPX GPS track)

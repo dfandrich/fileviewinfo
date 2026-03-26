@@ -327,9 +327,9 @@ mtime_bgcode () {
 }
 
 # File type: gnumeric (Gnumeric spreadsheet)
-# requires: xmlstarlet
+# requires: gzip, xmlstarlet
 mtime_gnumeric () {
-	RAWTIME=$(xmlstarlet sel -N gnm=http://www.gnumeric.org/v10.dtd -N office=urn:oasis:names:tc:opendocument:xmlns:office:1.0 -N dc=http://purl.org/dc/elements/1.1/ -t -v '/gnm:Workbook/office:document-meta/office:meta/dc:date' < "$1")
+	RAWTIME=$(gzip -dcf < "$1" | xmlstarlet sel -N gnm=http://www.gnumeric.org/v10.dtd -N office=urn:oasis:names:tc:opendocument:xmlns:office:1.0 -N dc=http://purl.org/dc/elements/1.1/ -t -v '/gnm:Workbook/office:document-meta/office:meta/dc:date')
 	# $RAWTIME is like 2022-04-04T17:07:51Z
 	TIME="$(normalize_iso_time "$RAWTIME")"
 }
@@ -525,9 +525,9 @@ mtime_kra () {
 }
 
 # File type: kmy (KMyMoney file)
-# requires: xmlstarlet
+# requires: gzip, xmlstarlet
 mtime_kmy () {
-	RAWTIME=$(xmlstarlet sel -t -v /KMYMONEY-FILE/FILEINFO/LAST_MODIFIED_DATE/@date < "$1" )
+	RAWTIME=$(gzip -dcf < "$1" | xmlstarlet sel -t -v /KMYMONEY-FILE/FILEINFO/LAST_MODIFIED_DATE/@date)
 	# $RAWTIME is like 2022-01-01
 	TIME="$RAWTIME"
 }
@@ -842,6 +842,21 @@ mtime_stardict () {
 # requires: xmlstarlet
 mtime_svg () {
 	RAWTIME=$(xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='date']" < "$1" 2>/dev/null)
+	# $RAWTIME can be just about anything, but DublinCore recommends ISO 8601-1.
+	# Anything else is too ambiguous, so ignore them.
+	if echo "$RAWTIME" | grep '^[012][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]' >/dev/null; then
+		# $RAWTIME is like 2012-01-23 or 2012-01-23T13:14:15Z or 2012-01-23T13:14:15-0100
+		TIME="$(normalize_iso_time "$RAWTIME")"
+	else
+		# Not ISO 8601, so ignore it since it's too dangerous guessing what it is
+		TIME=''
+	fi
+}
+
+# File type: svgz (Compressed Scalable Vector Graphics image)
+# requires: gzip, xmlstarlet
+mtime_svgz () {
+	RAWTIME=$(gzip -dc < "$1" | xmlstarlet sel -t -v "/*[local-name()='svg']/*[local-name()='metadata']/*[local-name()='RDF']/*[local-name()='Work']/*[local-name()='date']" 2>/dev/null)
 	# $RAWTIME can be just about anything, but DublinCore recommends ISO 8601-1.
 	# Anything else is too ambiguous, so ignore them.
 	if echo "$RAWTIME" | grep '^[012][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]' >/dev/null; then
@@ -1419,8 +1434,12 @@ for f in "$@" ; do
 				TYPE=squashfs
 				;;
 
-			*.svg | *.svgz)
+			*.svg)
 				TYPE=svg
+				;;
+
+			*.svgz)
+				TYPE=svgz
 				;;
 
 			*.tar | *.tardist | *.lpkg | *.sto | *.depot)
