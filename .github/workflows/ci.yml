@@ -78,13 +78,13 @@ jobs:
         make curl ca-certificates groff-base man2html-base bash busybox ksh toybox mmv mksh yash zsh
     - name: 'Install extras'
     # zoo is no longer available in Ubuntu and must be installed manually
-    # bgcode is too old in 24.04 and must be upgraded to the version in 25.04
+    # bgcode is too old in 24.04 and must be upgraded to the version in 26.04
       run: |
         curl -LsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all \
-            http://azure.archive.ubuntu.com/ubuntu/pool/universe/libb/libbgcode/bgcode_0.0~git20241024.d33a277-2_amd64.deb \
+            http://azure.archive.ubuntu.com/ubuntu/pool/universe/libb/libbgcode/bgcode_0.0~git20251210.0773cea-2_amd64.deb \
             http://azure.archive.ubuntu.com/ubuntu/pool/universe/z/zoo/zoo_2.10-28_amd64.deb
         sha256sum -c <<EOF
-        33d486df33efcb9fc9fd34008a8400633a0a2f426f767f8987adcd26c9ac8839  bgcode_0.0~git20241024.d33a277-2_amd64.deb
+        38d5f296e7ec33584431acd489dd5bca0c4f56ed38df3cfd578dbb61a863987e  bgcode_0.0~git20251210.0773cea-2_amd64.deb
         953f4f94095ef3813dfd30c8977475c834363aaabce15ab85ac5195e52fd816a  zoo_2.10-28_amd64.deb
         EOF
         sudo dpkg -i bgcode*.deb zoo*.deb
@@ -265,9 +265,12 @@ jobs:
         # Set mawk as the default for test diversity
         ln -s mawk /usr/bin/awk
     - name: 'Prepare tests'
-    # bgcode tests require updated packages
     # gimp tests no longer work with ver. >= 3
-      run: sed -i -e '/\.xcf/d' test-*-expected; sed -i -e '/\.bgcode/d' test-automtime-expected
+    # bgcode tests require updated packages
+    # webm subsecond times are rounded differently starting with mkvtoolnix ver. 97
+      run: |
+        sed -i -e '/\.xcf/d' test-*-expected
+        sed -i -e '/\.bgcode/d' -e 's/\.0900000333786011/.090000153/' test-automtime-expected
     - name: 'Run tests'
       run: make check -k
     - name: 'Run tests with hush'
