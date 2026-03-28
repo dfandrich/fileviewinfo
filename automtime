@@ -567,13 +567,19 @@ mtime_appdata () {
 # File type: mkv (Matroska video)
 # requires: exiftool
 mtime_mkv () {
-	# Uses exiftool that will extract the creation time
-    mtime_mov "$@"
+	# Uses exiftool to extract the creation time
+	mtime_mov "$@"
 	if [ -z "$TIME" ]; then
-		# Some files embed a "date" tag rather than using the creation time
 		# "safe" filename guaranteed not to start with a dash
 		sf="$(safefn "$1")"
-		RAWTIME=$(mkvinfo "$sf" | sed -E -n -e '1,/\+ Tags/d' -e '/\+ Name: (CREATION_TIME|DATE)/{n;s/^.*\+ String: //p}' )
+		# This seems to be the same field extracted by exiftool
+		RAWTIME=$(mkvinfo "$sf" | sed -E -n -e 's/^[| ]*\+ Date: //p' )
+		# $RAWTIME is like 2023-04-05 06:07:08 UTC
+		TIME=$(normalize_time_tz "$RAWTIME")
+	fi
+	if [ -z "$TIME" ]; then
+		# Some files embed a "date" tag rather than using the creation time
+		RAWTIME=$(mkvinfo "$sf" | sed -E -n -e '1,/\+ Tags/d' -e '/ \+ Name: (CREATION_TIME|DATE)/{n;s/^[| ]*\+ String: //p}' )
 		# $RAWTIME is probably pretty free-form, but one example is like 2025-02-01 15:05:00+01
 		TIME=$(normalize_time_tz "$RAWTIME")
 	fi
@@ -621,7 +627,7 @@ mtime_odf () {
 
 # File type: patch (unified diff style patch)
 mtime_patch () {
-    # git-style format-patch
+	# git-style format-patch
 	RAWTIME=$(sed -n -e '1,/^$/s/^[Dd][Aa][Tt][Ee]: *//p' < "$1")
 	# $RAWTIME is usually like Wed, 18 Jun 2014 17:06:32 -0400
 	if [ -z "$RAWTIME" ]; then
