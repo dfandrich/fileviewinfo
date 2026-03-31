@@ -239,7 +239,7 @@ jobs:
         make groff busybox
     - name: 'Install contrib'
     # nbase is only available in a contrib repo on OBS (as of 2024)
-    # nbase-tail and nbase-ls are completely broken in 9.1.0.2-8.39 and 9.3.0.1-55.13;
+    # nbase-tail and nbase-ls are completely broken in 9.1.0.2-8.39 and 9.3.0.1-55.16;
     # don't install them
       run: |
         zypper --non-interactive addrepo https://download.opensuse.org/repositories/home:cheusov/openSUSE_Tumbleweed/home:cheusov.repo
