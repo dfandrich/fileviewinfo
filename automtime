@@ -585,6 +585,13 @@ mtime_mkv () {
 	fi
 }
 
+# File type: mo (Binary message catalog file)
+mtime_mo () {
+	RAWTIME=$(msgunfmt -- "$f" | sed -n -e 's/\\n"$//' -e 's/^"PO-Revision-Date: *//p' | head -1)
+	# $RAWTIME is like 2023-02-17 20:19-0800
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
 # File type: wmv (Windows Media Video)
 # requires: exiftool
 mtime_wmv () {
@@ -1340,6 +1347,10 @@ for f in "$@" ; do
 
 			*.mbox | *.mbx | *.mbo | *.nws | *.msg | *.eml)
 				TYPE=email
+				;;
+
+			*.mo | *.gmo)
+				TYPE=mo
 				;;
 
 			*.patch | *.diff)
