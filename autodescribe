@@ -360,6 +360,11 @@ comment_plist () {
 	COMMENT=$(xmlstarlet sel -t -m "/plist/dict/key[normalize-space(text())='CFBundleDisplayName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleGetInfoString'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='OpenSourceProject'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='Label'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleIdentifier'][1]" -v "following-sibling::string[1]" -nl < "$1" 2>/dev/null | head -1)
 }
 
+# File type: proto (Protocol Buffers definition)
+comment_proto () {
+	COMMENT=$(sed -En -e 's/^[[:space:]]*package[[:space:]]+([^ ]*);[[:space:]]*$/\1/p' < "$1" | head -1)
+}
+
 # File type: pyproject.toml (Python project definition)
 comment_pyproject () {
 	COMMENT=$(sed -En -e '/^\[project\]$/,/^\[/s/^description *= *"?([^"]*)"? *$/\1/p' < "$1" | head -1)
@@ -1662,6 +1667,9 @@ for f in "$@" ; do
 				;;
 			*.plist)
 				TYPE=plist
+				;;
+			*.proto)
+				TYPE=proto
 				;;
 			*pyproject.toml)	TYPE=pyproject
 				;;
