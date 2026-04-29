@@ -1225,6 +1225,9 @@ comment_mp3 () {
 # requires: libquicktime-progs || ffmpeg || exiftool
 comment_mp4 () {
 	COMMENT=$(qtdump "$1" | sed -n -e 's/^[[:space:]]*name:[[:space:]]*//p' | head -1)
+	if [ "$COMMENT" = "(null)" ]; then
+		COMMENT=
+	fi
 	if [ -z "$COMMENT" ] ; then
 		comment_ffmpeg "$@"
 	fi
