@@ -251,13 +251,11 @@ jobs:
     # binaries from elsewhere.
       run: |
         curl -LsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all \
-            https://mirrors.kernel.org/mageia/distrib/9/x86_64/media/core/release/lib64png12_0-1.2.59-3.mga9.x86_64.rpm \
-            https://mirrors.kernel.org/mageia/distrib/9/x86_64/media/core/release/pngtools-0.4-9.mga9.x86_64.rpm
+            https://mirrors.kernel.org/mageia/distrib/10/x86_64/media/core/release/pngtools-1.2-1.mga10.x86_64.rpm
         sha256sum -c <<EOF
-        5930a4f9864258b0b5fc18059d8aead64ae693991df2eb3751e1d9f3836ca79e  lib64png12_0-1.2.59-3.mga9.x86_64.rpm
-        379f44b1c95d25358eb014c03835a4b4991c6c364a509c63780e587e70d5744b  pngtools-0.4-9.mga9.x86_64.rpm
+        c764412e54426ae4e9c79def3e33a3e7a366df7b5ece584a9e50b86e64053dfb  pngtools-1.2-1.mga10.x86_64.rpm
         EOF
-        rpm -ivh lib64png12_0-1.2.59-3.mga9.x86_64.rpm pngtools-0.4-9.mga9.x86_64.rpm
+        rpm -ivh pngtools*.rpm
         # Make python 3.13 the default to test with the latest
         rm /usr/bin/python3
         ln -s python3.13 /usr/bin/python3
