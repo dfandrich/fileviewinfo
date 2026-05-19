@@ -1009,6 +1009,12 @@ comment_deb () {
 			;;
 	esac
 }
+#
+# File type: debsrc (Debian source package)
+# requires: tar, xz
+comment_debsrc () {
+	COMMENT=$(xz -dc < "$1" | tar -xOf - debian/control | sed -n 's/^Description: //p' | head -1)
+}
 
 # File type: docbook (DocBook document)
 # requires: xmlstarlet
@@ -1545,6 +1551,8 @@ for f in "$@" ; do
 			*.dbk) TYPE=docbook
 				;;
 			*.deb) TYPE=deb
+				;;
+			*.debian.tar.xz) TYPE=debsrc
 				;;
 			*.desktop)	TYPE=desktop
 				;;
