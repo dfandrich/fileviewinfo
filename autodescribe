@@ -1424,6 +1424,14 @@ comment_xcf () {
 	fi
 }
 
+# File type: xpi (Mozilla extension)
+# requires: unzip (Info-ZIP version)
+comment_xpi () {
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	COMMENT=$(unzip -p "$sf" manifest.json | jq -r .name)
+}
+
 # File type: xpm (X pixmap image)
 # Could extract image size here as well
 comment_xpm () {
@@ -1793,6 +1801,9 @@ for f in "$@" ; do
 				;;
 			*.xhb)
 				TYPE=xhb
+				;;
+			*.xpi)
+				TYPE=xpi
 				;;
 			*.xpm)
 				TYPE=xpm

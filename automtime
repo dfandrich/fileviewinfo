@@ -1098,6 +1098,16 @@ mtime_xcf_exiftool () {
 	TIME=$(echo "$RAWTIME" | sed -E -e 's/^([0-9][0-9][0-9][0-9]):([0-9][0-9]):/\1-\2-/' -e 's/([-+][0-9][0-9])(:)?([0-9][0-9])$/ \1\3/')
 }
 
+# File type: xpi (Mozilla extension)
+# requires: unzip (Info-ZIP version), openssl
+mtime_xpi () {
+    # Decode the signature rather than looking at the file mtimes since the latter
+    # seems to always be set to 1980-01-01.
+    RAWTIME=$(unzip -p "$f" META-INF/mozilla.rsa | openssl pkcs7 -print_certs -text -inform DER -in - | sed -n 's/^[[:space:]]*Not Before:[[:space:]]*//p' | head -1)
+	# $RAWTIME is like Apr 19 22:52:53 2026 GMT
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
 # File type: zip (zip archive)
 # requires: unzip (Info-ZIP version), findutils
 mtime_zip () {
@@ -1528,6 +1538,10 @@ for f in "$@" ; do
 
 			*.xcf | *.xcf.gz | *.xcf.bz2 | *.xcf.xz | *.xcfgz | *.xcfbz2 | *.xcfxz)
 				TYPE=xcf
+				;;
+
+			*.xpi)
+				TYPE=xpi
 				;;
 
 			*.zpaq)
