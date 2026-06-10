@@ -340,7 +340,7 @@ mtime_gz () {
 	RAWTIME=$(python3 - "$1" <<EOF
 import struct, sys
 with open(sys.argv[1], 'rb') as f:
-    magic, _, epoch = struct.unpack('<HHI', f.read(8))
+	magic, _, epoch = struct.unpack('<HHI', f.read(8))
 if magic!=0x8b1f: print('Not a gzip archive', file=sys.stderr); sys.exit(1);
 if epoch != 0:
 	print(epoch)
@@ -489,16 +489,16 @@ mtime_kicad () {
 	# displaying something extraneous after the (defun).
 	TMPFILE=$(mktemp)
 	echo >"$TMPFILE" "
-(defun find-subexpression (sexp pattern)
-  \"Finds and returns a subexpression that matches the pattern.\"
-  (cond
-        ((atom sexp) nil)
-        ((eq (car sexp) pattern) (cdr sexp))
-        (t (or
-             (find-subexpression (car sexp) pattern)
-             (find-subexpression (cdr sexp) pattern)))))
-(format t (car (or (find-subexpression (read *terminal-io*) 'date) '(\"\"))))
-"
+		(defun find-subexpression (sexp pattern)
+			\"Finds and returns a subexpression that matches the pattern.\"
+			(cond
+				((atom sexp) nil)
+				((eq (car sexp) pattern) (cdr sexp))
+				(t (or
+					(find-subexpression (car sexp) pattern)
+					(find-subexpression (cdr sexp) pattern)))))
+		(format t (car (or (find-subexpression (read *terminal-io*) 'date) '(\"\"))))
+		"
 	RAWTIME=$(clisp -q "$TMPFILE" < "$1" 2>/dev/null)
 	if [ -n "$TMPFILE" ]; then
 		rm -f "$TMPFILE"
@@ -1101,9 +1101,9 @@ mtime_xcf_exiftool () {
 # File type: xpi (Mozilla extension)
 # requires: unzip (Info-ZIP version), openssl
 mtime_xpi () {
-    # Decode the signature rather than looking at the file mtimes since the latter
-    # seems to always be set to 1980-01-01.
-    RAWTIME=$(unzip -p "$f" META-INF/mozilla.rsa | openssl pkcs7 -print_certs -text -inform DER -in - | sed -n 's/^[[:space:]]*Not Before:[[:space:]]*//p' | head -1)
+	# Decode the signature rather than looking at the file mtimes since the latter
+	# seems to always be set to 1980-01-01.
+	RAWTIME=$(unzip -p "$f" META-INF/mozilla.rsa | openssl pkcs7 -print_certs -text -inform DER -in - | sed -n 's/^[[:space:]]*Not Before:[[:space:]]*//p' | head -1)
 	# $RAWTIME is like Apr 19 22:52:53 2026 GMT
 	TIME=$(normalize_time_tz "$RAWTIME")
 }

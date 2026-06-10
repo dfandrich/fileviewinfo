@@ -532,16 +532,16 @@ comment_kicad () {
 	# displaying something extraneous after the (defun).
 	TMPFILE=$(mktemp)
 	echo >"$TMPFILE" "
-(defun find-subexpression (sexp pattern)
-  \"Finds and returns a subexpression that matches the pattern.\"
-  (cond
-        ((atom sexp) nil)
-        ((eq (car sexp) pattern) (cdr sexp))
-        (t (or
-             (find-subexpression (car sexp) pattern)
-             (find-subexpression (cdr sexp) pattern)))))
-(format t (car (or (find-subexpression (read *terminal-io*) 'title) '(\"\"))))
-"
+		(defun find-subexpression (sexp pattern)
+			\"Finds and returns a subexpression that matches the pattern.\"
+			(cond
+				((atom sexp) nil)
+				((eq (car sexp) pattern) (cdr sexp))
+				(t (or
+					(find-subexpression (car sexp) pattern)
+					(find-subexpression (cdr sexp) pattern)))))
+		(format t (car (or (find-subexpression (read *terminal-io*) 'title) '(\"\"))))
+		"
 	COMMENT=$(clisp -q "$TMPFILE" < "$1" 2>/dev/null)
 	if [ -n "$TMPFILE" ]; then
 		rm -f "$TMPFILE"
@@ -668,7 +668,7 @@ comment_ps () {
 comment_psfont () {
 	COMMENT=$(sed -n 's/^\/FullName[ 	]*(\(.*\)).*$/\1/p' < "$1" | head -1)
 	if [ -z "$COMMENT" ] ; then
-        # Try for an alternate comment
+		# Try for an alternate comment
 		COMMENT=$(sed -n 's/^\/FontName[ 	]*\/\([^ 	]*\).*$/\1/p' < "$1" | head -1)
 	fi
 }
@@ -684,7 +684,7 @@ comment_rss () {
 comment_subject () {
 	COMMENT=$(sed -n 's/^Subject: *//ip' < "$1" | head -1 | trimspace)
 	if [ -z "$COMMENT" ] ; then
-        # Try for an alternate comment
+		# Try for an alternate comment
 		COMMENT=$(sed -n 's/^Content-Description: *//ip' < "$1" | head -1 | trimspace)
 	fi
 }
