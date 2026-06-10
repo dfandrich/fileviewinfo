@@ -222,10 +222,10 @@ jobs:
         mtd-utils
         netpbm
         oils-for-unix
-        python313-pefile
-        python313-pip
-        python313-PyICU
-        python313-vobject
+        python314-pefile
+        python314-pip
+        python314-PyICU
+        python314-vobject
         squashfs
         tiff
         unrar
@@ -256,9 +256,9 @@ jobs:
         c764412e54426ae4e9c79def3e33a3e7a366df7b5ece584a9e50b86e64053dfb  pngtools-1.2-1.mga10.x86_64.rpm
         EOF
         rpm -ivh pngtools*.rpm
-        # Make python 3.13 the default to test with the latest
-        rm /usr/bin/python3
-        ln -s python3.13 /usr/bin/python3
+        # Make our Python 3.14 the default to test with the latest
+        test -e /usr/bin/python3 && rm /usr/bin/python3
+        ln -s python3.14 /usr/bin/python3
         python3 -m pip install --break-system-packages https://github.com/itkach/slob/archive/master.zip
         # Set mawk as the default for test diversity
         ln -s mawk /usr/bin/awk
