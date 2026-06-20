@@ -686,6 +686,23 @@ mtime_pdf () {
 	TIME=$(normalize_time_tz "$RAWTIME")
 }
 
+# File type: pem (PEM certificate)
+# requires: openssl
+mtime_pem () {
+	# Use the most recent "Not Before" time of the certificate(s), which is
+	# usually, but not necessarily always, equal to the time it was created. It
+	# also doesn't reflect the time that the collection of certificates (in the
+	# case of a CA bundle, for example) was compiled. But, it does provide a
+	# lower bound on the age of the file.
+	# Convert the multiple timestamps to epoch times first to sort them.
+	# Unfortunately, this loses the original time zone, although the final time
+	# will be correct.
+	# Original times are like May 20 02:10:19 2021 GMT
+	RAWTIME=$(openssl crl2pkcs7 -nocrl -certfile "$f" | openssl pkcs7 -print_certs -text -noout | sed -n 's/^.*Not Before: //p' | tr '\n' '\0' | xargs -0 -n1 "$AUTOMTIME" --epoch_time | sort -n | tail -1)
+	# $RAWTIME is like 1234567890
+	TIME=$(normalize_time_tz "@$RAWTIME")
+}
+
 # File type: png (PNG image)
 # requires: pngtools
 mtime_png () {
@@ -790,7 +807,8 @@ mtime_shar () {
 # This uses the MIME type application/vnd.dev.sigstore.bundle.v0.3+json
 mtime_sigstore () {
 	# The format allows for multiple timestamps, so convert them to epoch
-	# times first to sort them.  Unfortunately, this loses the time zone.
+	# times first to sort them.  Unfortunately, this loses the time zone,
+	# although the final time will be correct.
 	# raw time from openssl is like Nov  5 07:18:19 2025 GMT
 	RAWTIME="$(jq -r '.verificationMaterial.timestampVerificationData.rfc3161Timestamps[].signedTimestamp' < "$f" | tr -d ' \n' | xargs -n1 sh -c 'echo "$1" | base64 -d | openssl ts -reply -text -in /dev/stdin 2>/dev/null | sed -n "s/^Time stamp: *//p" ' ts | tr '\n' '\0' | xargs -0 -n1 "$AUTOMTIME" --epoch_time | sort -n | tail -1 )"
 	# $RAWTIME is like 1234567890
@@ -1400,6 +1418,10 @@ for f in "$@" ; do
 
 			*.pdf | *.ai)
 				TYPE=pdf
+				;;
+
+			*.pem)
+				TYPE=pem
 				;;
 
 			*.png)
