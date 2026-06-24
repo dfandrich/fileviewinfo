@@ -251,11 +251,13 @@ jobs:
     # binaries from elsewhere.
       run: |
         curl -LsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all \
-            https://mirrors.kernel.org/mageia/distrib/10/x86_64/media/core/release/pngtools-1.2-1.mga10.x86_64.rpm
+            https://mirrors.kernel.org/mageia/distrib/10/x86_64/media/core/release/pngtools-1.2-1.mga10.x86_64.rpm \
+            https://repos.fyralabs.com/terra44/brush-shell-0:0.4.0-1.fc44.x86_64.rpm
         sha256sum -c <<EOF
+        ec69fafd84254a6db66fbe5d4771b9adf6a44b7e90e23505803453846bd91780  brush-shell-0:0.4.0-1.fc44.x86_64.rpm
         c764412e54426ae4e9c79def3e33a3e7a366df7b5ece584a9e50b86e64053dfb  pngtools-1.2-1.mga10.x86_64.rpm
         EOF
-        rpm -ivh pngtools*.rpm
+        rpm -ivh brush-shell*.rpm pngtools*.rpm
         # Make our Python 3.14 the default to test with the latest
         test -e /usr/bin/python3 && rm /usr/bin/python3
         ln -s python3.14 /usr/bin/python3
@@ -271,10 +273,12 @@ jobs:
         sed -i -e '/\.bgcode/d' -e 's/\.0900000333786011/.090000153/' test-automtime-expected
     - name: 'Run tests'
       run: make check -k
-    - name: 'Run tests with hush'
-      run: make check -k SHELL='busybox hush'
+    - name: 'Run tests with brush'
+      run: make check -k SHELL=brush
     - name: 'Run tests with gash'
       run: make check -k SHELL=gash
+    - name: 'Run tests with hush'
+      run: make check -k SHELL='busybox hush'
     - name: 'Run tests using nbase'
       run: PATH="/usr/libexec/nbase/bin:$PATH" make check -k
     - name: 'Run tests with oils'
