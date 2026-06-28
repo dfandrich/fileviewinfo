@@ -334,6 +334,24 @@ mtime_gnumeric () {
 	TIME="$(normalize_iso_time "$RAWTIME")"
 }
 
+# File type: gpg (OpenPGP file)
+# requires: gnupg2
+mtime_gpg () {
+	RAWTIME="$(LC_ALL=C gpg --verify -- "$f" 2>&1 | sed -n 's/^.*: Signature made //p' | tail -1)"
+	# $RAWTIME is like Mon 16 Jan 2017 09:24:37 AM CET
+	TIME=$(normalize_time_tz "$RAWTIME")
+	if [ -z "$TIME" ] ; then
+		# Maybe it's a keyring file
+		RAWTIME="$(gpg --list-public-keys --with-colons --no-default-keyring --keyring "$f" | grep '^pub:' | cut -d: -f6 | sort -n | tail -1)"
+		# $RAWTIME is like 123456789
+		TIME=$(normalize_time_tz "@$RAWTIME")
+	fi
+	if [ -z "$TIME" ] ; then
+		# Maybe it's a signature
+		mtime_sig "$1"
+	fi
+}
+
 # File type: gzip (gzip-compressed file)
 # requires: python >= 3
 mtime_gz () {
@@ -790,7 +808,12 @@ mtime_rtf () {
 # File type: sig (OpenPGP signature)
 # requires: gnupg2
 mtime_sig () {
+	# Detached signature
 	RAWTIME="$(LC_ALL=C gpg --verify -- "$f" /dev/null 2>&1 | sed -n 's/^.*: Signature made //p' | tail -1)"
+	if [ -z "$RAWTIME" ] ; then
+		# Not detached signature
+		RAWTIME="$(LC_ALL=C gpg --verify -- "$f" 2>&1 | sed -n 's/^.*: Signature made //p' | tail -1)"
+	fi
 	# $RAWTIME is like Mon 16 Jan 2017 09:24:37 AM CET
 	TIME=$(normalize_time_tz "$RAWTIME")
 }
@@ -1305,6 +1328,10 @@ for f in "$@" ; do
 
 			*.gnumeric)
 				TYPE=gnumeric
+				;;
+
+			*.gpg)
+				TYPE=gpg
 				;;
 
 			*.gpx)

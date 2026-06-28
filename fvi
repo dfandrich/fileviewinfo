@@ -338,7 +338,7 @@ for f in "$@" ; do
 		# Also OpenPGP signature
 		# requires: gnupg2
 		# .sig is used a bit generically, but OpenPGP is probably the most general use
-		*.gpg | *.pgp | *.sig)	filetype_label Gnu Privacy Guard/Pretty Good Privacy file
+		*.gpg | *.pgp | *.sig | *.asc)	filetype_label Gnu Privacy Guard/Pretty Good Privacy file
 			gpg --list-packets --list-only --no-autostart -- "$f"
 			;;
 
