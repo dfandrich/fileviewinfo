@@ -318,6 +318,11 @@ for f in "$@" ; do
 			hexbin -il "$sf"
 			;;
 
+		# requires: u-boot-tools
+		*.itb)	archive_label U-Boot FIT image
+			dumpimage -l -- "$f"
+			;;
+
 		# requires: dracut
 		initrd*.img | initrd)	archive_label initrd image
 			lsinitrd -- "$f"
