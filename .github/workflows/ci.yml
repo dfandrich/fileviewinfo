@@ -254,7 +254,7 @@ jobs:
             https://mirrors.kernel.org/mageia/distrib/10/x86_64/media/core/release/pngtools-1.2-1.mga10.x86_64.rpm \
             https://repos.fyralabs.com/terra44/brush-shell-0:0.4.0-1.fc44.x86_64.rpm
         sha256sum -c <<EOF
-        ec69fafd84254a6db66fbe5d4771b9adf6a44b7e90e23505803453846bd91780  brush-shell-0:0.4.0-1.fc44.x86_64.rpm
+        a5a0bb3e3ced5e017ce0f742a247756bab36fb745d6a4df8e231a132cdfc742c  brush-shell-0:0.4.0-1.fc44.x86_64.rpm
         c764412e54426ae4e9c79def3e33a3e7a366df7b5ece584a9e50b86e64053dfb  pngtools-1.2-1.mga10.x86_64.rpm
         EOF
         rpm -ivh brush-shell*.rpm pngtools*.rpm
