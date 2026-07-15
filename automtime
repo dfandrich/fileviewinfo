@@ -265,16 +265,13 @@ mtime_docx () {
 
 # File type: exe (Microsoft Windows PE executable)
 # File type: dll (Microsoft Windows PE dynamic link library)
+# File type: efi (EFI application)
 # requires: python >= 3, pefile (see https://github.com/erocarrera/pefile/)
 mtime_exe () {
 	RAWTIME=$(python3 -c '
-import pefile,sys
-try:
-	pe=pefile.PE(data=sys.stdin.buffer.read())
-	if hasattr(pe, "FILE_HEADER") and hasattr(pe.FILE_HEADER, "TimeDateStamp"):
-		print(pe.FILE_HEADER.TimeDateStamp)
-except pefile.PEFormatError:
-	pass  # probably an old-style file
+import pefile,contextlib,sys
+with contextlib.suppress((pefile.PEFormatError, AttributeError)):  # in case of old-style file or missing field
+    print(pefile.PE(data=sys.stdin.buffer.read()).FILE_HEADER.TimeDateStamp)
 ' < "$1")
 	# The time is stored absolute
 	TIME=$(normalize_time_tz "@$RAWTIME")
@@ -1314,7 +1311,7 @@ for f in "$@" ; do
 				TYPE=docx
 				;;
 
-			*.exe | *.dll)
+			*.exe | *.dll | *.efi)
 				TYPE=exe
 				;;
 

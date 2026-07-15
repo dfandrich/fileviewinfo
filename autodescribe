@@ -488,20 +488,18 @@ comment_egg () {
 
 # File type: exe (Microsoft Windows PE executable)
 # File type: dll (Microsoft Windows PE dynamic link library)
+# File type: efi (EFI application)
 # requires: python >= 3, pefile (see https://github.com/erocarrera/pefile/)
 comment_exe () {
 	COMMENT=$(python3 -c '
-import pefile,sys
-try:
+import pefile,contextlib,sys
+with contextlib.suppress((pefile.PEFormatError, AttributeError)):  # in case of old-style file or missing field
 	pe=pefile.PE(data=sys.stdin.buffer.read())
-	if hasattr(pe, "FileInfo"):
-		print("".join([v.decode("UTF-8").strip()
-			for fi in pe.FileInfo
-				for sfi in fi if hasattr(sfi, "StringTable")
-					for item in sfi.StringTable
-						for k,v in item.entries.items() if k == b"FileDescription" ]))
-except pefile.PEFormatError:
-	pass  # probably an old-style file
+	print("".join([v.decode("UTF-8").strip()
+		  for fi in pe.FileInfo
+			  for sfi in fi if hasattr(sfi, "StringTable")
+				  for item in sfi.StringTable
+					  for k,v in item.entries.items() if k == b"FileDescription"]))
 ' < "$1")
 }
 
@@ -1573,7 +1571,7 @@ for f in "$@" ; do
 			*.egg)
 				TYPE=egg
 				;;
-			*.exe | *.dll)
+			*.exe | *.dll | *.efi)
 				TYPE=exe
 				;;
 			*.flac)	TYPE=flac

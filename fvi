@@ -315,7 +315,8 @@ for f in "$@" ; do
 
 		# requires: pev || pefile (https://pypi.org/project/pefile/)
 		# Also Windows PE Dynamic Link Library .dll
-		*.exe | *.dll)	filetype_label Windows PE executable
+		# Also EFI application .efi
+		*.exe | *.dll | *.efi)	filetype_label Windows PE executable
 			pescan -v "$sf" || python3 -m pefile "$f"
 			;;
 
