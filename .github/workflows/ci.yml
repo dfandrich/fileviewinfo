@@ -171,7 +171,9 @@ jobs:
     - name: 'Build documentation'
       run: make man
     - name: 'Test installation'
-      run: make install prefix="$PWD/install"
+      run: |
+        make install prefix="$PWD/install"
+        test -e install/bin/fv -a -e install/share/man/man1/fv.1
     - name: 'Test dist'
       run: make dist
     - name: 'Test distclean'
@@ -284,7 +286,9 @@ jobs:
     - name: 'Run tests with oils'
       run: make check -k SHELL=osh
     - name: 'Test installation'
-      run: make install prefix="$PWD/install"
+      run: |
+        make install prefix="$PWD/install"
+        test -e install/bin/fv -a -e install/share/man/man1/fv.1
     - name: 'Test dist'
       run: make dist
     - name: 'Test distclean'
