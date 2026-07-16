@@ -401,6 +401,9 @@ mtime_iso () {
 	TIME=$(python3 - "$1" <<EOF
 import struct, sys
 with open(sys.argv[1], 'rb') as f:
+	f.seek(32769)
+	if f.read(5) != b'CD001':
+		sys.exit(1)
 	f.seek(33581)
 	y,mo,d,h,m,s,s100, offset15 = struct.unpack('4s2s2s2s2s2s2sb', f.read(17))
 if not y.isdigit() or not mo.isdigit() or not d.isdigit() or not h.isdigit() or not m.isdigit() or not s.isdigit() or not s100.isdigit():
