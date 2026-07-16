@@ -18,7 +18,7 @@ jobs:
   build-24_04:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: 'Install deps'
       run: >
         sudo apt-get update -y &&
@@ -184,7 +184,7 @@ jobs:
     runs-on: ubuntu-latest
     container: opensuse/tumbleweed
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: 'Install deps'
       # The last line in the package list is for those needed by the build &
       # test environment and not to handle a particular file type.
