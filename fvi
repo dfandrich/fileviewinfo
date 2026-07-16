@@ -547,7 +547,7 @@ for f in "$@" ; do
 			unsquashfs -s "$sf"
 			;;
 
-		# requires: python >= 3
+		# requires: python >= 3.0
 		*.stl)	filetype_label STL model file
 			# Detect ASCII or binary format
 			if [ "$(dd if="$f" bs=1 count=80 2>/dev/null | wc -l)" -gt 0 -a "$(dd if="$f" bs=1 count=6 2>/dev/null | tr -d '\0')" = "solid " -a "$(dd if="$f" bs=1 count=1 skip=80 2>/dev/null | od -An -b)" != "000" ]; then
@@ -584,7 +584,7 @@ EOF
 			;;
 
 		# See http://www.encode.ru/tc/ (defunct as of 2022)
-		# requires: python >= 3
+		# requires: python >= 3.0
 		# Note: the real file extension conflicts with Tellico files, so this
 		# is a made up one
 		*.tc-compressed)	filetype_label tc-compressed file

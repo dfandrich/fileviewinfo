@@ -489,7 +489,7 @@ comment_egg () {
 # File type: exe (Microsoft Windows PE executable)
 # File type: dll (Microsoft Windows PE dynamic link library)
 # File type: efi (EFI application)
-# requires: python >= 3, pefile (see https://github.com/erocarrera/pefile/)
+# requires: python >= 3.4, pefile (see https://github.com/erocarrera/pefile/)
 comment_exe () {
 	COMMENT=$(python3 -c '
 import pefile,contextlib,sys

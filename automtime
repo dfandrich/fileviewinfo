@@ -266,12 +266,12 @@ mtime_docx () {
 # File type: exe (Microsoft Windows PE executable)
 # File type: dll (Microsoft Windows PE dynamic link library)
 # File type: efi (EFI application)
-# requires: python >= 3, pefile (see https://github.com/erocarrera/pefile/)
+# requires: python >= 3.4, pefile (see https://github.com/erocarrera/pefile/)
 mtime_exe () {
 	RAWTIME=$(python3 -c '
 import pefile,contextlib,sys
 with contextlib.suppress((pefile.PEFormatError, AttributeError)):  # in case of old-style file or missing field
-    print(pefile.PE(data=sys.stdin.buffer.read()).FILE_HEADER.TimeDateStamp)
+	print(pefile.PE(data=sys.stdin.buffer.read()).FILE_HEADER.TimeDateStamp)
 ' < "$1")
 	# The time is stored absolute
 	TIME=$(normalize_time_tz "@$RAWTIME")
@@ -350,7 +350,7 @@ mtime_gpg () {
 }
 
 # File type: gzip (gzip-compressed file)
-# requires: python >= 3
+# requires: python >= 3.0
 mtime_gz () {
 	RAWTIME=$(python3 - "$1" <<EOF
 import struct, sys
@@ -392,7 +392,7 @@ mtime_ics () {
 }
 
 # File type: iso (ISO-9660 CD-ROM image)
-# requires: python >= 3
+# requires: python >= 3.0
 mtime_iso () {
 	# Obtaining the "Volume Creation Date and Time" the hard way, since isoinfo
 	# doesn't seem to extract it for us.

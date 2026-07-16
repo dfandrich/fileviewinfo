@@ -447,7 +447,7 @@ for f in "$@" ; do
 			;;
 
 		# See https://rzip.samba.org/
-		# requires: python >= 3
+		# requires: python >= 3.0
 		*.rz)	archive_label rzip archive
 			python3 - "$f" <<EOF
 import struct, sys, os
@@ -756,7 +756,7 @@ EOF
 			;;
 
 		# See https://www.7-zip.org/sdk.html
-		# requires: lzma || python >= 3
+		# requires: lzma || python >= 3.0
 		*.lzma)	archive_label LZMA-compressed file
 		    if which lzmainfo  >/dev/null 2>&1 ; then
 				lzmainfo -- "$f"
