@@ -290,6 +290,11 @@ mtime_email () {
 # requires: xmlstarlet
 mtime_fodf () {
 	RAWTIME=$(xmlstarlet sel -t -v /office:document/office:meta/dc:date < "$1" 2>/dev/null)
+	if [ -z "$RAWTIME" ]; then
+		# The date field sometimes isn't available in converted documents, so
+		# get the creation date instead
+		RAWTIME=$(xmlstarlet sel -t -v /office:document-meta/office:meta/meta:creation-date < "$1" 2>/dev/null)
+	fi
 	# $RAWTIME is like 2009-10-11T12:13:14
 	TIME="$(normalize_iso_time "$RAWTIME")"
 }
@@ -643,6 +648,11 @@ mtime_odf () {
 	sf="$(safefn "$1")"
 	RAWTIME=$(unzip -pq "$sf" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/dc:date 2>/dev/null)
 	# $RAWTIME is like 2009-10-11T12:13:14
+	if [ -z "$RAWTIME" ]; then
+		# The date field sometimes isn't available in converted documents, so
+		# get the creation date instead
+		RAWTIME=$(unzip -pq "$sf" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/meta:creation-date 2>/dev/null)
+	fi
 	TIME="$(normalize_iso_time "$RAWTIME")"
 	if [ -n "$RAWTIME" -a "$TIME" = "$RAWTIME" ]; then
 		# Time was not in ISO format. Old Star Office files may do this, so
@@ -1094,6 +1104,22 @@ mtime_warcgz () {
 mtime_webp () {
 	# Uses exiftool that works just as well for this format
 	mtime_heif "$@"
+}
+
+# File type: wpd (WordPerfect Document)
+# requires: libreoffice, unzip, xmlstarlet
+mtime_wpd () {
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	# I haven't found a standalone WordPerfect document parser, so use
+	# LibreOffice to convert the file to Open Document Format and read the
+	# metadata then.
+	TMPCVTDIR="$(mktemp -d)"
+	libreoffice --headless --convert-to odt --outdir "$TMPCVTDIR" "$sf" >/dev/null
+	CVTFILE="${TMPCVTDIR}/$(basename "$1" | sed 's/\.[^.]*$/.odt/')"
+	mtime_odf "$CVTFILE"
+	rm -f "$CVTFILE"
+	rmdir "$TMPCVTDIR"
 }
 
 # File type: wml (Wireless Markup Language)
@@ -1575,6 +1601,10 @@ for f in "$@" ; do
 
 			*.webp)
 				TYPE=webp
+				;;
+
+			*.wpd)
+				TYPE=wpd
 				;;
 
 			*.wml)

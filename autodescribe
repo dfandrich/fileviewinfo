@@ -1364,6 +1364,22 @@ comment_wml () {
 	COMMENT=$(xmlstarlet sel -t -v "/wml/head/meta[@name='title']/@content" < "$1" 2>/dev/null)
 }
 
+# File type: wpd (WordPerfect Document)
+# requires: libreoffice, unzip, xmlstarlet
+comment_wpd () {
+	# "safe" filename guaranteed not to start with a dash
+	sf="$(safefn "$1")"
+	# I haven't found a standalone WordPerfect document parser, so use
+	# LibreOffice to convert the file to Open Document Format and read the
+	# metadata then.
+	TMPCVTDIR="$(mktemp -d)"
+	libreoffice --headless --convert-to odt --outdir "$TMPCVTDIR" "$sf" >/dev/null
+	CVTFILE="${TMPCVTDIR}/$(basename "$1" | sed 's/\.[^.]*$/.odt/')"
+	COMMENT=$(unzip -pq "$CVTFILE" meta.xml | xmlstarlet sel -t -v '/office:document-meta/office:meta/meta:user-defined[@meta:name="descriptive-name"]' 2>/dev/null)
+	rm -f "$CVTFILE"
+	rmdir "$TMPCVTDIR"
+}
+
 # Get title from a number of different A/V formats
 # Using ffmpeg for this is almost the only option for some formats, and is
 # easier than having to install a new special program for each other formats.
@@ -1787,6 +1803,9 @@ for f in "$@" ; do
 				;;
 			*.whl)
 				TYPE=whl
+				;;
+			*.wpd)
+				TYPE=wpd
 				;;
 			*.wml)
 				TYPE=wml
