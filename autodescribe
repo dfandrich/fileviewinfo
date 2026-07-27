@@ -590,6 +590,15 @@ comment_lsm () {
 	COMMENT=$(sed -n 's/^Title:[[:space:]]*//p' < "$1" | head -1)
 }
 
+# File type: lyx (LyX document)
+comment_lyx () {
+	# This is a variant of TeX file
+	# This parsing is probably too simplistic, but it works much of the time
+	# Choose the first of either the Title or Chapter; we'd expect Title to be
+	# first in case of both.
+	COMMENT=$(sed -Ee '1,/^\\(begin_)?layout (Title|Chapter)(\*)? *$/d' -e '/^\\/d' -e 1p -e q < "$1" | trimspace)
+}
+
 # File type: pc (pkg-config library file)
 # If a shell variable substitution is noted, then that field is ignored.
 comment_pc () {
@@ -814,6 +823,7 @@ comment_tex () {
 
 # File type: texi (Texinfo document)
 comment_texi () {
+	# This is a variant of TeX file
 	# This parsing is probably too simplistic, but it works most of the time
 	COMMENT=$(sed -n -e 's/^[[:space:]]*@settitle //p' < "$1" | trimspace)
 }
@@ -1735,6 +1745,9 @@ for f in "$@" ; do
 				;;
 			*.lsm)
 				TYPE=lsm
+				;;
+			*.lyx)
+				TYPE=lyx
 				;;
 			*.lzh | *.lha)
 				TYPE=lzh
