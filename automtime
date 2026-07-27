@@ -776,6 +776,15 @@ mtime_ps () {
 	TIME=$(normalize_time "$RAWTIME")
 }
 
+# File type: pyc (Python compiled bytecode)
+# requires: uncompyle6
+mtime_pyc () {
+	RAWTIME=$(uncompyle6 --  "$f" 2>/dev/null | sed -n 's/^# Compiled at: //p')
+	# $RAWTIME is like 2023-05-16 00:23:23
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
 # File type: rar (rar archive)
 # requires: unrar
 mtime_rar () {
@@ -1491,6 +1500,10 @@ for f in "$@" ; do
 
 			*.ps)
 				TYPE=ps
+				;;
+
+			*.pyc | *.pyd | *.pyo)
+				TYPE=pyc
 				;;
 
 			*.rar)
