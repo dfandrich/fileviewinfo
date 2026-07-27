@@ -702,6 +702,11 @@ comment_png () {
 	fi
 }
 
+# File type: pom (Maven POM file)
+comment_pom () {
+	COMMENT=$(xmlstarlet sel -N p=http://maven.apache.org/POM/4.0.0 -t -v /p:project/p:name < "$1")
+}
+
 # File type: ps (PostScript source code)
 comment_ps () {
 	COMMENT=$(sed -n 's/^%%Title: *//p' < "$1" | head -1)
@@ -1150,6 +1155,12 @@ comment_bgcode () {
 	rmdir "$ADTMPDIR"
 }
 
+# File type: gemspec (Ruby Gem specification)
+comment_gemspec () {
+	# Sometimes, the file is binary (maybe compiled Ruby?) which isn't supported here
+	COMMENT=$(sed -En 's/^[[:space:]]*s\.summary[[:space:]]*=[[:space:]]*"([^"]*)".*$/\1/p' < "$1")
+}
+
 # File type: gif (GIF image)
 # requires: gifsicle
 comment_gif () {
@@ -1179,6 +1190,12 @@ comment_gpx () {
 comment_ics () {
 	# Only looks at the first entry if more than one
 	COMMENT=$(python3 -c "import vobject, sys; print(vobject.readOne(sys.stdin).contents['vevent'][0].summary.value)" < "$1")
+}
+
+# File type: inx (Inkscape extension index)
+# requires: xmlstarlet
+comment_inkext () {
+	COMMENT=$(xmlstarlet sel -N i="http://www.inkscape.org/namespace/inkscape/extension" -t -v /i:inkscape-extension/i:name <"$1")
 }
 
 # File type: iso (ISO-9660 CD-ROM image)
@@ -1707,6 +1724,8 @@ for f in "$@" ; do
 			*.gcode | *.gc | *.ngc | *.ncc | *.nc | *.tap)
 				TYPE=gcode
 				;;
+			*.gemspec)	TYPE=gemspec
+				;;
 			*.gif)	TYPE=gif
 				;;
 			*.gnumeric)	TYPE=gnumeric
@@ -1719,6 +1738,9 @@ for f in "$@" ; do
 			*.ics)	TYPE=ics
 				;;
 			*.ifo)	TYPE=stardict
+				;;
+			# This file type is fairly generic & might be used for other files
+			*.inx)	TYPE=inkext
 				;;
 			*.iso)	TYPE=iso
 				;;
@@ -1839,6 +1861,8 @@ for f in "$@" ; do
 			*.pkg.tar.xz)	TYPE=pacman
 				;;
 			*.png)	TYPE=png
+				;;
+			*.pom)	TYPE=pom
 				;;
 			*.ps)	TYPE=ps
 				;;
