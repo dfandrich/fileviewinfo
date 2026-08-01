@@ -1546,7 +1546,7 @@ for f in "$@" ; do
 				TYPE=spdx_json
 				;;
 
-			*.sqsh | *.squashfs | *.sqfs | *.snap | *.tcz)
+			*.sqsh | *.squashfs | *.sqfs | *.snap | *.tcz | *.sfs)
 				TYPE=squashfs
 				;;
 
