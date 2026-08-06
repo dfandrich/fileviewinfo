@@ -687,7 +687,7 @@ mtime_patch () {
 # Wireshark handles a lot more packet capture file formats that are all handled
 # here.
 mtime_pcap () {
-	RAWTIME=$(capinfos -- "$1" | sed -n -e 's/^Last packet time: *//p')
+	RAWTIME=$(capinfos -- "$1" | sed -E -n -e 's/^(Last|Latest) packet time: *//p')
 	if [ -z "$RAWTIME" ]; then
 		# In case capinfos isn't available, use the slower tshark instead
 		RAWTIME=$(tshark -t ad -r "$1" | awk '{print $2 " " $3}' | uniq | sort -d | tail -1)
