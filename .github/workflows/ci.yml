@@ -15,8 +15,10 @@ on:
       - master
 
 jobs:
-  build-24_04:
-    runs-on: ubuntu-24.04
+  build-26_04:
+    runs-on: ubuntu-26.04
+    env:
+      DEBIAN_FRONTEND: noninteractive
     steps:
     - uses: actions/checkout@v7
     - name: 'Install deps'
@@ -24,6 +26,7 @@ jobs:
         sudo apt-get update -y &&
         sudo apt-get install -y --no-install-suggests --no-install-recommends
         arj
+        bgcode
         binutils
         bsdextrautils
         cabextract
@@ -66,7 +69,6 @@ jobs:
         quicktime-utils
         rar
         rpm
-        rust-coreutils
         squashfs-tools
         unrar
         unzip
@@ -78,17 +80,20 @@ jobs:
         make curl ca-certificates groff-base man2html-base bash busybox ksh toybox mmv mksh yash zsh
     - name: 'Install extras'
     # zoo is no longer available in Ubuntu and must be installed manually
-    # bgcode is too old in 24.04 and must be upgraded to the version in 26.04
       run: |
         curl -LsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all \
-            http://azure.archive.ubuntu.com/ubuntu/pool/universe/libb/libbgcode/bgcode_0.0~git20251210.0773cea-2_amd64.deb \
             http://azure.archive.ubuntu.com/ubuntu/pool/universe/z/zoo/zoo_2.10-28_amd64.deb
         sha256sum -c <<EOF
-        38d5f296e7ec33584431acd489dd5bca0c4f56ed38df3cfd578dbb61a863987e  bgcode_0.0~git20251210.0773cea-2_amd64.deb
         953f4f94095ef3813dfd30c8977475c834363aaabce15ab85ac5195e52fd816a  zoo_2.10-28_amd64.deb
         EOF
-        sudo dpkg -i bgcode*.deb zoo*.deb
+        sudo dpkg -i zoo*.deb
         python3 -m pip install --break-system-packages https://github.com/itkach/slob/archive/master.zip
+    - name: 'Prepare for Ubuntu 26.04'
+      run: |
+        # gimp no longer allows extracting file metadata
+        sed -i -e '/\.xcf/d' test-*-expected
+        # uutils date is different from coreutils
+        sed -i -e 's/2021-10-13 08:02:00 +0000/2021-10-13 01:02:00 -0700/' test-automtime-expected
     - name: 'Run tests'
       run: make check -k
     - name: 'Run tests with ash'
@@ -131,9 +136,10 @@ jobs:
         # which is why these didn't need to be changed for the Busybox tests
         # above.
         sed -i \
-          -e 's/2021-10-13 08:34:00 +0000/2021-10-13 08:34:00/' \
-          -e 's/2021-10-14 20:36:00 +0000/2021-10-14 20:36:00/' \
           -e 's/2023-02-18 04:19:00 +0000/2023-02-17 20:19:00 -0800/' \
+          -e 's/2023-01-05 21:15:02 -0500/2023-01-06 02:15:02 +0000/' \
+          -e 's/2023-02-17 20:19:00 -0800/2023-02-18 04:19:00 +0000/' \
+          -e 's/2021-10-18 16:55:54/2021-10-18 16:55:54 +0000/' \
           test-automtime-expected
     - name: 'Run tests using uutils-coreutils'
       run: PATH="/usr/lib/cargo/bin/coreutils:$PATH" make check -k
@@ -143,6 +149,13 @@ jobs:
         for i in $(/usr/bin/toybox); do ln -s /usr/bin/toybox "$PWD/tb/$i"; done
         # Toybox file doesn't support decoding Microsoft compound documents
         sed -i -e '/type[0-9]\.doc\>/d' test-autodescribe-expected test-automtime-expected
+        sed -i \
+          -e 's/2023-01-06 02:15:02 +0000/2023-01-05 21:15:02 -0500/' \
+          -e 's/2023-02-18 04:19:00 +0000/2023-02-17 20:19:00 -0800/' \
+          -e 's/2021-10-18 16:55:54 +0000/2021-10-18 16:55:54/' \
+          -e 's/2021-10-13 08:34:00 +0000/2021-10-13 08:34:00/' \
+          -e 's/2021-10-14 20:36:00 +0000/2021-10-14 20:36:00/' \
+          test-automtime-expected
     - name: 'Run tests using Toybox'
       run: PATH="$PWD/tb:$PATH" make check -k
     - name: 'Prepare for dash filename tests'
