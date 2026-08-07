@@ -197,6 +197,11 @@ for f in "$@" ; do
 			brotli -tv -- "$f"
 			;;
 
+		# requires: git
+		*.bundle) filetype_label git bundle file
+			git bundle verify -- "$f"
+			;;
+
 		# requires: Java jdk
 		*.class) filetype_label Java compiled class file
 			javap "$sf" | grep -E '(^C)|(\{$)'
