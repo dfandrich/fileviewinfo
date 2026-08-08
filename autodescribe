@@ -384,6 +384,11 @@ comment_bbx () {
 	comment_lbx "$@"
 }
 
+# File type: cobol (COBOL source file)
+comment_cobol () {
+	COMMENT=$(sed -nEe 's/^([0-9 ]{6})?[[:space:]]*PROGRAM-ID\.[[:space:]]*([^. ]+)\..*$/\2/p' < "$1")
+}
+
 # File type: cls (TeX class file)
 comment_cls () {
 	COMMENT=$(sed -nEe '/^ *\\ProvidesClass *\{[^}]*\}/{N;s/^[^[]*\[([^]]*)\].*$/\1/p}' < "$1")
@@ -1681,6 +1686,8 @@ for f in "$@" ; do
 				;;
 			*.c | *.h)
 				TYPE=c
+				;;
+			*.cbl)	TYPE=cobol
 				;;
 			*.cls)	TYPE=cls
 				;;
