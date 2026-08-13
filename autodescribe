@@ -565,6 +565,14 @@ comment_kicad () {
 	fi
 }
 
+# File type: kcfg (KDE configuration schema)
+# requires: xmlstarlet
+comment_kcfg () {
+	# This just retrieves that name of the config file being set, which isn't much
+	# but is better than nothing
+	COMMENT=$(xmlstarlet sel -N k="http://www.kde.org/standards/kcfg/1.0" -t -v '/k:kcfg/k:kcfgfile/@name' < "$1")
+}
+
 # File type: kra (Krita image)
 # requires: unzip, xmlstarlet
 comment_kra () {
@@ -602,6 +610,14 @@ comment_lyx () {
 	# Choose the first of either the Title or Chapter; we'd expect Title to be
 	# first in case of both.
 	COMMENT=$(sed -Ee '1,/^\\(begin_)?layout (Title|Chapter)(\*)? *$/d' -e '/^\\/d' -e 1p -e q < "$1" | trimspace)
+}
+
+# File type: nse (Nmap script)
+comment_nse () {
+	# The last half of the pipe cuts the description off at ~80 chars, but
+	# tries to do so on a word boundary
+	# TODO: improve this to allow embedded periods in e.g. file names or decimal numbers
+	COMMENT=$(sed -n -e '/^description/!d' -e :copy -e '/]]/!{N;b copy' -e '}' -e 's/\n/ /g' -e 's/^.*\[\[//' -e 's/]].*$//' -e p -e q < "$1" | sed -E 's/^ *([^.]{1,82}).*$/\1/' | sed -E 's/^(.{74,99}) [^ .]{1,8}$/\1/' | sed 's/ *$//')
 }
 
 # File type: pc (pkg-config library file)
@@ -744,6 +760,17 @@ comment_subject () {
 	if [ -z "$COMMENT" ] ; then
 		# Try for an alternate comment
 		COMMENT=$(sed -n 's/^Content-Description: *//ip' < "$1" | head -1 | trimspace)
+	fi
+}
+
+# File type: service (systemctl service configuration)
+comment_service () {
+	# Add a blank line to the head of the file in case [Unit] is the first line
+	# so that sed doesn't delete the whole file.
+	COMMENT=$({ echo ''; cat -- "$1"; } | sed -n -e '1,/^\[Unit\]$/d' -e 's/^Description=//p' -e '/^\[/,$d')
+	if [ -z "$COMMENT" ] ; then
+		# Maybe this is a DBus configuration file instead
+		COMMENT=$({ echo ''; cat -- "$1"; } | sed -n -e '1,/^\[D-BUS Service\]$/d' -e 's/^Name=//p' -e '/^\[/,$d')
 	fi
 }
 
@@ -1160,6 +1187,11 @@ comment_bgcode () {
 	rmdir "$ADTMPDIR"
 }
 
+# File type: ggr (Gimp gradient file)
+comment_ggr () {
+	COMMENT=$(sed -n 's/^Name: *//p' < "$1" | head -1)
+}
+
 # File type: gemspec (Ruby Gem specification)
 comment_gemspec () {
 	# Sometimes, the file is binary (maybe compiled Ruby?) which isn't supported here
@@ -1188,6 +1220,12 @@ comment_gpx () {
 	if [ -z "$COMMENT" ] ; then
 		COMMENT=$(xmlstarlet sel -t -v "/*[local-name()='gpx']/*[local-name()='trk'][1]/*[local-name()='name']" < "$1" | trimspace)
 	fi
+}
+
+# File type: icc (International Color Consortium profile)
+# requires: exiftool
+comment_icc () {
+	COMMENT=$(exiftool -- "$1" | sed -n 's/^Profile Description *: *//p')
 }
 
 # File type: ics (iCalendar entry)
@@ -1437,6 +1475,16 @@ comment_py () {
 	# delete #!/bin/sh line and blank comment lines
 	# comment must be in the first 10 lines of the file
 	COMMENT=$(sed -n -e '10,$d' -e '/^#\!/d' -e '/^[[:space:]]*#*[-*#[:space:]]*$/d' -e 's/^[[:space:]]*# *//p' -e "s/\(.\) *'''$/\1/" -e 's/\(.\) *"""$/\1/' -e "s/^''' *\(.\)/\1/p" -e 's/^""" *\(.\)/\1/p' -e "/^''' *$/{n;p;}" -e '/^""" *$/{n;p;}' < "$1" | head -1)
+}
+
+# File type: utb (liblouis Braille alphabet)
+comment_utb () {
+	COMMENT=$(sed -n 's/#-display-name: *//p' < "$1")
+}
+
+# File type: upp (Ghostscript Uniprint printer configuration)
+comment_upp () {
+	COMMENT=$(sed -n -e 's/"//g' -e 's/^-supModel=//p' < "$1")
 }
 
 # File type: uue (UUencoded file)
@@ -1733,6 +1781,9 @@ for f in "$@" ; do
 				;;
 			*.gemspec)	TYPE=gemspec
 				;;
+			*.ggr)
+				TYPE=ggr
+				;;
 			*.gif)	TYPE=gif
 				;;
 			*.gnumeric)	TYPE=gnumeric
@@ -1741,6 +1792,8 @@ for f in "$@" ; do
 				;;
 			*.html | *.htm)
 				TYPE=html
+				;;
+			*.icc)	TYPE=icc
 				;;
 			*.ics)	TYPE=ics
 				;;
@@ -1760,6 +1813,9 @@ for f in "$@" ; do
 				;;
 			*.jpeg | *.jpg)
 				TYPE=jpeg
+				;;
+			*.kcfg)
+				TYPE=kcfg
 				;;
 			*.kra)
 				TYPE=kra
@@ -1809,6 +1865,8 @@ for f in "$@" ; do
 			*.mscz)	TYPE=mscz
 				;;
 			*.nix) TYPE=nix
+				;;
+			*.nse) TYPE=nse
 				;;
 			*.odt | *.otm | *.ott | *.odh | *.odc | *.otc | *.odg | *.otg | *.odi | *.oti | *.odp | *.otp | *.ods | *.ots | *.odf | \
 			*.sxw | *.sxc | *.sxi | *.sxd | *.sxm)
@@ -1879,6 +1937,8 @@ for f in "$@" ; do
 				;;
 			*.kicad_sch | *.kicad_pcb)	TYPE=kicad
 				;;
+			*.service)	TYPE=service
+				;;
 			*.sla)	TYPE=sla
 				;;
 			*.slob)	TYPE=slob
@@ -1936,6 +1996,12 @@ for f in "$@" ; do
 			*.txt | *.asc | *.rst | *README | *Readme | *ReadMe | *readme | \
 		    *file_id.diz)
 				TYPE=first_line
+				;;
+			*.utb | *.ctb)
+				TYPE=utb
+				;;
+			*.upp)
+				TYPE=upp
 				;;
 			*.uue)
 				TYPE=uue
