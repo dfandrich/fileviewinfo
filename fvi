@@ -378,6 +378,11 @@ for f in "$@" ; do
 			isoinfo -d -i "$f"
 			;;
 
+		# requires: u-boot-tools
+		*.itb)	archive_label U-Boot FIT image
+			dumpimage -l -- "$f"
+			;;
+
 		# requires: unzip
 		*.jar) filetype_label Java jar file
 			unzip -pqaa "$sf" META-INF/MANIFEST.MF | sed  '/^$/,$d'

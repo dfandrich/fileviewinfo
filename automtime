@@ -421,6 +421,15 @@ EOF
 	)
 }
 
+# File type: itb (U-Boot FIT image)
+# requires: u-boot-tools
+mtime_itb () {
+	RAWTIME=$(dumpimage -l -- "$1" 2>/dev/null | sed -En 's/^Created: *(.*)$/\1/p')
+	# $RAWTIME is like Wed Feb  8 13:30:46 2023
+	# The time is stored absolute, but is displayed in the local time zone
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
 # File type: jpeg (JPEG JFIF image)
 # requires: exif
 # TODO: also look at XMP and IPTC metadata
@@ -1395,6 +1404,10 @@ for f in "$@" ; do
 
 			*.iso)
 				TYPE=iso
+				;;
+
+			*.itb)
+				TYPE=itb
 				;;
 
 			*.jpg | *.jpeg | *.jfif)
