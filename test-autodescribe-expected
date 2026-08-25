@@ -104,7 +104,7 @@
 'testfiles/type1.zip' 'Zip comment spanning two lines'
 'testfiles/type1.zoo' 'Zoo archive comment Second line of comment'
 'testfiles/type2.amf' 'AMF name'
-'testfiles/type2.c' '! \file type2.c \brief Doxygen style file comment'
+'testfiles/type2.c' 'Doxygen style file comment'
 'testfiles/type2.cbl' 'program-id'
 'testfiles/type2.dbk' 'DOCBOOK_MAN_PAGE_TEST_FILE'
 'testfiles/type2.desktop' 'Desktop file name, Desktop comment'

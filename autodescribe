@@ -913,16 +913,24 @@ comment_ac () {
 	COMMENT=$(sed -E -n 's/^[[:space:]]*AC_INIT\([[:space:]]*\[?([^],]+).*,.*\)/\1/p' < "$1")
 }
 
-# File type: c (C source code)
+# File type: c (C/C++ source code)
 comment_c () {
-	COMMENT=$(sed -n '/\/\*/,/\*\//{
-			/\/\*/s/^.*\/\*[ 	]*//
-			/\*\//s/.*\*\/[ 	]*//
-			s/^[ 	*]*//
-			s/\*\/ *$//
-			s/[ 	]*$//
-			p 
-			}' < "$1" | head -3 | trimspace)
+	# Look for Doxygen comment first
+	COMMENT=$(sed -En -e 's/^[/*[:space:]]*\\brief([[:space:]])+(.+)[*[:space:]]*$/\2/p' < "$1" | head -1)
+	if [ -z "$COMMENT" ] ; then
+		COMMENT=$(sed -n '/\/\*/,/\*\//{
+						/\/\*/s/^.*\/\*[[:space:]]*//
+						/\*\//s/.*\*\/[[:space:]]*//
+						s/^[[:space:]*]*//
+						s/\*\/ *$//
+						s/[[:space:]]*$//
+						p
+						}' < "$1" | head -3 | trimspace)
+	fi
+	# Filter out some common but useless results
+	case "$COMMENT" in
+		"\\file" | "#include*") COMMENT= ;;
+	esac
 }
 
 # File type: pascal (Pascal source code)
@@ -1732,7 +1740,7 @@ for f in "$@" ; do
 			*.bgcode | *.bgc)
 				TYPE=bgcode
 				;;
-			*.c | *.h)
+			*.c | *.cpp | *.cc | *.c++ | *.h | *.hpp | *.hh | *.H)
 				TYPE=c
 				;;
 			*.cbl)	TYPE=cobol
