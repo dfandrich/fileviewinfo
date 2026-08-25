@@ -1334,7 +1334,7 @@ for f in "$@" ; do
 			*.cpio) TYPE=cpio
 				;;
 
-		    *.cpio.gz | *.cpio.Z | *.cpio.z | *.cgz)	
+		    *.cpio.gz | *.cpio.Z | *.cpio.z | *.cgz)
 				TYPE=cpiogz
 				;;
 

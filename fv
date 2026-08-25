@@ -220,7 +220,7 @@ for f in "$@" ; do
 			;;
 
 		# requires: cpio, gzip
-		*.cpio.gz | *.cpio.Z | *.cpio.z | *.cgz)	
+		*.cpio.gz | *.cpio.Z | *.cpio.z | *.cgz)
 			archive_label compressed cpio archive
 			gzip -dc -- "$f" | cpio -itv
 			;;
@@ -561,7 +561,7 @@ EOF
 		# .pet gets its own entry to give gzip the -q option; otherwise it
 		# complains about the CRC tacked on to the end
 		# requires: tar, gzip
-		*.pet) 
+		*.pet)
 			archive_label Puppy Linux Extra Treats package
 			gzip -qdc -- "$f" | tar tvf -
 			;;
