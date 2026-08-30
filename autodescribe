@@ -1165,6 +1165,11 @@ comment_fodf () {
 	COMMENT=$(xmlstarlet sel -t -v /office:document/office:meta/dc:title < "$1")
 }
 
+# File type: fortran (FORTRAN source code file)
+comment_fortran () {
+	COMMENT=$(sed -En 's/^ *(PROGRAM|program|MODULE|module) +//p' < "$1" | head -1)
+}
+
 # File type: gcode (G-code machine control file)
 # gcode has a few codes that could be used as titles, but aren't widely
 # supported. Just extract a title from structured comments.
@@ -1781,6 +1786,8 @@ for f in "$@" ; do
 				;;
 			*.exe | *.dll | *.efi)
 				TYPE=exe
+				;;
+			*.for | *.f | *.f90 | *.ftn)	TYPE=fortran
 				;;
 			*.flac)	TYPE=flac
 				;;
