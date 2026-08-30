@@ -1890,7 +1890,7 @@ for f in "$@" ; do
 				;;
 			*.oxt) TYPE=oxt
 				;;
-			*.ogg | *.ogv) TYPE=ogg
+			*.ogg | *.oga | *.ogv) TYPE=ogg
 				;;
 			*.otf | *.ttf | *.woff) TYPE=otf
 				;;

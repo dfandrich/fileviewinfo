@@ -455,7 +455,7 @@ for f in "$@" ; do
 			;;
 
 		# requires: vorbis-tools
-		*.ogg | *.ogv)	filetype_label OGG audio/video
+		*.ogg | *.oga | *.ogv)	filetype_label OGG audio/video
 			ogginfo -- "$f"
 			;;
 
