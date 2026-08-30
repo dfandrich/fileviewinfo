@@ -620,6 +620,11 @@ comment_nse () {
 	COMMENT=$(sed -n -e '/^description/!d' -e :copy -e '/]]/!{N;b copy' -e '}' -e 's/\n/ /g' -e 's/^.*\[\[//' -e 's/]].*$//' -e p -e q < "$1" | sed -E 's/^ *([^.]{1,82}).*$/\1/' | sed -E 's/^(.{74,99}) [^ .]{1,8}$/\1/' | sed 's/ *$//')
 }
 
+# File type: ny (Audacity Nyquist plug-in)
+comment_ny () {
+	COMMENT=$(sed -En -e 's/^ *\$name +\( *_ *"([^"]+).*$/\1/p' < "$1")
+}
+
 # File type: pc (pkg-config library file)
 # If a shell variable substitution is noted, then that field is ignored.
 comment_pc () {
@@ -1875,6 +1880,8 @@ for f in "$@" ; do
 			*.nix) TYPE=nix
 				;;
 			*.nse) TYPE=nse
+				;;
+			*.ny) TYPE=ny
 				;;
 			*.odt | *.otm | *.ott | *.odh | *.odc | *.otc | *.odg | *.otg | *.odi | *.oti | *.odp | *.otp | *.ods | *.ots | *.odf | \
 			*.sxw | *.sxc | *.sxi | *.sxd | *.sxm)
