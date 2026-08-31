@@ -1919,7 +1919,7 @@ for f in "$@" ; do
 				;;
 			*.pdb | *.prc) TYPE=palm
 				;;
-			*.pfa | *.gsf) TYPE=psfont
+			*.pfa | *.gsf | *.t1) TYPE=psfont
 				;;
 			*.pfb) TYPE=pfb
 				;;
