@@ -1773,7 +1773,7 @@ for f in "$@" ; do
 				;;
 			*.debian.tar.xz) TYPE=debsrc
 				;;
-			*.desktop | *.knsrc)	TYPE=desktop
+			*.desktop | *.knsrc | *.tag)	TYPE=desktop
 				;;
 			*.doc | *.xls | *.ppt)
 				TYPE=doc
