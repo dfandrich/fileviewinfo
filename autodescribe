@@ -1155,6 +1155,11 @@ comment_docbook () {
 comment_flac () {
 	COMMENT=$(metaflac --export-tags-to=- -- "$1" | sed -n -E -e 's/^TITLE=//p')
 	if [ -z "$COMMENT" ] ; then
+		# Extract iXML info from the first application block
+		# See http://www.gallery.co.uk/ixml/object_Details.html
+		COMMENT=$(metaflac --list --block-type=APPLICATION -- "$1" | sed -e '1,/^ *data contents:$/d' -e '/^METADATA block #/,$d' | xmlstarlet sel -t -v /BWFXML/PROJECT 2>/dev/null)
+	fi
+	if [ -z "$COMMENT" ] ; then
 		comment_ffmpeg "$@"
 	fi
 }
@@ -1581,6 +1586,7 @@ comment_ffmpeg () {
 
 # File type: wav (WAV audio)
 # requires: ffmpeg
+# TODO: add iXML comment extraction as an alternate means (see comment_flac)
 comment_wav () {
 	comment_ffmpeg "$@"
 }
