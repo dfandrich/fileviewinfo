@@ -1605,7 +1605,7 @@ for f in "$@" ; do
 				TYPE=tzst
 				;;
 
-			*.tif | *.tiff)
+			*.tif | *.tiff | *.dng | *.cr2)
 				TYPE=tiff
 				;;
 

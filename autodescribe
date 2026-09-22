@@ -2023,7 +2023,7 @@ for f in "$@" ; do
 			*.tfm)
 				TYPE=tfm
 				;;
-			*.tif | *.tiff)
+			*.tif | *.tiff | *.dnf | *.cr2)
 				TYPE=tiff
 				;;
 			*.torrent)

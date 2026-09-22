@@ -641,7 +641,7 @@ EOF
 
 		# Also Digital Negative Raw Image .dng
 		# requires: libtiff-progs
-		*.tif | *.tiff | *.dng)	filetype_label Tagged Image File Format image
+		*.tif | *.tiff | *.dng | *.cr2)	filetype_label Tagged Image File Format image
 			tiffinfo -- "$f" || tiffdump -- "$f"
 			;;
 
