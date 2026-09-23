@@ -686,6 +686,11 @@ EOF
 			unzip -pq "$sf" '*.dist-info/METADATA' | sed '/^$/,$d'
 			;;
 
+		# requires: zchunk
+		*.zck | *.zhr)	filetype_label Zchunk file
+			zck_read_header -- "$f"
+			;;
+
 
 		# zip archive .zip
 		# Also Android archive library .aar
