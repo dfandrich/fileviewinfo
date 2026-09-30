@@ -691,6 +691,14 @@ EOF
 			zck_read_header -- "$f"
 			;;
 
+		# See https://openzl.org/
+		# requires: openzl
+		*.zl)	filetype_label OpenZL archive
+			# Doesn't seem to be any way to show info about the file without
+			# decompressing it (inspect doesn't seem to work)
+			zli decompress -v -o /dev/null -- "$f"
+			;;
+
 
 		# zip archive .zip
 		# Also Android archive library .aar

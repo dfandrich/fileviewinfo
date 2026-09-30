@@ -627,6 +627,14 @@ EOF
 			xar -t -f "$sf"
 			;;
 
+		# See https://openzl.org/
+		# requires: openzl
+		*.zl)	archive_label OpenZL archive
+			# Doesn't seem to be any way to show info about the file without
+			# decompressing it (inspect doesn't seem to work)
+			zli decompress -v -o /dev/null -- "$f"
+			;;
+
 		# zip archive .zip
 		# Also Android archive library .aar
 		# Also Android package .apk
