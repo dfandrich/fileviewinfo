@@ -650,6 +650,17 @@ mtime_mov () {
 	fi
 }
 
+# File type: msi (Microsoft Installer)
+# requires: cabextract
+mtime_msi () {
+	# Try to extract a compound document time first
+	mtime_doc "$@"
+	if [ -z "$TIME" ]; then
+		# Try to extract the most recent cabinet file time instead
+		mtime_cab "$@"
+	fi
+}
+
 # File type: odf (Open Document Format)
 # requires: unzip, xmlstarlet
 mtime_odf () {
@@ -1327,7 +1338,7 @@ for f in "$@" ; do
 				TYPE=bgcode
 				;;
 
-			*.cab | *.msi | *.onepkg)
+			*.cab | *.onepkg)
 				TYPE=cab
 				;;
 
@@ -1455,6 +1466,10 @@ for f in "$@" ; do
 
 			*.mo | *.gmo)
 				TYPE=mo
+				;;
+
+			*.msi)
+				TYPE=msi
 				;;
 
 			*.patch | *.diff)

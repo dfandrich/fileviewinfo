@@ -617,6 +617,20 @@ comment_lyx () {
 	COMMENT=$(sed -Ee '1,/^\\(begin_)?layout (Title|Chapter)(\*)? *$/d' -e '/^\\/d' -e 1p -e q < "$1" | trimspace)
 }
 
+# File type: msi (Microsoft Installer)
+# requires: file
+# See also comment_doc
+comment_msi () {
+	# This will truncate titles with commas, but there's no foolproof way
+	# to avoid it due to the simplistic output format used by file
+	# Use Subject: in preference to Title: (the opposite of .doc) since that is
+	# usually more useful for this type.
+	COMMENT=$(file - < "$f" | sed -n -e 's@^.*Subject: \+\([^,]*\).*$@\1@p')
+	if [ -z "$COMMENT" ] ; then
+		COMMENT=$(file - < "$f" | sed -n -e 's@^.*Title: \+\([^,]*\).*$@\1@p')
+	fi
+}
+
 # File type: nse (Nmap script)
 comment_nse () {
 	# The last half of the pipe cuts the description off at ~80 chars, but
@@ -1894,6 +1908,8 @@ for f in "$@" ; do
 			*.mscx)	TYPE=mscx
 				;;
 			*.mscz)	TYPE=mscz
+				;;
+			*.msi)	TYPE=msi
 				;;
 			*.nix) TYPE=nix
 				;;
