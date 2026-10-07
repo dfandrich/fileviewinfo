@@ -1249,6 +1249,12 @@ comment_gif () {
 	fi
 }
 
+# File type: glabels (glabel label file)
+# requires: xmlstarlet
+comment_glabels () {
+	COMMENT=$(gzip -dcf < "$1" | xmlstarlet sel -N l=http://glabels.org/xmlns/3.0/ -t -v  '/l:Glabels-document/l:Template/@brand' -o ' ' -v  '/l:Glabels-document/l:Template/@part' -o ' ' -v  '/l:Glabels-document/l:Template/@size' -o ' ' -v  '/l:Glabels-document/l:Template/@description')
+}
+
 # File type: gnumeric (Gnumeric spreadsheet)
 # requires: gzip, xmlstarlet
 comment_gnumeric () {
@@ -1830,6 +1836,8 @@ for f in "$@" ; do
 				TYPE=ggr
 				;;
 			*.gif)	TYPE=gif
+				;;
+			*.glabels)	TYPE=glabels
 				;;
 			*.gnumeric)	TYPE=gnumeric
 				;;
