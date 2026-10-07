@@ -2076,7 +2076,7 @@ for f in "$@" ; do
 			*.warc.gz)
 				TYPE=warcgz
 				;;
-			*.wav)
+			*.wav | *.amv)
 				TYPE=wav
 				;;
 			*.whl)
