@@ -139,7 +139,7 @@ for f in "$@" ; do
 			unzip -pq "$sf" 3D/3dmodel.model > "${TMPFILE}"
 			# This could probably be combined into a single xmlstarlet invocation for speed
 			printf 'Name: '
-			xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name]" < "${TMPFILE}"
+			xmlstarlet sel -t -v "/*[local-name()='model']/*[local-name()='metadata'][@name='Title']" < "${TMPFILE}"
 			printf '\n'
 			xmlstarlet sel -t -v "count(/*[local-name()='model']/*[local-name()='resources']/*[local-name()='object'])" < "${TMPFILE}"
 			printf ' object(s)\n'
