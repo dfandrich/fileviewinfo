@@ -17,6 +17,7 @@ on:
 jobs:
   build-24_04:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -187,6 +188,7 @@ jobs:
   build-opensuse:
     runs-on: ubuntu-latest
     container: opensuse/tumbleweed
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -207,7 +209,7 @@ jobs:
           dar
           exif
           exiftool
-          ffmpeg-7
+          ffmpeg-8
           file
           flac
           ftdump
@@ -215,7 +217,7 @@ jobs:
           gifsicle
           gimp
           id3lib-examples
-          java-25-openjdk-devel
+          java-26-openjdk-devel
           jq
           lhasa
           libbgcode
