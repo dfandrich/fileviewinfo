@@ -1357,7 +1357,7 @@ for f in "$@" ; do
 				;;
 
 			# Many DocBooks just use the .xml extension which is too generic
-			*.dbk)
+			*.dbk | *.docbook)
 				TYPE=docbook
 				;;
 
