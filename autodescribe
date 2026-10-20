@@ -423,7 +423,7 @@ comment_desktop () {
 	# First look for the name, localized if possible
 	# Get current locale language
 	L="$(get_lang_full_under)"
-	if [ -z "$L" ]; then
+	if [ -z "$L" -o "$L" = "C" ]; then
 		L=en  # English by default
 	fi
 	COMMENT=$(sed -n -e "s/^Name\[$L\]=//p" < "$1" | head -1)
@@ -448,7 +448,7 @@ comment_desktop () {
 	# Next look for the comment, localized if possible
 	# Get current locale language
 	L="$(get_lang_full_under)"
-	if [ -z "$L" ]; then
+	if [ -z "$L" -o "$L" = "C" ]; then
 		L=en  # English by default
 	fi
 	COMMENT=$(sed -n -e "s/^Comment\[$L\]=//p" < "$1" | head -1)
@@ -1023,7 +1023,7 @@ comment_amf () {
 comment_apk () {
 	# Get current locale language
 	L="$(get_lang_full)"
-	if [ -z "$L" ]; then
+	if [ -z "$L" -o "$L" = "C" ]; then
 		L=en  # English by default
 	fi
 	COMMENT=$(aapt d badging "$1" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
@@ -1050,7 +1050,7 @@ comment_appdata () {
 	# First look for the name, localized if possible
 	# Get current locale language
 	L="$(get_lang_full)"
-	if [ -z "$L" ]; then
+	if [ -z "$L" -o "$L" = "C" ]; then
 		L=en  # English by default
 	fi
 	COMMENT=$(xmlstarlet sel -t -v '(/application|/component)/name[@xml:lang="'"$L"'"]' <"$1")
@@ -1068,7 +1068,7 @@ comment_appdata () {
 	# Next look for the summary, localized if possible
 	# Get current locale language
 	L="$(get_lang_full)"
-	if [ -z "$L" ]; then
+	if [ -z "$L" -o "$L" = "C" ]; then
 		L=en  # English by default
 	fi
 	COMMENT=$(xmlstarlet sel -t -v '(/application|/component)/summary[@xml:lang="'"$L"'"]' <"$1")
