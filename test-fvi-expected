@@ -107,7 +107,7 @@ solid description that looks like an ASCII file but is actually binary
 testfiles/type1.tc:
 Database name: Tellico Collection Name
 Number of records: 1
-Number of images:0
+Number of images: 0
 Database fields:
   title
   subtitle
