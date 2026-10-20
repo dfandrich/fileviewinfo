@@ -250,7 +250,7 @@ for f in "$@" ; do
 		# requires: binutils, gzip, tar, xz, zstd
 		# On a Debian system, this should use 'dpkg -c "$f"' instead
 		# Also OpenMoko package .opk
-		*.deb | *.opk)  archive_label Debian distribution archive
+		*.deb | *.opk)	archive_label Debian distribution archive
 			case "$(ar t -- "$f" data.tar.zst data.tar.xz data.tar.gz 2>/dev/null)" in
 				*zst) ar p -- "$f" data.tar.zst | zstd -dc | tar tvf - ;;
 				*xz) ar p -- "$f" data.tar.xz | xz -qdc | tar tvf - ;;
@@ -766,7 +766,7 @@ EOF
 		# See https://www.7-zip.org/sdk.html
 		# requires: lzma || python >= 3.0
 		*.lzma)	archive_label LZMA-compressed file
-		    if which lzmainfo  >/dev/null 2>&1 ; then
+		    if which lzmainfo >/dev/null 2>&1 ; then
 				lzmainfo -- "$f"
 		    else
 				python3 - "$f" <<EOF

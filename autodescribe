@@ -1026,19 +1026,19 @@ comment_apk () {
 	if [ -z "$L" ]; then
 		L=en  # English by default
 	fi
-	COMMENT=$(aapt  d badging "$1" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
+	COMMENT=$(aapt d badging "$1" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
 	if [ -z "$COMMENT" ]; then
 		# Try again with generic locale
 		L="$(get_lang_generic)"
-		COMMENT=$(aapt  d badging "$1" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
+		COMMENT=$(aapt d badging "$1" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
 
 		if [ -z "$COMMENT" ]; then
 			# Try again with English
 			L=en
-			COMMENT=$(aapt  d badging "$1" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
+			COMMENT=$(aapt d badging "$1" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
 			if [ -z "$COMMENT" ]; then
 				# Try again with ANY label, regardless of the locale
-				COMMENT=$(aapt  d badging "$1" | grep "^application-label-" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
+				COMMENT=$(aapt d badging "$1" | grep "^application-label-" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
 			fi
 		fi
 	fi
@@ -1053,14 +1053,14 @@ comment_appdata () {
 	if [ -z "$L" ]; then
 		L=en  # English by default
 	fi
-	COMMENT=$(xmlstarlet sel  -t -v '(/application|/component)/name[@xml:lang="'"$L"'"]' <"$1")
+	COMMENT=$(xmlstarlet sel -t -v '(/application|/component)/name[@xml:lang="'"$L"'"]' <"$1")
 	if [ -z "$COMMENT" ]; then
 		# Try again with generic locale
 		L="$(get_lang_generic)"
-	    COMMENT=$(xmlstarlet sel  -t -v '(/application|/component)/name[@xml:lang="'"$L"'"]' <"$1")
+	    COMMENT=$(xmlstarlet sel -t -v '(/application|/component)/name[@xml:lang="'"$L"'"]' <"$1")
 		if [ -z "$COMMENT" ]; then
 			# Try again with the default name
-			COMMENT=$(xmlstarlet sel  -t -v '(/application|/component)/name[not(@xml:lang)]' <"$1" | head -1)
+			COMMENT=$(xmlstarlet sel -t -v '(/application|/component)/name[not(@xml:lang)]' <"$1" | head -1)
 		fi
 	fi
 	NAME="$COMMENT"
@@ -1071,14 +1071,14 @@ comment_appdata () {
 	if [ -z "$L" ]; then
 		L=en  # English by default
 	fi
-	COMMENT=$(xmlstarlet sel  -t -v '(/application|/component)/summary[@xml:lang="'"$L"'"]' <"$1")
+	COMMENT=$(xmlstarlet sel -t -v '(/application|/component)/summary[@xml:lang="'"$L"'"]' <"$1")
 	if [ -z "$COMMENT" ]; then
 		# Try again with generic locale
 		L="$(get_lang_generic)"
-	    COMMENT=$(xmlstarlet sel  -t -v '(/application|/component)/summary[@xml:lang="'"$L"'"]' <"$1")
+	    COMMENT=$(xmlstarlet sel -t -v '(/application|/component)/summary[@xml:lang="'"$L"'"]' <"$1")
 		if [ -z "$COMMENT" ]; then
 			# Try again with the default summary
-			COMMENT=$(xmlstarlet sel  -t -v '(/application|/component)/summary[not(@xml:lang)]' <"$1" | head -1)
+			COMMENT=$(xmlstarlet sel -t -v '(/application|/component)/summary[not(@xml:lang)]' <"$1" | head -1)
 		fi
 	fi
 
@@ -1204,7 +1204,7 @@ comment_gcode () {
 	COMMENT=$(sed -n -E -e 's/^; printing object ([^ ]+).*$/\1/p' -e 's/^;MESH://p' -e 's/^[^;(]*\<[Oo][0-9]+ *\(([^)]+)\).*$/\1/p' < "$1" | head -1 | trimspace)
 	if [ -z "$COMMENT" ] ; then
 		# Supports CamBam http://www.cambam.co.uk/
-		COMMENT=$(sed -E -n -e '/Made using CamBam/{n;s/^\( *([^ ]+).*$/\1/p' -e '}'  < "$1")
+		COMMENT=$(sed -E -n -e '/Made using CamBam/{n;s/^\( *([^ ]+).*$/\1/p' -e '}' < "$1")
 	fi
 	if [ -z "$COMMENT" ] ; then
 		# PyCAM https://pycam.sourceforge.net/
@@ -1252,7 +1252,7 @@ comment_gif () {
 # File type: glabels (glabel label file)
 # requires: xmlstarlet
 comment_glabels () {
-	COMMENT=$(gzip -dcf < "$1" | xmlstarlet sel -N l=http://glabels.org/xmlns/3.0/ -t -v  '/l:Glabels-document/l:Template/@brand' -o ' ' -v  '/l:Glabels-document/l:Template/@part' -o ' ' -v  '/l:Glabels-document/l:Template/@size' -o ' ' -v  '/l:Glabels-document/l:Template/@description')
+	COMMENT=$(gzip -dcf < "$1" | xmlstarlet sel -N l=http://glabels.org/xmlns/3.0/ -t -v '/l:Glabels-document/l:Template/@brand' -o ' ' -v '/l:Glabels-document/l:Template/@part' -o ' ' -v '/l:Glabels-document/l:Template/@size' -o ' ' -v '/l:Glabels-document/l:Template/@description')
 }
 
 # File type: gnumeric (Gnumeric spreadsheet)
@@ -1420,7 +1420,7 @@ comment_mp4 () {
 		comment_ffmpeg "$@"
 	fi
 	if [ -z "$COMMENT" ] ; then
-		# Revert sort so Title is used in preference to Description
+		# Reverse sort so Title is used in preference to Description
 		COMMENT=$(LC_ALL=C exiftool -- "$1" | sort -r | grep -E '^(Title|Description)' | sed 's/^.*: //' | head -1 )
 	fi
 }
@@ -1651,9 +1651,9 @@ comment_xcf () {
 	sf="$(echo "$1" | sed 's/"/\\"/g')"
 	# gimp's Scheme interpreter displays some logging info before and after the
 	# desired output, so use sed to delete it to leave only XML.
-	METADATA=$(echo '((display "\nMETADATA-START\n") (display (car (gimp-image-get-metadata (car (gimp-file-load RUN-NONINTERACTIVE "'"$sf"'" "file"))))) (gimp-quit TRUE)) (gimp-quit TRUE)' | gimp-console --batch-interpreter=plug-in-script-fu-eval -n -i -c -d -f -s -g /dev/null --stack-trace-mode=never -b -  2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
+	METADATA=$(echo '((display "\nMETADATA-START\n") (display (car (gimp-image-get-metadata (car (gimp-file-load RUN-NONINTERACTIVE "'"$sf"'" "file"))))) (gimp-quit TRUE)) (gimp-quit TRUE)' | gimp-console --batch-interpreter=plug-in-script-fu-eval -n -i -c -d -f -s -g /dev/null --stack-trace-mode=never -b - 2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
 	if [ -n "$METADATA" ]; then
-		COMMENT=$(echo "$METADATA" | xmlstarlet sel -t -v  '/metadata/tag[@name="Xmp.dc.title"]' | sed 's/lang="x-default" *//')
+		COMMENT=$(echo "$METADATA" | xmlstarlet sel -t -v '/metadata/tag[@name="Xmp.dc.title"]' | sed 's/lang="x-default" *//')
 	fi
 }
 
