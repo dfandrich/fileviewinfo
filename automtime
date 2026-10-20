@@ -221,7 +221,7 @@ mtime_cpiogz () {
 # See http://dar.linux.free.fr/
 # requires: dar >= 2.7.0, xmlstarlet
 mtime_dar () {
-	RAWTIME=$(LC_ALL=C dar -Q -T xml -l "$1" 2>/dev/null | xmlstarlet sel -t  -v '/Catalog/Directory//Attributes/@mtime' -nl -v '/Catalog/File//Attributes/@mtime' -nl 2>/dev/null | uniq | sort -n | tail -1)
+	RAWTIME=$(LC_ALL=C dar -Q -T xml -l "$1" 2>/dev/null | xmlstarlet sel -t -v '/Catalog/Directory//Attributes/@mtime' -nl -v '/Catalog/File//Attributes/@mtime' -nl 2>/dev/null | uniq | sort -n | tail -1)
 	# $RAWTIME is like 1234567890
 	TIME=$(normalize_time_tz "@$RAWTIME")
 }
@@ -799,7 +799,7 @@ mtime_ps () {
 # File type: pyc (Python compiled bytecode)
 # requires: uncompyle6
 mtime_pyc () {
-	RAWTIME=$(uncompyle6 --  "$f" 2>/dev/null | sed -n 's/^# Compiled at: //p')
+	RAWTIME=$(uncompyle6 -- "$f" 2>/dev/null | sed -n 's/^# Compiled at: //p')
 	# $RAWTIME is like 2023-05-16 00:23:23
 	# The time is stored absolute, but is displayed in the local time zone
 	TIME=$(normalize_time_tz "$RAWTIME")
@@ -1170,9 +1170,9 @@ mtime_xcf () {
 	# generally a "save" event (which makes sense).
 	# gimp's Scheme interpreter displays some logging info before and after the
 	# desired output, so use sed to delete it to leave only XML.
-	METADATA=$(echo '((display "\nMETADATA-START\n") (display (car (gimp-image-get-metadata (car (gimp-file-load RUN-NONINTERACTIVE "'"$sf"'" "file"))))) (gimp-quit TRUE)) (gimp-quit TRUE)' | gimp-console --batch-interpreter=plug-in-script-fu-eval -n -i -c -d -f -s -g /dev/null --stack-trace-mode=never -b -  2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
+	METADATA=$(echo '((display "\nMETADATA-START\n") (display (car (gimp-image-get-metadata (car (gimp-file-load RUN-NONINTERACTIVE "'"$sf"'" "file"))))) (gimp-quit TRUE)) (gimp-quit TRUE)' | gimp-console --batch-interpreter=plug-in-script-fu-eval -n -i -c -d -f -s -g /dev/null --stack-trace-mode=never -b - 2>/dev/null | sed -e '1,/^METADATA-START/d' -e '/<\/metadata>/q')
 	if [ -n "$METADATA" ]; then
-		RAWTIME=$(echo "$METADATA" | xmlstarlet sel -t -v  "/metadata/tag[starts-with(@name, 'Xmp.xmpMM.History[') and contains(@name, '/stEvt:when')]" | sed 's/lang="x-default" *//' | sort -d | tail -1)
+		RAWTIME=$(echo "$METADATA" | xmlstarlet sel -t -v "/metadata/tag[starts-with(@name, 'Xmp.xmpMM.History[') and contains(@name, '/stEvt:when')]" | sed 's/lang="x-default" *//' | sort -d | tail -1)
 		# $RAWTIME is like 2022-02-23T22:50:48-08:00
 		TIME="$(normalize_iso_time "$RAWTIME")"
 	fi

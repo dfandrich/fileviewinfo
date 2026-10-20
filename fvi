@@ -170,8 +170,8 @@ for f in "$@" ; do
 			# BUG: There will be no separators between names if they come from
 			# multiple objeccts. But, it's often the case that there is only a single
 			# object
-			xmlstarlet sel  -t \
-				-o 'Name: ' -v "/amf/metadata[@type='name'] | /amf/object/metadata[@type='name']" -n  \
+			xmlstarlet sel -t \
+				-o 'Name: ' -v "/amf/metadata[@type='name'] | /amf/object/metadata[@type='name']" -n \
 			    -v "count(/amf/object)" -o " object(s)" -n \
 			    -v "count(/amf/material)" -o ' material(s)' -n \
 				< "$INFILE"
@@ -264,7 +264,7 @@ for f in "$@" ; do
 		# requires: binutils, gzip, tar, xz, zstd
 		# On a Debian system, this should use 'dpkg -I "$f"' instead
 		# Also OpenMoko package .opk
-		*.deb | *.opk)  filetype_label Debian distribution archive
+		*.deb | *.opk)	filetype_label Debian distribution archive
 			case "$(ar t -- "$f" control.tar.zst control.tar.xz control.tar.gz 2>/dev/null)" in
 				*zst) ar p -- "$f" control.tar.zst | zstd -dc | tar xOf - ./control ;;
 				*xz) ar p -- "$f" control.tar.xz | xz -qdc | tar xOf - ./control ;;
@@ -281,7 +281,7 @@ for f in "$@" ; do
 		# hdiutil comes standard on OS X; use qemu-img elsewhere
 		# requires: <nothing> || qemu-img
 		*.dmg)	filetype_label Mac OS X Disk Image
-			hdiutil imageinfo "$sf" || qemu-img info --  "$f"
+			hdiutil imageinfo "$sf" || qemu-img info -- "$f"
 			;;
 
 		# requires: libdsk-progs
@@ -385,7 +385,7 @@ for f in "$@" ; do
 
 		# requires: unzip
 		*.jar) filetype_label Java jar file
-			unzip -pqaa "$sf" META-INF/MANIFEST.MF | sed  '/^$/,$d'
+			unzip -pqaa "$sf" META-INF/MANIFEST.MF | sed '/^$/,$d'
 			;;
 
 		# requires: system
@@ -507,13 +507,13 @@ for f in "$@" ; do
 
 		# requires: uncompyle6
 		*.pyc | *.pyd | *.pyo)	filetype_label Python compiled file
-			uncompyle6 --  "$f" | grep '^#'
+			uncompyle6 -- "$f" | grep '^#'
 			;;
 
 		# requires: qemu-img
 		*.qcow | *.qcow2 | *.qed | *.vpc | *.bochs | \
 		*.parallels)	filetype_label QEMU disk image
-			qemu-img info --  "$f"
+			qemu-img info -- "$f"
 			;;
 
 		# requires: unrar
@@ -635,7 +635,7 @@ EOF
 		*.dmk | *.ds2 | *.dsc | *.dsk | *.dti | *.edsk | *.fdi | *.hfe | *.imd | \
 		*.ipf | *.lif | *.mbd | *.mgt | *.msa | *.opd | *.raw | *.s24 | \
 		*.sad | *.sbt | *.scl | *.scp | *.sdf | *.td0 | *.trd | *.udi \
-		)  filetype_label Floppy disk image file
+		)	filetype_label Floppy disk image file
 			samdisk info -- "$f"
 			;;
 
@@ -657,14 +657,14 @@ EOF
 
 		# requires: gobject-introspection, xmlstarlet
 		*.typelib)	filetype_label G-IR binary database
-			g-ir-generate -- "$f" | xmlstarlet sel -N x=http://www.gtk.org/introspection/core/1.0 -t -o 'Typelib for ' -v '/x:repository/x:namespace/@name' -o ' ' -v '/x:repository/x:namespace/@version' -o ' ' -v '/x:repository/x:namespace/@shared-library' -n  -
+			g-ir-generate -- "$f" | xmlstarlet sel -N x=http://www.gtk.org/introspection/core/1.0 -t -o 'Typelib for ' -v '/x:repository/x:namespace/@name' -o ' ' -v '/x:repository/x:namespace/@version' -o ' ' -v '/x:repository/x:namespace/@shared-library' -n -
 			;;
 
 		# .vmdk is actually a VMWare disk image, and .vhd{,x} are Microsoft formats
 		# but VirtualBox supports them as well.
 		# requires: virtualbox || qemu-img
 		*.vdi | *.vmdk | *.vhd | *.vhdx)	filetype_label VirtualBox disk image
-			VBoxManage showmediuminfo -- "$f" || qemu-img info --  "$f"
+			VBoxManage showmediuminfo -- "$f" || qemu-img info -- "$f"
 			;;
 
 		*.warc.gz)	filetype_label Compressed Web Archive Collection file
