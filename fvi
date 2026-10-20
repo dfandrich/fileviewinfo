@@ -614,10 +614,10 @@ EOF
 			unzip -pq "$sf" tellico.xml | xmlstarlet sel -t -v "/*[local-name()='tellico']/*[local-name()='collection']/@title" -n 2> /dev/null
 			printf 'Number of records: '
 			unzip -pq "$sf" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='entry'])" -n 2>/dev/null
-			printf 'Number of images:'
+			printf 'Number of images: '
 			unzip -pq "$sf" tellico.xml | xmlstarlet sel -t -v "count(/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='images']/*[local-name()='image'])" -n 2>/dev/null
 			echo 'Database fields:'
-			unzip -pq "$sf" tellico.xml | xmlstarlet sel -t -m "/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='fields']/*[local-name()='field']" -o '  ' -v '@name' -n 2>/dev/null
+			unzip -pq "$sf" tellico.xml | xmlstarlet sel -t -m "/*[local-name()='tellico']/*[local-name()='collection']/*[local-name()='fields']/*[local-name()='field']" -o ' ' -o ' ' -v '@name' -n 2>/dev/null
 			;;
 
 		# requires: samba-client

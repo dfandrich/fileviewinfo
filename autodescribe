@@ -758,7 +758,7 @@ comment_ps () {
 	if [ -z "$COMMENT" ] ; then
 		# Try for an alternate comment
 		# Look for a comment beginning with one or more % followed by a space
-		COMMENT=$(sed -n 's/^%%*  *//p' < "$1" | head -1)
+		COMMENT=$(sed -n 's/^%%* [ ]*//p' < "$1" | head -1)
 	fi
 }
 
