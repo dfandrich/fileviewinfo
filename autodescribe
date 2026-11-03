@@ -117,14 +117,14 @@ get_comment_compressed_tar () {
 
 		# Appdata file
 		MATCHNAME=$(grep -E '(\.appdata\.xml|\.metainfo\.xml)$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" > "$TMPFILE2"
 			comment_appdata "$TMPFILE2"
 		fi
 
 		# XDG desktop file
 		MATCHNAME=$(grep '\.desktop$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" > "$TMPFILE2"
 			comment_desktop "$TMPFILE2"
 		fi
@@ -133,7 +133,7 @@ get_comment_compressed_tar () {
 		# This is basically obsolete these days but can be found in old
 		# archives.
 		MATCHNAME=$(grep '\.lsm$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" > "$TMPFILE2"
 			comment_lsm "$TMPFILE2"
 		fi
@@ -142,14 +142,14 @@ get_comment_compressed_tar () {
 		# This is likely obsolete these days but can be found in old
 		# archives.
 		MATCHNAME=$(grep 'file_id\.diz$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" > "$TMPFILE2"
 			comment_first_line "$TMPFILE2"
 		fi
 
 		# pyproject.toml
 		MATCHNAME=$(grep 'pyproject\.toml$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" > "$TMPFILE2"
 			comment_pyproject "$TMPFILE2"
 		fi
@@ -157,11 +157,11 @@ get_comment_compressed_tar () {
 		# man page
 		# First, look for a man page based on the simple name of the tar file
 		MATCHNAME=$(grep -iE "(^|/)$BASENAME1(\.man|.[0-9])$" < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -z "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -z "$MATCHNAME" ]; then
 			# Expand the attempt to find a matching man page
 			MATCHNAME=$(grep -iE "(^|/)$BASENAME2(\.man|.[0-9])$" < "$TMPFILE" | head -1)
 		fi
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" > "$TMPFILE2"
 			comment_man "$TMPFILE2"
 		fi
@@ -170,7 +170,7 @@ get_comment_compressed_tar () {
 		# and since some archives contain hundreds. The first one might not
 		# be the best match, unfortunately.
 		MATCHNAME=$(grep -E '(\.man|.[0-9])$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" > "$TMPFILE2"
 			comment_man "$TMPFILE2"
 		fi
@@ -179,39 +179,39 @@ get_comment_compressed_tar () {
 		# First, look for a texinfo page based on the simple name of the tar
 		# file
 		MATCHNAME=$(grep -iE "(^|/)$BASENAME1\.texi(nfo)?$" < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -z "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -z "$MATCHNAME" ]; then
 			# Expand the attempt to find a matching texinfo page
 			MATCHNAME=$(grep -iE "(^|/)$BASENAME2\.texi(nfo)?$" < "$TMPFILE" | head -1)
 		fi
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" > "$TMPFILE2"
 			comment_texi "$TMPFILE2"
 		fi
 		# Finally, try any texinfo pages
 		# Note: this doesn't handle spaces in filenames
 		MATCHNAME=$(grep -E '\.texi(nfo)?$' < "$TMPFILE")
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_texi "$TMPFILE2"
 		fi
 
 		# pkg-config file
 		MATCHNAME=$(grep -i '\.pc$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_pc "$TMPFILE2"
 		fi
 
 		# pkg-config template file
 		MATCHNAME=$(grep -i '\.pc\.in$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_pctmpl "$TMPFILE2"
 		fi
 
 		# README.md file
 		MATCHNAME=$(grep -i 'README\.md$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_md "$TMPFILE2"
 		fi
@@ -220,7 +220,7 @@ get_comment_compressed_tar () {
 
 		# README.rst file
 		MATCHNAME=$(grep -i 'README\.rst$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_first_line "$TMPFILE2"
 		fi
@@ -228,7 +228,7 @@ get_comment_compressed_tar () {
 
 		# README.adoc file
 		MATCHNAME=$(grep -i 'README\.adoc$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_asciidoc "$TMPFILE2"
 		fi
@@ -236,7 +236,7 @@ get_comment_compressed_tar () {
 
 		# README file
 		MATCHNAME=$(grep -iE 'README(\.txt)?$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" 2>/dev/null > "$TMPFILE2"
 			comment_first_line "$TMPFILE2"
 		fi
@@ -244,14 +244,14 @@ get_comment_compressed_tar () {
 
 		# GNU autoconf
 		MATCHNAME=$(grep 'configure\.ac$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" > "$TMPFILE2"
 			comment_ac "$TMPFILE2"
 		fi
 
 		# CMake
 		MATCHNAME=$(grep 'CMakeLists\.txt$' < "$TMPFILE" | head -1)
-		if [ -z "$COMMENT" -a -n "$MATCHNAME" ]; then
+		if [ -z "$COMMENT" ] && [ -n "$MATCHNAME" ]; then
 			$DECOMPRESS "$1" | $EXTRACT "$MATCHNAME" > "$TMPFILE2"
 			comment_cmake "$TMPFILE2"
 		fi
@@ -423,7 +423,7 @@ comment_desktop () {
 	# First look for the name, localized if possible
 	# Get current locale language
 	L="$(get_lang_full_under)"
-	if [ -z "$L" -o "$L" = "C" ]; then
+	if [ -z "$L" ] || [ "$L" = "C" ]; then
 		L=en  # English by default
 	fi
 	COMMENT=$(sed -n -e "s/^Name\[$L\]=//p" < "$1" | head -1)
@@ -448,7 +448,7 @@ comment_desktop () {
 	# Next look for the comment, localized if possible
 	# Get current locale language
 	L="$(get_lang_full_under)"
-	if [ -z "$L" -o "$L" = "C" ]; then
+	if [ -z "$L" ] || [ "$L" = "C" ]; then
 		L=en  # English by default
 	fi
 	COMMENT=$(sed -n -e "s/^Comment\[$L\]=//p" < "$1" | head -1)
@@ -837,7 +837,7 @@ comment_spdx_json () {
 # File type: stl (STL model file)
 comment_stl () {
 	# Detect ASCII or binary format
-	if [ "$(dd if="$1" bs=1 count=80 2>/dev/null | wc -l)" -gt 0 -a "$(dd if="$1" bs=1 count=6 2>/dev/null | tr -d '\0')" = "solid " -a "$(dd if="$1" bs=1 count=1 skip=80 2>/dev/null | od -An -b)" != "000" ]; then
+	if [ "$(dd if="$1" bs=1 count=80 2>/dev/null | wc -l)" -gt 0 ] && [ "$(dd if="$1" bs=1 count=6 2>/dev/null | tr -d '\0')" = "solid " ] && [ "$(dd if="$1" bs=1 count=1 skip=80 2>/dev/null | od -An -b)" != "000" ]; then
 		# ASCII stl format
 		COMMENT=$(sed -n -E -e 's/[[:space:]]*$//' -e '1s/^solid +//p' < "$1")
 	else
@@ -1023,7 +1023,7 @@ comment_amf () {
 comment_apk () {
 	# Get current locale language
 	L="$(get_lang_full)"
-	if [ -z "$L" -o "$L" = "C" ]; then
+	if [ -z "$L" ] || [ "$L" = "C" ]; then
 		L=en  # English by default
 	fi
 	COMMENT=$(aapt d badging "$1" | grep "^application-label-${L}" | sed -e "s/^[^']*'//" -e "s/'.*$//" | head -1)
@@ -1050,7 +1050,7 @@ comment_appdata () {
 	# First look for the name, localized if possible
 	# Get current locale language
 	L="$(get_lang_full)"
-	if [ -z "$L" -o "$L" = "C" ]; then
+	if [ -z "$L" ] || [ "$L" = "C" ]; then
 		L=en  # English by default
 	fi
 	COMMENT=$(xmlstarlet sel -t -v '(/application|/component)/name[@xml:lang="'"$L"'"]' <"$1")
@@ -1068,7 +1068,7 @@ comment_appdata () {
 	# Next look for the summary, localized if possible
 	# Get current locale language
 	L="$(get_lang_full)"
-	if [ -z "$L" -o "$L" = "C" ]; then
+	if [ -z "$L" ] || [ "$L" = "C" ]; then
 		L=en  # English by default
 	fi
 	COMMENT=$(xmlstarlet sel -t -v '(/application|/component)/summary[@xml:lang="'"$L"'"]' <"$1")
@@ -1685,7 +1685,7 @@ comment_pnm () {
 
 ###########################
 
-if [ $# -eq 0 -o "$1" = "-h" -o "$1" = "-?" ] ; then
+if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "-?" ] ; then
 	echo 'autodescribe ver. 9-dev'
 	echo 'Usage: autodescribe [-?] [-h] [-l] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
 	echo 'Extracts comments from files'

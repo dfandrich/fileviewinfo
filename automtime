@@ -25,7 +25,7 @@ shquote () {
 # while it isn't as powerful as GNU date, it does a decent job (but only if
 # the external dateutil and pytz modules are available).
 normalize_time () {
-	test -z "$1" -o "$1" = "@" -o "$1" = "@0" -o "$1" = "@0.0" && return
+	[ -z "$1" ] || [ "$1" = "@" ] || [ "$1" = "@0" ] || [ "$1" = "@0.0" ] && return
 	date --date="$1" '+%04Y-%m-%d %H:%M:%S' 2>/dev/null || { python3 -c 'import datetime, dateutil.parser, sys; print((datetime.datetime.fromtimestamp(float(sys.argv[1][1:])) if sys.argv[1][0] == "@" else dateutil.parser.parse(sys.argv[1])).astimezone().strftime("%Y-%m-%d %H:%M:%S"))' "$1"; }
 }
 
@@ -37,7 +37,7 @@ normalize_time () {
 # returns the time offset for the current time zone.  The Python fallback code
 # actually does the right thing here.
 normalize_time_tz () {
-	test -z "$1" -o "$1" = "@" -o "$1" = "@0" -o "$1" = "@0.0" && return
+	[ -z "$1" ] || [ "$1" = "@" ] || [ "$1" = "@0" ] || [ "$1" = "@0.0" ] && return
 	date --date="$1" '+%04Y-%m-%d %H:%M:%S %z' 2>/dev/null || {
 		python3 -c '
 import datetime, dateutil.parser, pytz, sys
@@ -57,7 +57,7 @@ print(d.strftime("%Y-%m-%d %H:%M:%S %z").rstrip())
 
 # Works like normalize_time but returns the given time as seconds past 1970.
 epoch_time () {
-	test -z "$1" -o "$1" = "@" -o "$1" = "@0" -o "$1" = "@0.0" && return
+	[ -z "$1" ] || [ "$1" = "@" ] || [ "$1" = "@0" ] || [ "$1" = "@0.0" ] && return
 	date --date="$1" '+%s' 2>/dev/null || { python3 -c 'import dateutil.parser, sys; print(sys.argv[1][1:] if sys.argv[1][0] == "@" else float(dateutil.parser.parse(sys.argv[1]).timestamp()))' "$1"; }
 }
 
@@ -674,7 +674,7 @@ mtime_odf () {
 		RAWTIME=$(unzip -pq "$sf" meta.xml | xmlstarlet sel -t -v /office:document-meta/office:meta/meta:creation-date 2>/dev/null)
 	fi
 	TIME="$(normalize_iso_time "$RAWTIME")"
-	if [ -n "$RAWTIME" -a "$TIME" = "$RAWTIME" ]; then
+	if [ -n "$RAWTIME" ] && [ "$TIME" = "$RAWTIME" ]; then
 		# Time was not in ISO format. Old Star Office files may do this, so
 		# try a fallback normalization just in case.
 		TIME=$(normalize_time "$RAWTIME")
@@ -1116,7 +1116,7 @@ mtime_vcf () {
 	# $RAWTIME is like 2017-05-10T14:34:50Z or 20180213T070722Z
 	# Make sure it look like ISO-8601, then convert
 	RAWTIME=$(echo "$RAWTIME" | sed -E -e 's/([12][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9])T([0-2][0-9])([0-9][0-9])([0-9][0-9])/\1-\2-\3T\4:\5:\6/')
-	if [ -n "$RAWTIME" -a "$RAWTIME" != "0" ]; then
+	if [ -n "$RAWTIME" ] && [ "$RAWTIME" != "0" ]; then
 		TIME=$(normalize_iso_time "$RAWTIME")
 	fi
 }
@@ -1240,7 +1240,7 @@ mtime_zpaq () {
 
 ###########################
 
-if [ $# -eq 0 -o "$1" = "-h" -o "$1" = "-?" ] ; then
+if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "-?" ] ; then
 	echo 'automtime ver. 9-dev'
 	echo 'Usage: automtime [-?] [-h] [-l] [-m] [-e program] [ -q ] [ -t type ] file1 [ file2 ... ]'
 	echo 'Extracts modification from internal file metadata'

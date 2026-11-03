@@ -51,7 +51,7 @@ if [ "$1" = "-v" ] ; then
 	fi
 fi
 
-if [ $# -eq 0 -o "$1" = "-?" -o "$1" = "-h"  ] ; then
+if [ $# -eq 0 ] || [ "$1" = "-?" ] || [ "$1" = "-h" ] ; then
 	usage
 fi
 
@@ -560,7 +560,7 @@ for f in "$@" ; do
 		# requires: python >= 3.0
 		*.stl)	filetype_label STL model file
 			# Detect ASCII or binary format
-			if [ "$(dd if="$f" bs=1 count=80 2>/dev/null | wc -l)" -gt 0 -a "$(dd if="$f" bs=1 count=6 2>/dev/null | tr -d '\0')" = "solid " -a "$(dd if="$f" bs=1 count=1 skip=80 2>/dev/null | od -An -b)" != "000" ]; then
+			if [ "$(dd if="$f" bs=1 count=80 2>/dev/null | wc -l)" -gt 0 ] && [ "$(dd if="$f" bs=1 count=6 2>/dev/null | tr -d '\0')" = "solid " ] && [ "$(dd if="$f" bs=1 count=1 skip=80 2>/dev/null | od -An -b)" != "000" ]; then
 				# ASCII stl format
 				sed -n -E -e '1s/^solid +//p' < "$f" | iconv -f windows-1252
 				grep -c "^[[:space:]]*facet " < "$f" | tr -d '\n'
