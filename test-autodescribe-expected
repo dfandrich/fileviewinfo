@@ -119,6 +119,7 @@
 'testfiles/type2.nse' 'This is a very long sentence that is verbose and wordy and far too long to make'
 'testfiles/type2.ogg' 'OGG title'
 'testfiles/type2.pas' 'type2.pas Another common commenting style'
+'testfiles/type2.pdf' 'PDF Title, modified date'
 'testfiles/type2.png' 'PNG description'
 'testfiles/type2.ps' 'PostScript Document Title'
 'testfiles/type2.py' 'Docstring type comment, single quotes.'

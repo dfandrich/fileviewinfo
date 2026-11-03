@@ -461,6 +461,10 @@ type1.sig:
 	gpg --detach-sign type1
 	rm type1
 
+type2.pdf:
+	ppmmake white 16 16 >type2.pdf.tmp
+	img2pdf --output "$@" --pagesize B6 --title 'PDF Title, modified date' --author 'user' --creationdate 2021-02-03T04:05:06 --moddate 2026-07-08T09:10:11 type2.pdf.tmp
+
 # The following files are pretty huge compared to others so they aren't
 # included in the repository but can be generated here if needed.
 

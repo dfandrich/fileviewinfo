@@ -728,7 +728,8 @@ mtime_palm () {
 # File type: pdf (Portable Document Format)
 # requires: poppler
 mtime_pdf () {
-	RAWTIME=$(pdfinfo -- "$1" | sed -E -n -e 's/^CreationDate:[[:space:]]*//p' | head -1)
+	# Sort to prefer ModDate over CreationDate
+	RAWTIME=$(pdfinfo -- "$1" | sed -E -n -e 's/^(ModDate|CreationDate):[[:space:]]*//p' | sort -r | head -1)
 	# $RAWTIME is like Tue Jan 24 21:22:23 2012 PST
 	# The time is stored absolute, but is displayed in the local time zone
 	TIME=$(normalize_time_tz "$RAWTIME")
