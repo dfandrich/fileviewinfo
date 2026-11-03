@@ -258,14 +258,21 @@ jobs:
         # A few file types need packages unavailable in OpenSuSE, so install some
         # binaries from elsewhere.
         run: |
+          # See https://madb.mageia.org/show?distribution=10&architecture=x86_64&rpm=pngtools&exact=1
+          # See https://github.com/terrapkg/packages/blob/frawhide/anda/system/brush-shell/brush-shell.spec
+          # See https://github.com/cupidthecat/cherubsh/
           curl -LsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all \
               https://mirrors.kernel.org/mageia/distrib/10/x86_64/media/core/release/pngtools-1.2-1.mga10.x86_64.rpm \
-              https://repos.fyralabs.com/terra44/brush-shell-0:0.4.0-1.fc44.x86_64.rpm
+              https://repos.fyralabs.com/terra44/brush-shell-0:0.4.0-1.fc44.x86_64.rpm \
+              https://github.com/cupidthecat/cherubsh/releases/download/v0.5.0/cherubsh-0.5.0-x86_64-unknown-linux-gnu.tar.gz
           sha256sum -c <<EOF
           a5a0bb3e3ced5e017ce0f742a247756bab36fb745d6a4df8e231a132cdfc742c  brush-shell-0:0.4.0-1.fc44.x86_64.rpm
           c764412e54426ae4e9c79def3e33a3e7a366df7b5ece584a9e50b86e64053dfb  pngtools-1.2-1.mga10.x86_64.rpm
+          633dbffdafbd814f29be899eb81a161041c2c087adc3e51099a26c2ff1d45a20  cherubsh-0.5.0-x86_64-unknown-linux-gnu.tar.gz
           EOF
           rpm -ivh brush-shell*.rpm pngtools*.rpm
+          tar xaf cherubsh-*-x86_64-unknown-linux-gnu.tar.gz
+          ln -s "$PWD"/cherubsh-*-x86_64-unknown-linux-gnu/cherubsh /usr/bin/
           # Make our Python 3.14 the default to test with the latest
           test -e /usr/bin/python3 && rm /usr/bin/python3
           ln -s python3.14 /usr/bin/python3
@@ -291,6 +298,14 @@ jobs:
         run: PATH="/usr/libexec/nbase/bin:$PATH" make check -k
       - name: 'Run tests with oils'
         run: make check -k SHELL=osh
+      - name: 'Prepare for cherubsh'
+        run: |
+          # cherubsh 0.5.0 has a function handling bug: https://github.com/cupidthecat/cherubsh/issues/90
+          sed -i \
+            -e '/\.tar/d' \
+            test-automtime-expected
+      - name: 'Run tests with cherubsh'
+        run: make check -k SHELL=cherubsh
       - name: 'Test installation'
         run: |
           make install prefix="$PWD/install"
