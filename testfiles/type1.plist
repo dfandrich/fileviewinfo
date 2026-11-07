@@ -22,5 +22,9 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+        <key>CreationDate</key>
+        <string>2020-01-02 13:45:56 -0400</string>
+        <key>ModificationDate</key>
+        <string>2025-11-12 14:56:00 -0400</string>
 </dict>
 </plist>

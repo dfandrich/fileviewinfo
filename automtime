@@ -751,6 +751,35 @@ mtime_pem () {
 	# $RAWTIME is like 1234567890
 	TIME=$(normalize_time_tz "@$RAWTIME")
 }
+#
+# File type: plist (Apple property list)
+# requires: xmlstarlet, libplist || plutil || python3
+mtime_plist () {
+	# Choose the modification date over creation date. The case of more than
+	# one date appearing in the file is not handled (if it is even allowed),
+	# so an earlier date might be chosen in that case.
+	RAWTIME=$(
+	    # Detect ASCII or binary format & extract to stdout
+		if [ "$(dd if="$1" bs=8 count=1 2>/dev/null)" = "bplist00" ]; then
+			# Binary plist format
+			if which plistutil >/dev/null 2>&1; then
+				plistutil < "$1"
+			elif which plutil >/dev/null 2>&1; then
+				# plutil is available on macOS
+				plutil -convert xml1 -o - -- "$1"
+			else
+				python3 -c 'import plistlib,sys;print(plistlib.dumps(plistlib.load(sys.stdin.buffer)).decode("utf-8"))' < "$1"
+			fi
+		else
+			cat < "$1"
+		fi \
+		| \
+		xmlstarlet sel -t -m "/plist/dict/key[normalize-space(text())='ModificationDate'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CreationDate'][1]" -v "following-sibling::string[1]" -nl 2>/dev/null | head -1
+	)
+	# $RAWTIME is like 2012-04-13 14:55:43 -0700
+	TIME=$(normalize_time_tz "$RAWTIME")
+}
+
 
 # File type: png (PNG image)
 # requires: pngtools
@@ -1513,6 +1542,10 @@ for f in "$@" ; do
 
 			*.pem)
 				TYPE=pem
+				;;
+
+			*.plist)
+				TYPE=plist
 				;;
 
 			*.png)

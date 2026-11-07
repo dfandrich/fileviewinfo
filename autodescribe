@@ -354,10 +354,27 @@ comment_pkginfo () {
 }
 
 # File type: plist (Apple property list)
-# requires: xmlstarlet
+# requires: xmlstarlet, libplist || plutil || python3
 comment_plist () {
-	# Search for the more desirable names first
-	COMMENT=$(xmlstarlet sel -t -m "/plist/dict/key[normalize-space(text())='CFBundleDisplayName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleGetInfoString'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='OpenSourceProject'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='Label'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleIdentifier'][1]" -v "following-sibling::string[1]" -nl < "$1" 2>/dev/null | head -1)
+	# Select the most desirable of the possible descriptions first
+	COMMENT=$(
+		# Detect ASCII or binary format & extract to stdout
+		if [ "$(dd if="$1" bs=8 count=1 2>/dev/null)" = "bplist00" ]; then
+			# Binary plist format
+			if which plistutil >/dev/null 2>&1; then
+				plistutil < "$1"
+			elif which plutil >/dev/null 2>&1; then
+				# plutil is available on macOS
+				plutil -convert xml1 -o - -- "$1"
+			else
+				python3 -c 'import plistlib,sys;print(plistlib.dumps(plistlib.load(sys.stdin.buffer)).decode("utf-8"))' < "$1"
+			fi
+		else
+			cat < "$1"
+		fi \
+		| \
+		xmlstarlet sel -t -m "/plist/dict/key[normalize-space(text())='CFBundleDisplayName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleGetInfoString'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='OpenSourceProject'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='Label'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleName'][1]" -v "following-sibling::string[1]" -nl -t -m "/plist/dict/key[normalize-space(text())='CFBundleIdentifier'][1]" -v "following-sibling::string[1]" -nl 2>/dev/null | head -1
+	)
 }
 
 # File type: ppd (PostScript Printer definition)
