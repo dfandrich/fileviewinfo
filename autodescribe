@@ -1312,6 +1312,12 @@ comment_iso () {
 	COMMENT=$(isoinfo -d -i "$1" | sed -E -n -e 's/^Volume (set )?id: (.)/\2/p' | head -1)
 }
 
+# File type: itb (U-Boot FIT image)
+# requires: u-boot-tools
+comment_itb () {
+	COMMENT=$(dumpimage -l -- "$1" 2>/dev/null | sed -En 's/^FIT description: *(.*)$/\1/p')
+}
+
 # File type: jar (Java jar)
 # requires: unzip
 comment_jar () {
@@ -1873,6 +1879,8 @@ for f in "$@" ; do
 			*.inx)	TYPE=inkext
 				;;
 			*.iso)	TYPE=iso
+				;;
+			*.itb)	TYPE=itb
 				;;
 			*.kdenlive)
 				TYPE=kdenlive
