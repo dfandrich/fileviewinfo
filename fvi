@@ -379,7 +379,7 @@ for f in "$@" ; do
 			;;
 
 		# requires: u-boot-tools
-		*.itb)	archive_label U-Boot FIT image
+		*.itb)	filetype_label U-Boot FIT image
 			dumpimage -l -- "$f"
 			;;
 
