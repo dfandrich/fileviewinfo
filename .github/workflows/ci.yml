@@ -210,7 +210,7 @@ jobs:
           dar
           exif
           exiftool
-          ffmpeg-8
+          ffmpeg-9
           file
           flac
           ftdump
@@ -218,7 +218,7 @@ jobs:
           gifsicle
           gimp
           id3lib-examples
-          java-26-openjdk-devel
+          java-27-openjdk-devel
           jq
           lhasa
           libbgcode
@@ -251,8 +251,7 @@ jobs:
         # nbase-tail and nbase-ls are completely broken in 9.1.0.2-8.39 and 9.3.0.1-55.16;
         # don't install them
         run: |
-          zypper --non-interactive addrepo https://download.opensuse.org/repositories/home:cheusov/openSUSE_Tumbleweed/home:cheusov.repo
-          zypper --non-interactive addrepo https://download.opensuse.org/repositories/devel:languages:misc/openSUSE_Tumbleweed/devel:languages:misc.repo
+          zypper --non-interactive addrepo https://download.opensuse.org/repositories/home:cheusov/openSUSE_Tumbleweed/home:cheusov.repo https://download.opensuse.org/repositories/devel:languages:misc/openSUSE_Tumbleweed/devel:languages:misc.repo
           zypper --non-interactive --gpg-auto-import-keys refresh
           zypper --non-interactive --xmlout search --case-sensitive nbase- | xmlstarlet sel -t -v "/stream/search-result/solvable-list/solvable[not(contains(@name,'debuginfo') or contains(@name,'-tail') or contains(@name,'-ls'))]/@name" -nl | xargs zypper --non-interactive in --no-recommends -y gash
       - name: 'Install extras'
