@@ -137,6 +137,7 @@ jobs:
             -e 's/2021-10-13 08:34:00 +0000/2021-10-13 08:34:00/' \
             -e 's/2021-10-14 20:36:00 +0000/2021-10-14 20:36:00/' \
             -e 's/2023-02-18 04:19:00 +0000/2023-02-17 20:19:00 -0800/' \
+            -e 's/2025-11-12 18:56:00 +0000/2025-11-12 14:56:00 -0400/' \
             test-automtime-expected
       - name: 'Run tests using uutils-coreutils'
         run: PATH="/usr/lib/cargo/bin/coreutils:$PATH" make check -k
