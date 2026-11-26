@@ -210,7 +210,7 @@ jobs:
           dar
           exif
           exiftool
-          ffmpeg-9
+          ffmpeg-8
           file
           flac
           ftdump
