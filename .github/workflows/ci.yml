@@ -218,7 +218,7 @@ jobs:
           gifsicle
           gimp
           id3lib-examples
-          java-26-openjdk-devel
+          java-27-openjdk-devel
           jq
           lhasa
           libbgcode
@@ -252,7 +252,7 @@ jobs:
         # don't install them
         run: |
           zypper --non-interactive addrepo https://download.opensuse.org/repositories/home:cheusov/openSUSE_Tumbleweed/home:cheusov.repo
-          zypper --non-interactive addrepo https://download.opensuse.org/repositories/devel:languages:misc/openSUSE_Tumbleweed/devel:languages:misc.repo
+          zypper --non-interactive addrepo https://download.opensuse.org/repositories/devel:/languages:/misc/openSUSE_Tumbleweed/devel:languages:misc.repo
           zypper --non-interactive --gpg-auto-import-keys refresh
           zypper --non-interactive --xmlout search --case-sensitive nbase- | xmlstarlet sel -t -v "/stream/search-result/solvable-list/solvable[not(contains(@name,'debuginfo') or contains(@name,'-tail') or contains(@name,'-ls'))]/@name" -nl | xargs zypper --non-interactive in --no-recommends -y gash
       - name: 'Install extras'
@@ -264,10 +264,10 @@ jobs:
           # See https://github.com/cupidthecat/cherubsh/
           curl -LsSf --retry 6 --retry-connrefused --max-time 999 --remote-name-all \
               https://mirrors.kernel.org/mageia/distrib/10/x86_64/media/core/release/pngtools-1.2-1.mga10.x86_64.rpm \
-              https://repos.fyralabs.com/terra44/brush-shell-0:0.4.0-1.fc44.x86_64.rpm \
+              https://repos.fyralabs.com/terra45/brush-shell-0:0.5.0-1.fc45.x86_64.rpm \
               https://github.com/cupidthecat/cherubsh/releases/download/v0.5.0/cherubsh-0.5.0-x86_64-unknown-linux-gnu.tar.gz
           sha256sum -c <<EOF
-          a5a0bb3e3ced5e017ce0f742a247756bab36fb745d6a4df8e231a132cdfc742c  brush-shell-0:0.4.0-1.fc44.x86_64.rpm
+          4983f21607e3affc9336bbec4e3c3def6b7f5b34233e0ea05b971458f7a83802  brush-shell-0:0.5.0-1.fc45.x86_64.rpm
           c764412e54426ae4e9c79def3e33a3e7a366df7b5ece584a9e50b86e64053dfb  pngtools-1.2-1.mga10.x86_64.rpm
           633dbffdafbd814f29be899eb81a161041c2c087adc3e51099a26c2ff1d45a20  cherubsh-0.5.0-x86_64-unknown-linux-gnu.tar.gz
           EOF
