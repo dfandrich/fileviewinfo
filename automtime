@@ -1237,8 +1237,6 @@ mtime_xpi () {
 # File type: zip (zip archive)
 # requires: unzip (Info-ZIP version), findutils
 mtime_zip () {
-	# "safe" filename guaranteed not to start with a dash
-	sf="$(safefn "$1")"
 	# The mtime is considered to be the latest file time in the archive.
 	# The date format can not, unfortunately, be easily sorted as-is, so it
 	# is converted to epoch time, sorted and only the most recent is used.
@@ -1248,7 +1246,7 @@ mtime_zip () {
 	# equivalent local time is also shown and that can be treated like all the
 	# others, which are also local time.
 	# An "empty" time of '1980 000 0 00:00:00' is also filtered out.
-	RAWTIME=$(zipinfo -v "$sf" | sed -n -e '/^ *file last modified on.*[^U]..$/s/^[^:]*: *//p' | awk '$2 != "000" {print $2 " " $3 ", " $1 " " $4}' | uniq | tr '\n' '\0' | xargs -0 -n1 "$AUTOMTIME" --epoch_time | sort -n | tail -1)
+	RAWTIME=$(zipinfo -v -- "$1" | sed -n -e '/^ *file last modified on.*[^U]..$/s/^[^:]*: *//p' | awk '$2 != "000" {print $2 " " $3 ", " $1 " " $4}' | uniq | tr '\n' '\0' | xargs -0 -n1 "$AUTOMTIME" --epoch_time | sort -n | tail -1)
 	# $RAWTIME is like 1234567890
 	# For ZIP files with time extensions, the time is stored absolute, but is
 	# displayed in the local time zone. Don't show the time zone here since

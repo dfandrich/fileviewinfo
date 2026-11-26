@@ -749,7 +749,7 @@ EOF
 		*.resource | *.application | *.docm | *.f3d | *.kra | \
 		*.sb2 | *.sb3 | *.apkm | *.mscz | *.aar)
 			filetype_label ZIP archive
-			zipinfo -h -z "$sf" | grep -v "^$"; zipinfo -l "$sf" | tail -1
+			zipinfo -h -z -- "$f" | grep -v "^$"; zipinfo -l -- "$f" | tail -1
 			;;
 
 # Catch-all handlers. These must appear after the rest because they include
